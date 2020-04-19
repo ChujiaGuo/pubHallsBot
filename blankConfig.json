@@ -12,7 +12,11 @@
         "rl": "",
         "arl": "",
         "heo": "",
-        "eo": ""
+        "eo": "",
+        "permasuspended":"",
+        "tempsuspended":"",
+        "raider":"",
+        "vetraider":""
     },
     "channels": {
         "command": {
