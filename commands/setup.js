@@ -896,7 +896,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 				counter = 0
 				for (var i in config.channels.event.raiding) {
 					if (canceledC != true) {
-						raidingEmbed.setDescription(`Please mention your \`Event Raiding ${channelNumber[counter]}\` channel.\nRemember, mentioning channels uses a \`#\` instead of a \`@\`.\nFor voice channels, you will have to manually insert the channel ID into the following template: \`<#ID>\`\nIf you would like to keep the current channel, respond with \`keep\`.\nIf you do not have this channel, respond with \`none\`.\nYou have 2 minutes per channel to respond.`)
+						eventEmbed.setDescription(`Please mention your \`Event Raiding ${channelNumber[counter]}\` channel.\nRemember, mentioning channels uses a \`#\` instead of a \`@\`.\nFor voice channels, you will have to manually insert the channel ID into the following template: \`<#ID>\`\nIf you would like to keep the current channel, respond with \`keep\`.\nIf you do not have this channel, respond with \`none\`.\nYou have 2 minutes per channel to respond.`)
 						await eventMessage.edit(eventEmbed)
 						var filter = response => {
 							return response.author.id == message.author.id && response.channel.id == message.channel.id;
