@@ -11,10 +11,21 @@ client.once("ready", async () => {
 })
 
 client.on("message", async message => {
-    //Filters
-    if (message.author.bot) return;
-    if (message.content.charAt(0) != config.prefix) return;
 
+
+    //Filters
+    //Bot
+    if (message.author.bot) return;
+    //Not a command
+    if (message.content.charAt(0) != config.prefix) return;
+    /*
+    //Not a command channel
+    let commandArray = Object.values(config.channels.command)
+    commandArray.push(config.channels.veteran.command)
+    commandArray.push(config.channels.normal.command)
+    commandArray.push(config.channels.event.command)
+    if (!commandArray.includes(message.channel.id)) return message.channel.send("Command has to be used in a designated command channel.");
+    */
     //Define Command
     let args = message.content.slice(config.prefix.length).trim().split(' ');
     let cmd = args.shift().toLowerCase();
@@ -30,6 +41,7 @@ client.on("message", async message => {
         commandFile.run(client, message, args, Discord);
 
     } catch (e) {
+        console.log(e)
         var errorEmbed = new Discord.MessageEmbed()
             .setColor("#ff1212")
             .setTitle("Error")

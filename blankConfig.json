@@ -3,56 +3,42 @@
     "dev": "298989767369031684",
     "prefix": "$",
     "roles": {
-        "admin": "",
-        "mod": "",
-        "hrl": "",
-        "officer": "",
-        "security": "",
-        "vrl": "",
-        "rl": "",
-        "arl": "",
-        "heo": "",
-        "eo": "",
-        "permasuspended":"",
-        "tempsuspended":"",
-        "raider":"",
-        "vetraider":""
+        "staff": {
+            "eo": "",
+            "heo": "",
+            "arl": "",
+            "rl": "",
+            "vrl": "",
+            "security": "",
+            "officer": "",
+            "hrl": "",
+            "mod": "",
+            "admin": ""
+        },
+        "general": {
+            "permasuspended": "",
+            "tempsuspended": "",
+            "vetsuspended": "",
+            "raider": "",
+            "vetraider": "",
+            "rusher": "",
+            "nitro": "",
+            "muted": ""
+        }
     },
     "channels": {
         "command": {
-            "admin": "",
+            "general": "",
             "mod": "",
-            "staff": "",
-            "veteran": "",
-            "event": "",
-            "general": ""
+            "admin": ""
         },
-        "raiding": {
-            "veteran": {
-                "1": "",
-                "2": "",
-                "3": "",
-                "4": "",
-                "5": "",
-                "6": "",
-                "7": "",
-                "8": "",
-                "9": "",
-                "10": ""
+        "veteran": {
+            "control": {
+                "command": "",
+                "status": "",
+                "lounge": ""
             },
-            "normal": {
-                "1": "",
-                "2": "",
-                "3": "",
-                "4": "",
-                "5": "",
-                "6": "",
-                "7": "",
-                "8": "",
-                "9": "",
-                "10": ""
-            },
-            "event": {
+            "raiding": {
                 "1": "",
                 "2": "",
                 "3": "",
@@ -64,6 +50,48 @@
                 "9": "",
                 "10": ""
             }
+        },
+        "normal": {
+            "control": {
+                "command": "",
+                "status": "",
+                "lounge": ""
+            },
+            "raiding": {
+                "1": "",
+                "2": "",
+                "3": "",
+                "4": "",
+                "5": "",
+                "6": "",
+                "7": "",
+                "8": "",
+                "9": "",
+                "10": ""
+            }
+        },
+        "event": {
+            "control": {
+                "command": "",
+                "status": "",
+                "lounge": ""
+            },
+            "raiding": {
+                "1": "",
+                "2": "",
+                "3": "",
+                "4": "",
+                "5": "",
+                "6": "",
+                "7": "",
+                "8": "",
+                "9": "",
+                "10": ""
+            }
+        },
+        "log": {
+            "raid": "",
+            "suspend": ""
         }
     }
 }
