@@ -32,6 +32,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 		"p": false,
 		"r": false,
 		"c": false,
+		"a": false,
 		"error": [],
 		"change": false
 	}
@@ -40,6 +41,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 			flag['p'] = true
 			flag['r'] = true
 			flag['c'] = true
+			flag['a'] = true
 			i = args.length
 		} else {
 			if (args[i].toLowerCase().charAt(0) in flag) {
@@ -284,6 +286,31 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 		}
 	}
 
+	//Channel Amount
+	if (flag['a']) {
+		var amountEmbed = new Discord.MessageEmbed()
+			.setColor("#41f230")
+			.setThumbnail('https://cdn2.iconfinder.com/data/icons/web-technology-solid/100/solid_settings_gear_edit_configuration_config-512.png')
+			.setTitle("Channel Amount Setup")
+			.setDescription(`The portal to change the bot prefix.\nThe current amount is: \`${config.prefix}\`.\nPlease enter a new amount.\nThe prompt will end after 30 seconds or type \`cancel\` to cancel at any time.`)
+		var amountMessage = await message.channel.send(amountEmbed)
+		var filter = response => {
+			return response.author.id == message.author.id && response.channel.id == message.channel.id;
+		}
+		await message.channel.awaitMessages(filter, { max: 1, time: 30000, errors: ['time'] })
+			.then(async m => {
+				await m.first().delete()
+				m = m.map(c => c.content)[0]
+			})
+			.catch(c => {
+				amountEmbed.setTitle("Channel Amount Setup Ended")
+				amountEmbed.setColor("#ff1212")
+				amountEmbed.setDescription("The channel amount setup has ended automatically.")
+				amountMessage.edit(amountEmbed);
+			})
+
+	}
+
 	//Channels
 	if (flag['c']) {
 		var channelsFlag = {
@@ -501,17 +528,6 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 					.addField("**Veteran Status:**", `For posting veteran AFKs`, true)
 					.addField("**Veteran Lounge:**", "This is the channel for AFK veterans", true)
 					.addField("**Veteran Raiding Channels:**", "These are the voice channels for veteran runs")
-					//5-14
-					.addField("**Veteran Raiding 1:**", "Placeholder Veteran Raiding 1", true)
-					.addField("**Veteran Raiding 2:**", "Placeholder Veteran Raiding 2", true)
-					.addField("**Veteran Raiding 3:**", "Placeholder Veteran Raiding 3", true)
-					.addField("**Veteran Raiding 4:**", "Placeholder Veteran Raiding 4", true)
-					.addField("**Veteran Raiding 5:**", "Placeholder Veteran Raiding 5", true)
-					.addField("**Veteran Raiding 6:**", "Placeholder Veteran Raiding 6", true)
-					.addField("**Veteran Raiding 7:**", "Placeholder Veteran Raiding 7", true)
-					.addField("**Veteran Raiding 8:**", "Placeholder Veteran Raiding 8", true)
-					.addField("**Veteran Raiding 9:**", "Placeholder Veteran Raiding 9", true)
-					.addField("**Veteran Raiding 10:**", "Placeholder Veteran Raiding 10", true)
 
 				//Begin Editing the veteran embed
 				var counter = 0
@@ -524,11 +540,13 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 					counter += 1
 				}
 				counter = 0
-				var channelNumber = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+				var channelNumber = Object.keys(config.channels.veteran.raiding)
 				for (var i in config.channels.veteran.raiding) {
 					let channelId = config.channels.veteran.raiding[i]
 					if (channelId.length > 0) {
 						vetEmbed.spliceFields(counter + 5, 1, { name: `**Veteran Raiding ${channelNumber[counter]}:**`, value: `<#${channelId}>`, inline: true })
+					} else {
+						vetEmbed.spliceFields(counter + 5, 1, { name: `**Veteran Raiding ${channelNumber[counter]}:**`, value: `None`, inline: true })
 					}
 					counter += 1
 				}
@@ -600,6 +618,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 							})
 							.catch(async c => {
 								console.log(c)
+								await veteranMessage.delete()
 								let errorEmbed = new Discord.MessageEmbed()
 								var owner = await client.users.fetch(config.dev)
 								errorEmbed.setDescription(`Error Processing: \`setup\`\nError Message:\`\`\`${c.toString()}\`\`\`\From User: <@${message.author.id}>\nIn guild: \`${message.guild.name}\``)
@@ -637,6 +656,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 						})
 						.catch(async c => {
 							console.log(c)
+							await veteranMessage.delete()
 							vetEmbed.setTitle("Veteran Channels Setup Ended")
 							vetEmbed.setColor("#ff1212")
 							vetEmbed.setDescription("The veteran channels setup has ended automatically.");
@@ -662,17 +682,6 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 					.addField("**Raid Status:**", `For posting normal AFKS`, true)
 					.addField("**Raid Lounge:**", `This is the channel for AFK people`, true)
 					.addField("**Normal Raiding Channels:**", "These are the voice channels for normal runs")
-					//5-14
-					.addField("**Raiding 1:**", "Placeholder Raiding 1", true)
-					.addField("**Raiding 2:**", "Placeholder Raiding 2", true)
-					.addField("**Raiding 3:**", "Placeholder Raiding 3", true)
-					.addField("**Raiding 4:**", "Placeholder Raiding 4", true)
-					.addField("**Raiding 5:**", "Placeholder Raiding 5", true)
-					.addField("**Raiding 6:**", "Placeholder Raiding 6", true)
-					.addField("**Raiding 7:**", "Placeholder Raiding 7", true)
-					.addField("**Raiding 8:**", "Placeholder Raiding 8", true)
-					.addField("**Raiding 9:**", "Placeholder Raiding 9", true)
-					.addField("**Raiding 10:**", "Placeholder Raiding 10", true)
 				//Begin Editing the raiding embed
 				var counter = 0
 				var control = ["Bot", "Status", "Lounge"]
@@ -684,11 +693,13 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 					counter += 1
 				}
 				counter = 0
-				var channelNumber = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+				var channelNumber = Object.keys(config.channels.normal.raiding)
 				for (var i in config.channels.normal.raiding) {
 					let channelId = config.channels.normal.raiding[i]
 					if (channelId.length > 0) {
 						raidingEmbed.spliceFields(counter + 5, 1, { name: `**Raiding ${channelNumber[counter]}:**`, value: `<#${channelId}>`, inline: true })
+					} else {
+						raidingEmbed.spliceFields(counter + 5, 1, { name: `**Raiding ${channelNumber[counter]}:**`, value: `None`, inline: true })
 					}
 					counter += 1
 				}
@@ -723,6 +734,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 							})
 							.catch(async c => {
 								console.log(c)
+								await raidingMessage.delete()
 								let errorEmbed = new Discord.MessageEmbed()
 								var owner = await client.users.fetch(config.dev)
 								errorEmbed.setDescription(`Error Processing: \`setup\`\nError Message:\`\`\`${c.toString()}\`\`\`\From User: <@${message.author.id}>\nIn guild: \`${message.guild.name}\``)
@@ -760,6 +772,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 							})
 							.catch(async c => {
 								console.log(c)
+								await raidingMessage.delete()
 								let errorEmbed = new Discord.MessageEmbed()
 								var owner = await client.users.fetch(config.dev)
 								errorEmbed.setDescription(`Error Processing: \`setup\`\nError Message:\`\`\`${c.toString()}\`\`\`\From User: <@${message.author.id}>\nIn guild: \`${message.guild.name}\``)
@@ -797,6 +810,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 						})
 						.catch(async c => {
 							console.log(c)
+							await raidingMessage.delete()
 							raidingEmbed.setTitle("Raiding Channels Setup Ended")
 							raidingEmbed.setColor("#ff1212")
 							raidingEmbed.setDescription("The raiding channels setup has ended automatically.");
@@ -821,17 +835,6 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 					.addField("**Event Status:**", `For posting event AFKs`, true)
 					.addField("**Event Lounge:**", "This is the channel for AFK event people", true)
 					.addField("**Event Raiding Channels:**", "These are the voice channels for event runs")
-					//5-14
-					.addField("**Event Raiding 1:**", "Placeholder Event Raiding 1", true)
-					.addField("**Event Raiding 2:**", "Placeholder Event Raiding 2", true)
-					.addField("**Event Raiding 3:**", "Placeholder Event Raiding 3", true)
-					.addField("**Event Raiding 4:**", "Placeholder Event Raiding 4", true)
-					.addField("**Event Raiding 5:**", "Placeholder Event Raiding 5", true)
-					.addField("**Event Raiding 6:**", "Placeholder Event Raiding 6", true)
-					.addField("**Event Raiding 7:**", "Placeholder Event Raiding 7", true)
-					.addField("**Event Raiding 8:**", "Placeholder Event Raiding 8", true)
-					.addField("**Event Raiding 9:**", "Placeholder Event Raiding 9", true)
-					.addField("**Event Raiding 10:**", "Placeholder Event Raiding 10", true)
 				//Begin Editing the event embed
 				var counter = 0
 				var control = ["Bot", "Status", "Lounge"]
@@ -843,11 +846,13 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 					counter += 1
 				}
 				counter = 0
-				var channelNumber = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+				var channelNumber = Object.keys(config.channels.event.raiding)
 				for (var i in config.channels.event.raiding) {
 					let channelId = config.channels.event.raiding[i]
 					if (channelId.length > 0) {
 						eventEmbed.spliceFields(counter + 5, 1, { name: `**Event Raiding ${channelNumber[counter]}:**`, value: `<#${channelId}>`, inline: true })
+					} else {
+						eventEmbed.spliceFields(counter + 5, 1, { name: `**Event Raiding ${channelNumber[counter]}:**`, value: `None`, inline: true })
 					}
 					counter += 1
 				}
@@ -876,12 +881,13 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 								} else if (content.toLowerCase() == 'none') {
 									config.channels.event.control[i] = ""
 								} else if (content.toLowerCase() == 'cancel') {
-									await raidingMessage.delete()
+									await eventMessage.delete()
 									return canceledC = true
 								}
 							})
 							.catch(async c => {
 								console.log(c)
+								await eventMessage.delete()
 								let errorEmbed = new Discord.MessageEmbed()
 								var owner = await client.users.fetch(config.dev)
 								errorEmbed.setDescription(`Error Processing: \`setup\`\nError Message:\`\`\`${c.toString()}\`\`\`\From User: <@${message.author.id}>\nIn guild: \`${message.guild.name}\``)
@@ -919,6 +925,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 							})
 							.catch(async c => {
 								console.log(c)
+								await eventMessage.delete()
 								let errorEmbed = new Discord.MessageEmbed()
 								var owner = await client.users.fetch(config.dev)
 								errorEmbed.setDescription(`Error Processing: \`setup\`\nError Message:\`\`\`${c.toString()}\`\`\`\From User: <@${message.author.id}>\nIn guild: \`${message.guild.name}\``)
