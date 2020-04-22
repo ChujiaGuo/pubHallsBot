@@ -378,6 +378,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 					.addField("**Mod Bot:**", `Command channel for mod commands`, true)
 					.addField("**Admin Bot:**", `Command channel for admin commands`, true)
 					//3-4
+					.addField("**Mod Log:**", `Channel to log Mod stuff.`, true)
 					.addField("**Command Log:**", `Channel to log AFKs (eg. dylanbot-info)`, true)
 					.addField("**Suspend Log:**", `Channel to log suspensions`, true)
 				//End Channels Embed
@@ -393,7 +394,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 					counter += 1
 				}
 				counter = 0
-				var log = ["Command", "Suspend"]
+				var log = ["Mod", "Command", "Suspend"]
 				for (var i in config.channels.log) {
 					let channelId = config.channels.log[i]
 					if (channelId.length > 0) {
