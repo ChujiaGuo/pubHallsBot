@@ -71,6 +71,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             return message.channel.send(`Raiding Channel \`${channelNumber}\` has not been configured. Please have an admin add it using setup.`)
         }
         else {
+            return message.channel.send("Events aren't supported yet. Sorry.")
             channelNumber = config.channels.event.raiding[channelNumber]
             statusChannel = config.channels.event.control.status
         }
@@ -200,15 +201,100 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         await logMessage.edit(controlEmbed)
         await commandMessage.reactions.removeAll()
         await raidingChannel.setUserLimit(99)
-        /* let commandFile = require(`./POSTAFK.js`);
-        await commandFile.run(client, raidingChannel, runMessage, origin, runType, runEmbed, Discord) */
-        let thing = await runMessage.reactions.cache.find(r => r.emoji.name == '❌')
-        await thing.remove()
+        //Begin Moving people out
+        var lounge;
+        if (origin == 100) {
+            lounge = config.channels.veteran.control.lounge
+        } else if (origin == 10) {
+            lounge = config.channels.normal.control.lounge
+        } else if (origin == 1) {
+            lounge = config.channels.event.control.lounge
+        }
+        lounge = await runMessage.guild.channels.cache.find(c => c.id == lounge)
+        var userIds = await raidingChannel.members.map(u => u.id)
+        var reactIds = (runType == 'cult') ? await runMessage.reactions.cache.map(e => e).find(e => e.emoji.name == 'malus').users.cache.map(u => u.id) : await runMessage.reactions.cache.map(e => e).find(e => e.emoji.name == 'void').users.cache.map(u => u.id)
+        let stayIn;
+        if (origin >= 10) {
+            stayIn = 100
+        } else {
+            stayIn = 1
+        }
+        for (var i in userIds) {
+            let id = userIds[i]
+            let user = await message.guild.members.fetch(id)
+            let commandFile = require(`./permcheck.js`);
+            var auth;
+            auth = await commandFile.run(client, user, stayIn);
+            if (!auth && !reactIds.includes(id)) {
+                user.voice.setChannel(lounge)
+            }
+
+        }
+        //End Moving people out
+
+        //Begin Post AFK
+        //Post AFK Reactions Collector
+        var filter = (r, u) => !u.bot && ((runType == 'cult') ? r.emoji.name == 'malus' : r.emoji.name == 'void') || r.emoji.name == '❌'
+        var postAFK = runMessage.createReactionCollector(filter, { time: config.postTime })
+
+        //Post AFK Message
+        var postTime = config.postTime
         runEmbed
-            .setFooter(`The AFK Check has ended automatically.`)
-            .setDescription("The AFK Check has ended. There will be another run starting soon.")
-            .setTimestamp()
+            .setDescription(`The post afk check has begun.\nIf you have been moved out, please join lounge and re-react with the ${(runType == 'cult') ? cult : entity} icon to get moved back in.`)
+            .setFooter(`Time Remaining: ${Math.floor(postTime / 60000)} Minutes ${(postTime % 60000) / 1000} Seconds | The afk check has ended automatically.`)
         await runMessage.edit(runEmbed)
+
+        //Edit Post AFK
+        var postAFKEdit = setTimeout(async () => {
+            postTime -= 5000
+            runEmbed
+                .setFooter(`Time Remaining: ${Math.floor(postTime / 60000)} Minutes ${(postTime % 60000) / 1000} Seconds | The afk check has ended automatically.`)
+            await runMessage.edit(runEmbed)
+        }, 5000)
+
+        //End Post AFK
+        var postAFKEnd = setTimeout(async () => {
+            clearInterval(postAFKEdit)
+            let thing = await runMessage.reactions.cache.find(r => r.emoji.name == '❌')
+            await thing.remove()
+            runEmbed
+                .setDescription(`The afk check has ended. We are currently running with ${raidingChannel.members.map(u => u.id).length} raiders.\nIf you missed this run, another will be starting shortly.`)
+                .setFooter(`The afk check has ended automatically`)
+                .setTimestamp()
+            await runMessage.edit(runEmbed)
+        }, config.postTime)
+
+        postAFK.on('collect', async r => {
+            let user = await r.users.cache.map(u => u.id)
+            user = await message.guild.members.fetch(user[user.length - 1])
+            if (r.emoji.name != '❌') {
+                let inLounge = lounge.members.map(u => u.id)
+                if(inLounge.includes(user.id)){
+                    user.voice.setChannel(raidingChannel)
+                }
+            } else {
+                let commandFile = require(`./permcheck.js`);
+                var auth;
+                if (origin == 100) {
+                    auth = await commandFile.run(client, user, 10000);
+                } else if (origin == 10) {
+                    auth = await commandFile.run(client, user, 100);
+                } else if (origin == 1) {
+                    auth = await commandFile.run(client, user, 1);
+                }
+                if (auth) {
+                    clearInterval(postAFKEdit)
+                    clearTimeout(postAFKEnd)
+                    let thing = await runMessage.reactions.cache.find(r => r.emoji.name == '❌')
+                    await thing.remove()
+                    runEmbed
+                        .setDescription(`The afk check has ended. We are currently running with ${raidingChannel.members.map(u => u.id).length} raiders.\nIf you missed this run, another will be starting shortly.`)
+                        .setFooter(`The afk check has been ended by ${user.nickname}`)
+                        .setTimestamp()
+                    await runMessage.edit(runEmbed)
+                }
+            }
+        })
     }, config.afkTime)
 
     //Begin collecting reactions
@@ -411,6 +497,9 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 auth = await commandFile.run(client, reactor, 1);
             }
             if (auth) {
+                let x = await r.emoji.reaction.users
+                await x.remove(reactor.id)
+                //await r.emoji.users.remove(reactor.id)
                 collectorAFK.stop()
                 clearTimeout(endAFK)
                 clearInterval(afkEdit)
@@ -427,15 +516,101 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     { 'CONNECT': false }
                 )
                 await raidingChannel.setUserLimit(99)
-                /* let commandFile = require(`./POSTAFK.js`);
-                await commandFile.run(client, raidingChannel, runMessage, origin, runType, runEmbed, Discord) */
-                let thing = await runMessage.reactions.cache.find(r => r.emoji.name == '❌')
-                await thing.remove()
+
+                //Begin Moving people out
+                var lounge;
+                if (origin == 100) {
+                    lounge = config.channels.veteran.control.lounge
+                } else if (origin == 10) {
+                    lounge = config.channels.normal.control.lounge
+                } else if (origin == 1) {
+                    lounge = config.channels.event.control.lounge
+                }
+                lounge = await runMessage.guild.channels.cache.find(c => c.id == lounge)
+                var userIds = await raidingChannel.members.map(u => u.id)
+                var reactIds = (runType == 'cult') ? await runMessage.reactions.cache.map(e => e).find(e => e.emoji.name == 'malus').users.cache.map(u => u.id) : await runMessage.reactions.cache.map(e => e).find(e => e.emoji.name == 'void').users.cache.map(u => u.id)
+                let stayIn;
+                if (origin >= 10) {
+                    stayIn = 100
+                } else {
+                    stayIn = 1
+                }
+                for (var i in userIds) {
+                    let id = userIds[i]
+                    let user = await message.guild.members.fetch(id)
+                    let commandFile = require(`./permcheck.js`);
+                    var auth;
+                    auth = await commandFile.run(client, user, stayIn);
+                    if (!auth && !reactIds.includes(id)) {
+                        user.voice.setChannel(lounge)
+                    }
+
+                }
+                //End Moving people out
+
+                //Begin Post AFK
+                //Post AFK Reactions Collector
+                var filter = (r, u) => !u.bot && ((runType == 'cult') ? r.emoji.name == 'malus' : r.emoji.name == 'void') || r.emoji.name == '❌'
+                var postAFK = runMessage.createReactionCollector(filter, { time: config.postTime })
+
+                //Post AFK Message
+                var postTime = config.postTime
                 runEmbed
-                    .setDescription(`The afk check has ended. We are currently running with ${raidingChannel.members.map(u => u.id).length} raiders.\nIf you missed this run, another will be starting shortly.`)
-                    .setFooter(`The afk check has been ended by ${reactor.nickname}`)
-                    .setTimestamp()
+                    .setDescription(`The post afk check has begun.\nIf you have been moved out, please join lounge and re-react with the ${(runType == 'cult') ? cult : entity} icon to get moved back in.`)
+                    .setFooter(`Time Remaining: ${Math.floor(postTime / 60000)} Minutes ${(postTime % 60000) / 1000} Seconds | The afk check has been ended by ${reactor.nickname}`)
                 await runMessage.edit(runEmbed)
+
+                //Edit Post AFK
+                var postAFKEdit = setTimeout(async () => {
+                    postTime -= 5000
+                    runEmbed
+                        .setFooter(`Time Remaining: ${Math.floor(postTime / 60000)} Minutes ${(postTime % 60000) / 1000} Seconds | The afk check has been ended by ${reactor.nickname}`)
+                    await runMessage.edit(runEmbed)
+                }, 5000)
+
+                //End Post AFK
+                var postAFKEnd = setTimeout(async () => {
+                    clearInterval(postAFKEdit)
+                    let thing = await runMessage.reactions.cache.find(r => r.emoji.name == '❌')
+                    await thing.remove()
+                    runEmbed
+                        .setDescription(`The afk check has ended. We are currently running with ${raidingChannel.members.map(u => u.id).length} raiders.\nIf you missed this run, another will be starting shortly.`)
+                        .setFooter(`The afk check has ended automatically`)
+                        .setTimestamp()
+                    await runMessage.edit(runEmbed)
+                }, config.postTime)
+
+                postAFK.on('collect', async r => {
+                    let user = await r.users.cache.map(u => u.id)
+                    user = await message.guild.members.fetch(user[user.length - 1])
+                    if (r.emoji.name != '❌') {
+                        let inLounge = lounge.members.map(u => u.id)
+                        if(inLounge.includes(user.id)){
+                            user.voice.setChannel(raidingChannel)
+                        }
+                    } else {
+                        let commandFile = require(`./permcheck.js`);
+                        var auth;
+                        if (origin == 100) {
+                            auth = await commandFile.run(client, user, 10000);
+                        } else if (origin == 10) {
+                            auth = await commandFile.run(client, user, 100);
+                        } else if (origin == 1) {
+                            auth = await commandFile.run(client, user, 1);
+                        }
+                        if (auth) {
+                            clearInterval(postAFKEdit)
+                            clearTimeout(postAFKEnd)
+                            let thing = await runMessage.reactions.cache.find(r => r.emoji.name == '❌')
+                            await thing.remove()
+                            runEmbed
+                                .setDescription(`The afk check has ended. We are currently running with ${raidingChannel.members.map(u => u.id).length} raiders.\nIf you missed this run, another will be starting shortly.`)
+                                .setFooter(`The afk check has been ended by ${user.nickname}`)
+                                .setTimestamp()
+                            await runMessage.edit(runEmbed)
+                        }
+                    }
+                })
             }
 
         }
