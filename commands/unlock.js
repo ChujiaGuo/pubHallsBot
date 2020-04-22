@@ -79,10 +79,12 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     }
     //Fetch channel
     var raidingChannel = await message.guild.channels.cache.find(c => c.id == channelNumber)
-    await raidingChannel.setUserLimit(99)
-    await raidingChannel.setName(raidingChannel.name.replace(' <-- Join!', ''))
+    if (!raidingChannel.name.includes(" <-- Join!")) {
+        await raidingChannel.setName(raidingChannel.name + " <-- Join!")
+    }
     await raidingChannel.updateOverwrite(config.roles.general.raider, {
-        'CONNECT': false
+        'CONNECT': true
     })
+    await raidingChannel.setUserLimit(null)
     return message.channel.send(`<@!${message.author.id}> Done!`)
 }

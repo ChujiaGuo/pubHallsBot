@@ -44,6 +44,9 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     }
     //Channel Available?
     if (origin == 100) {
+        if (config.channels.veteran.raiding[channelNumber] == undefined) {
+            return message.channel.send(`\`${channelNumber}\` is an invalid channel number.`)
+        }
         if (config.channels.veteran.raiding[channelNumber].length == 0) {
             return message.channel.send(`Raiding Channel \`${channelNumber}\` has not been configured. Please have an admin add it using setup.`)
         } else {
@@ -51,6 +54,9 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             statusChannel = config.channels.veteran.control.status
         }
     } else if (origin == 10) {
+        if (config.channels.normal.raiding[channelNumber] == undefined) {
+            return message.channel.send(`\`${channelNumber}\` is an invalid channel number.`)
+        }
         if (config.channels.normal.raiding[channelNumber].length == 0) {
             return message.channel.send(`Raiding Channel \`${channelNumber}\` has not been configured. Please have an admin add it using setup.`)
         } else {
@@ -58,6 +64,9 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             statusChannel = config.channels.normal.control.status
         }
     } else if (origin = 1) {
+        if (config.channels.event.raiding[channelNumber] == undefined) {
+            return message.channel.send(`\`${channelNumber}\` is an invalid channel number.`)
+        }
         if (config.channels.event.raiding[channelNumber].length == 0) {
             return message.channel.send(`Raiding Channel \`${channelNumber}\` has not been configured. Please have an admin add it using setup.`)
         }
@@ -124,7 +133,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 .addField("Location:", runLocation)
                 .addField("Key:", "None")
                 .setColor("#ff1212")
-                .setDescription(`**[AFK Check](${runMessage.url}) control panel for** \`${raidingChannel.name}\``)
+                .setDescription(`**[AFK Check](${runMessage.url}) control panel for \`${raidingChannel.name}\`\nRun Type: \`Cult\`**`)
                 .addField("Rushers:", "None")
                 .addField("Nitro Boosters:", "None")
             logMessage = await logChannel.send(controlEmbed)
@@ -141,7 +150,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 .addField("Location:", runLocation)
                 .addField("Key:", "None")
                 .setColor("#000080")
-                .setDescription(`**[AFK Check](${runMessage.url}) control panel for** \`${raidingChannel.name}\``)
+                .setDescription(`**[AFK Check](${runMessage.url}) control panel for \`${raidingChannel.name}\`\nRun Type: \`Void\`**`)
                 .addField("Vials:", "None")
                 .addField("Nitro Boosters:", "None")
             logMessage = await logChannel.send(controlEmbed)
@@ -158,7 +167,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 .addField("Location:", runLocation)
                 .addField("Key:", "None")
                 .setColor("#000080")
-                .setDescription(`**[AFK Check](${runMessage.url}) control panel for** \`${raidingChannel.name}\``)
+                .setDescription(`**[AFK Check](${runMessage.url}) control panel for \`${raidingChannel.name}\`\nRun Type: \`Fullskip Void\`**`)
                 .addField("Vials:", "None")
                 .addField("Brains:", "None")
                 .addField("Mystics:", "None")
@@ -191,6 +200,10 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         await logMessage.edit(controlEmbed)
         await commandMessage.reactions.removeAll()
         await raidingChannel.setUserLimit(99)
+        /* let commandFile = require(`./POSTAFK.js`);
+        await commandFile.run(client, raidingChannel, runMessage, origin, runType, runEmbed, Discord) */
+        let thing = await runMessage.reactions.cache.find(r => r.emoji.name == '❌')
+        await thing.remove()
         runEmbed
             .setFooter(`The AFK Check has ended automatically.`)
             .setDescription("The AFK Check has ended. There will be another run starting soon.")
@@ -399,28 +412,30 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             }
             if (auth) {
                 collectorAFK.stop()
-                let thing = await runMessage.reactions.cache.find(r => r.emoji.name == '❌')
-                await thing.remove()
                 clearTimeout(endAFK)
                 clearInterval(afkEdit)
                 await runAnnouncement.delete()
                 config.afk = false
                 fs.writeFileSync('config.json', JSON.stringify(config))
-                runEmbed
-                    .setDescription(`The afk check has ended. We are currently running with ${raidingChannel.members.map(u => u.id).length} raiders.\nIf you missed this run, another will be starting shortly.`)
-                    .setFooter(`The afk check has been ended by ${reactor.nickname}`)
-                    .setTimestamp()
                 controlEmbed.setFooter(`The afk check has been ended by ${reactor.nickname}`)
                 await commandMessage.edit(controlEmbed)
                 await logMessage.edit(controlEmbed)
                 await commandMessage.reactions.removeAll()
-                await runMessage.edit(runEmbed)
                 await raidingChannel.setName(raidingChannel.name.replace(' <-- Join!', ''))
                 await raidingChannel.updateOverwrite(
                     config.roles.general.raider,
                     { 'CONNECT': false }
                 )
                 await raidingChannel.setUserLimit(99)
+                /* let commandFile = require(`./POSTAFK.js`);
+                await commandFile.run(client, raidingChannel, runMessage, origin, runType, runEmbed, Discord) */
+                let thing = await runMessage.reactions.cache.find(r => r.emoji.name == '❌')
+                await thing.remove()
+                runEmbed
+                    .setDescription(`The afk check has ended. We are currently running with ${raidingChannel.members.map(u => u.id).length} raiders.\nIf you missed this run, another will be starting shortly.`)
+                    .setFooter(`The afk check has been ended by ${reactor.nickname}`)
+                    .setTimestamp()
+                await runMessage.edit(runEmbed)
             }
 
         }

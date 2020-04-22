@@ -3,6 +3,7 @@ const dist = require("js-levenshtein")
 const Discord = require("discord.js");
 const client = new Discord.Client();
 var config = JSON.parse(fs.readFileSync("config.json"))
+var commands = JSON.parse(fs.readFileSync("commands.json"))
 
 client.once("ready", async () => {
     console.log("Bot Up.")
@@ -35,13 +36,12 @@ client.on("message", async message => {
     try {
 
         //Retrive Command File
-        //cmd = commands.aliases[cmd] || cmd
+        cmd = commands.aliases[cmd] || cmd
         delete require.cache[require.resolve(`./commands/${cmd}.js`)];
         let commandFile = require(`./commands/${cmd}.js`);
         commandFile.run(client, message, args, Discord);
 
     } catch (e) {
-        console.log(e)
         var errorEmbed = new Discord.MessageEmbed()
             .setColor("#ff1212")
             .setTitle("Error")
@@ -58,6 +58,7 @@ client.on("message", async message => {
             errorEmbed.setDescription(`There was a problem processing \`$${cmd}\` for the following reason: \n\n\`$${cmd}\` is not a command.\nPerhaps you mean one of these or their aliases?\n${suggestionString}`)
             message.channel.send(errorEmbed)
         } else {
+            console.log(e)
             var owner = await client.users.fetch(config.dev)
             errorEmbed.setDescription(`There was a problem processing \`$${cmd}\` for the following reason: \n\nAn internal error occured. The developer has been notified of this and will fix it as soon as possible. The bot will DM you once finished.`)
             await message.channel.send(errorEmbed)
