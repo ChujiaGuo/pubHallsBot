@@ -87,7 +87,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 
     //Check for other afks
     if (config.afk == true) {
-        return message.channel.send("There is already another AFK check up.")
+        return message.channel.send("There is already another AFK check up. If you think this is a mistake, use \`resetafk\` and try again.")
     } else {
         config.afk = true
         fs.writeFileSync('config.json', JSON.stringify(config))
@@ -318,7 +318,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                             .spliceFields(1, 1, { name: "Key:", value: keyArray.join('\n'), inline: false })
                         await commandMessage.edit(controlEmbed)
                         await logMessage.edit(controlEmbed)
-                    } else if (vialRusherCounter >= 3) {
+                    } else if (keyCounter >= 1) {
                         await reactor.send(`You have reacted with ✅. However, since we already have enough keys, you will not be getting location early. You *are* however, allowed to bring your key just in case.`)
                     } else if (vialRusherArray.includes(`${rusher}: <@!${reactor.id}>`)) {
                         await reactor.send("You have already reacted, and confirmed your key.")
@@ -350,7 +350,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     } else if (brainCounter >= 3) {
                         await reactor.send(`You have reacted with ✅. However, since we already have enough brains, you will not be getting location early. You *are* however, allowed to bring your brain trickster just in case.`)
                     } else if (brainArray.includes(`${brain}: <@!${reactor.id}>`)) {
-                        await reactor.send("You have already reacted, and been confirmed")
+                        await reactor.send("You have already reacted, and been confirmed as a brain trickster")
                     }
                 } else {
                     await reactor.send(`You have reacted with ❌. As such, you will not be confirmed bringing a brain.`)
@@ -379,7 +379,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     } else if (mysticCounter >= 3) {
                         await reactor.send(`You have reacted with ✅. However, since we already have enough mystics, you will not be getting location early. You *are* however, allowed to bring your mystic just in case.`)
                     } else if (mysticArray.includes(`${mystic}: <@!${reactor.id}>`)) {
-                        await reactor.send("You have already reacted, and been confirmed")
+                        await reactor.send("You have already reacted, and been confirmed as mystic")
                     }
                 } else {
                     await reactor.send(`You have reacted with ❌. As such, you will not be confirmed bringing a mystic.`)
