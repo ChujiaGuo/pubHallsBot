@@ -3,9 +3,9 @@ const fs = require('fs')
 exports.run = async (client, member, checkint) => {
     let userperms = 0
     var config = JSON.parse(fs.readFileSync("config.json"))
-    if (member.id == config.dev) {
+    /* if (member.id == config.dev) {
         return true
-    }
+    } */
     var roles = await member.roles.cache.map(r => r.id)
     for (var i in roles) {
         let id = roles[i]

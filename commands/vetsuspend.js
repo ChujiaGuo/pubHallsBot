@@ -16,6 +16,9 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         "m": 60000,
         "s": 1000
     }
+    if(args.length < 4){
+        return message.channel.send(`You are missing arguments. Expected 4, received ${args.length}`)
+    }
     var user = args.shift()
     if (isNaN(user)) {
         user = user.slice(3, -1)
@@ -34,7 +37,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     }
     var duration = args.shift()
     if (!durations.hasOwnProperty(duration)) {
-        return message.channel.send(`\`${length}\` is not a valid length. Your options are the following: \`d\` for days, \`h\` for hours, \`m\` for minutes, \`s\` for seconds`)
+        return message.channel.send(`\`${duration}\` is not a valid length. Your options are the following: \`d\` for days, \`h\` for hours, \`m\` for minutes, \`s\` for seconds`)
     }
     var reason = args.join(' ')
     var time = parseInt(length) * durations[duration]
@@ -87,10 +90,11 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 await suspendMessage.edit(suspendEmbed)
                 await user.roles.add(config.roles.general.vetraider)
                 await user.roles.remove(config.roles.general.vetsuspended)
-                await user.send("You have been unsuspended.")
+                await user.send("You have been un-vetsuspended.")
             }
 
         }, time)
+        await message.channel.send(`<@!${user.id}> has been vet-suspended.`)
 
     } else if (user.roles.cache.has(config.roles.general.vetsuspended)) {
         if (suspensions.veteran[user.id]) {
@@ -109,7 +113,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                         confirmationMessage.reactions.removeAll()
                         var suspendEmbed = new Discord.MessageEmbed()
                             .setColor("#ff1212")
-                            .setTitle("Veteran Suspension Info")
+                            .setTitle("Suspension Info")
                             .setDescription(`The suspension is for ${days} days ${hours} hours ${minutes} minutes.`)
                             .addField(`User's Server Name: \`${user.nickname}\``, `<@!${user.id}> (Username: ${user.user.username})`, true)
                             .addField(`Moderator's Server Name : \`${message.member.nickname}\``, `<@!${message.member.id}> (Username: ${message.author.username})`)
@@ -144,7 +148,6 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     }
                 })
                 .catch(async c => {
-                    console.log(c)
                     await confirmationMessage.edit("Override Cancelled.")
                 })
         } else {

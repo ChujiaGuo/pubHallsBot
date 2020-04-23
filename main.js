@@ -6,10 +6,22 @@ var config = JSON.parse(fs.readFileSync("config.json"))
 var commands = JSON.parse(fs.readFileSync("commands.json"))
 
 client.once("ready", async () => {
+    /* var time = Date.now()
+    var reset = 86400000 - (time % 86400000)
+    setTimeout(async () => {
+        let owner = await client.users.fetch(config.dev)
+        await owner.send("Daily Restart.")
+        process.exit(1)
+    }, reset) */
     let commandFile = require(`./commands/updatesuspensions.js`);
     let message = undefined,
-    args = undefined
-    commandFile.run(client, message, args, Discord);
+        args = undefined
+    try {
+        commandFile.run(client, message, args, Discord);
+    } catch (e) {
+        console.log(e)
+    }
+
     console.log("Bot Up.")
     let owner = await client.users.fetch(config.dev)
     await owner.send("Bot Started.")
