@@ -1,6 +1,6 @@
 const fs = require("fs")
 
-exports.run = async (client, message, args, Discord) => {
+exports.run = async (client, message, args, Discord, sudo = false) => {
     if (message != undefined) {
         if (!sudo) {
             let commandFile = require(`./permcheck.js`);
