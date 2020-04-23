@@ -8,7 +8,8 @@
 "vs":"vetsuspend",
 "veteransuspend":"vetsuspend",
 "vus":"vetunsuspend",
-"veteranunsuspend":"vetunsuspend"
+"veteranunsuspend":"vetunsuspend",
+"us":"updatesuspensions"
     },
     "help":{
         

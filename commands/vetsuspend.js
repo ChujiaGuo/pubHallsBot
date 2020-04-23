@@ -38,7 +38,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     }
     var reason = args.join(' ')
     var time = parseInt(length) * durations[duration]
-    if(time >= 2**32){
+    if (time >= 2 ** 32) {
         return message.channel.send(`${time} does not fit into a 32-bit signed integer. Please choose a smaller time.`)
     }
     var days, hours, minutes;
@@ -71,20 +71,25 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             "suspendlog": suspendMessage.id,
             "startedat": currentTime,
             "duration": time,
-            "endsat": currentTime + time
+            "endsat": currentTime + time,
+            "guildid": message.guild.id
         }
         fs.writeFileSync("suspensions.json", JSON.stringify(suspensions))
         //Timeout for unsuspend
         setTimeout(async () => {
-            delete suspensions.veteran[user.id]
-            fs.writeFileSync("suspensions.json", JSON.stringify(suspensions))
-            suspendEmbed
-                .setColor("#41f230")
-                .setDescription("Unsuspended")
-            await suspendMessage.edit(suspendEmbed)
-            await user.roles.add(config.roles.general.vetraider)
-            await user.roles.remove(config.roles.general.vetsuspended)
-            await user.send("You have been unsuspended.")
+            var suspensions = JSON.parse(fs.readFileSync('suspensions.json'))
+            if (suspensions.veteran[user.id] != undefined) {
+                delete suspensions.veteran[user.id]
+                fs.writeFileSync("suspensions.json", JSON.stringify(suspensions))
+                suspendEmbed
+                    .setColor("#41f230")
+                    .setDescription("Unsuspended")
+                await suspendMessage.edit(suspendEmbed)
+                await user.roles.add(config.roles.general.vetraider)
+                await user.roles.remove(config.roles.general.vetsuspended)
+                await user.send("You have been unsuspended.")
+            }
+
         }, time)
 
     } else if (user.roles.cache.has(config.roles.general.vetsuspended)) {
@@ -95,7 +100,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             const filter = (reaction, user) => (reaction.emoji.name === '✅' || reaction.emoji.name == "❌") && user.id === message.author.id
             confirmationMessage.awaitReactions(filter, { time: 15000, errors: ['time'], max: 1 })
                 .then(async m => {
-                    var name = m.map(m =>m.emoji)[0].name
+                    var name = m.map(m => m.emoji)[0].name
                     if (name == "✅") {
                         //Embed and Log
                         let currentTime = Date.now()

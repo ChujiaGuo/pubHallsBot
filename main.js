@@ -6,6 +6,10 @@ var config = JSON.parse(fs.readFileSync("config.json"))
 var commands = JSON.parse(fs.readFileSync("commands.json"))
 
 client.once("ready", async () => {
+    let commandFile = require(`./commands/updatesuspensions.js`);
+    let message = undefined,
+    args = undefined
+    commandFile.run(client, message, args, Discord);
     console.log("Bot Up.")
     let owner = await client.users.fetch(config.dev)
     await owner.send("Bot Started.")
