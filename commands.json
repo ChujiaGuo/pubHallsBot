@@ -4,7 +4,11 @@
     },
     "aliases":{
 "mv":"manualverify",
-"mvv":"manualvetverify"
+"mvv":"manualvetverify",
+"vs":"vetsuspend",
+"veteransuspend":"vetsuspend",
+"vus":"vetunsuspend",
+"veteranunsuspend":"vetunsuspend"
     },
     "help":{
         
