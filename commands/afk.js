@@ -245,7 +245,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         await runMessage.edit(runEmbed)
 
         //Edit Post AFK
-        var postAFKEdit = setTimeout(async () => {
+        var postAFKEdit = setInterval(async () => {
             postTime -= 5000
             runEmbed
                 .setFooter(`Time Remaining: ${Math.floor(postTime / 60000)} Minutes ${(postTime % 60000) / 1000} Seconds | The afk check has ended automatically.`)
@@ -561,7 +561,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 await runMessage.edit(runEmbed)
 
                 //Edit Post AFK
-                var postAFKEdit = setTimeout(async () => {
+                var postAFKEdit = setInterval(async () => {
                     postTime -= 5000
                     runEmbed
                         .setFooter(`Time Remaining: ${Math.floor(postTime / 60000)} Minutes ${(postTime % 60000) / 1000} Seconds | The afk check has been ended by ${reactor.nickname}`)
