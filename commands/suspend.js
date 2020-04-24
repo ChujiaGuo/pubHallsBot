@@ -100,6 +100,8 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
         fs.writeFileSync("suspensions.json", JSON.stringify(suspensions))
         setTimeout(async () => {
+            suspensions = JSON.parse(fs.readFileSync('suspensions.json'))
+            var currentTime = Date.now()
             if (suspensions.normal[user.id]) {
                 await user.roles.remove(config.roles.general.tempsuspended)
                 await user.roles.add(userRoles)
@@ -122,7 +124,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         //User is currently suspended
         if (suspensions.normal[user.id]) {
             //User is currently suspended with this bot
-            let confirmationMessage = await message.channel.send(`<@!${user.id}> has already been suspended. Would you like to override?`)
+            let confirmationMessage = await message.channel.send(`<@!${user.id}> has already been suspended. Would you like to override? (Overrides only work for shortening suspension times, if you want to lengthen a suspension, please unsuspend and resuspend.)`)
             const filter = (reaction, user) => !user.bot && (reaction.emoji.name === '✅' || reaction.emoji.name == "❌") && user.id === message.author.id
             await confirmationMessage.react("✅")
             await confirmationMessage.react("❌")
@@ -158,6 +160,8 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                         fs.writeFileSync("suspensions.json", JSON.stringify(suspensions))
 
                         setTimeout(async () => {
+                            suspensions = JSON.parse(fs.readFileSync('suspensions.json'))
+                            var currentTime = Date.now()
                             if (suspensions.normal[user.id]) {
                                 await user.roles.remove(config.roles.general.tempsuspended)
                                 await user.roles.add(userRoles)

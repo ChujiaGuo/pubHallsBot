@@ -104,7 +104,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 
     } else if (user.roles.cache.has(config.roles.general.vetsuspended)) {
         if (suspensions.veteran[user.id]) {
-            let confirmationMessage = await message.channel.send(`<@!${user.id}> has already been veteran suspended. Would you like to override?`)
+            let confirmationMessage = await message.channel.send(`<@!${user.id}> has already been veteran suspended. Would you like to override? (Overrides only work for shortening suspension times, if you want to lengthen a suspension, please unsuspend and resuspend.)`)
             await confirmationMessage.react("✅")
             await confirmationMessage.react("❌")
             const filter = (reaction, user) => (reaction.emoji.name === '✅' || reaction.emoji.name == "❌") && user.id === message.author.id
