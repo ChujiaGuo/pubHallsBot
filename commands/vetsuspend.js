@@ -26,7 +26,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     try {
         user = await message.guild.members.fetch(user)
     } catch (e) {
-        return message.channel.send("Invalid User")
+        return message.channel.send(`Invalid User:\n\`\`\`${e}\`\`\``)
     }
     if (user.id == message.author.id) {
         return message.channel.send("Why would you vet suspend yourself. (and in case it wasn't obvious, the request is denied)")

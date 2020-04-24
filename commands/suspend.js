@@ -31,7 +31,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     try {
         user = await message.guild.members.fetch(user)
     } catch (e) {
-        return message.channel.send("Invalid User")
+        return message.channel.send(`Invalid User:\n\`\`\`${e}\`\`\``)
     }
     //Check comparative user perms
     try {
