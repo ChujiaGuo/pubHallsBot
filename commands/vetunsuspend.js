@@ -24,18 +24,21 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     } catch (e) {
         return message.channel.send(`<@!${user.id}> does not have the Suspended Veteran Role`)
     }
-    if(suspensions.veteran[user.id] == undefined){
+    /* if (suspensions.veteran[user.id] == undefined) {
         return message.channel.send("I do not have records of this user being suspended. Please try another bot.")
-    }
+    } */
     var reason = args.join(' ')
-    if(reason.length == 0 || reason == undefined){
+    if (reason.length == 0 || reason == undefined) {
         return message.channel.send("Please put a reason for unsuspending.")
     }
 
-    await user.roles.add(config.roles.general.vetraider)
     var suspendChannel = await message.guild.channels.cache.find(c => c.id == config.channels.log.suspend)
-    delete suspensions.veteran[user.id]
-    fs.writeFileSync("suspensions.json", JSON.stringify(suspensions))
+    try {
+        delete suspensions.veteran[user.id]
+        fs.writeFileSync("suspensions.json", JSON.stringify(suspensions))
+    } catch (e) {
+
+    }
     await suspendChannel.send(`<@${user.id}> has been un-vetsuspended.`)
     await user.roles.add(config.roles.general.vetraider)
     await user.roles.remove(config.roles.general.vetsuspended)

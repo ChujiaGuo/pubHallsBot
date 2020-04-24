@@ -23,14 +23,15 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     var currentTime = Date.now()
                     var endTime = suspensions[i][id].endsat
                     if (currentTime >= endTime) {
-                        delete suspensions.veteran[user.id]
-                        fs.writeFileSync("suspensions.json", JSON.stringify(suspensions))
+
                         var suspendChannel = guild.channels.cache.find(c => c.id == config.channels.log.suspend)
                         if (user.roles.cache.has(config.roles.general.vetsuspended)) {
                             await user.roles.remove(config.roles.general.vetsuspended)
                             await user.roles.add(config.roles.general.vetraider)
                             await user.send("You have been un-vetsuspended.")
                             await suspendChannel.send(`<@!${user.id}> has been un-vetsuspended.`)
+                            delete suspensions.veteran[user.id]
+                            fs.writeFileSync("suspensions.json", JSON.stringify(suspensions))
                         } else {
                             let modLog = guild.channels.cache.find(c => c.id == config.channels.log.mod)
                             await modLog.send(`<@!${user.id}> was supposed to have been un-vetsuspended at ${endTime} (Current Time: ${currentTime}), but they do not have the Veteran Suspended role.`)
@@ -38,7 +39,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 
                     } else {
                         setTimeout(async () => {
-                            if(suspensions.veteran[user.id]){
+                            if (suspensions.veteran[user.id]) {
                                 delete suspensions.veteran[user.id]
                                 fs.writeFileSync("suspensions.json", JSON.stringify(suspensions))
                                 var suspendChannel = guild.channels.cache.find(c => c.id == config.channels.log.suspend)
@@ -55,14 +56,15 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     var currentTime = Date.now()
                     var endTime = suspensions[i][id].endsat
                     if (currentTime >= endTime) {
-                        delete suspensions.normal[user.id]
-                        fs.writeFileSync("suspensions.json", JSON.stringify(suspensions))
+
                         var suspendChannel = guild.channels.cache.find(c => c.id == config.channels.log.suspend)
                         if (user.roles.cache.has(config.roles.general.tempsuspended)) {
                             await user.roles.remove(config.roles.general.tempsuspended)
                             await user.roles.add(suspensions[i][id].roles)
                             await user.send("You have been unsuspended.")
                             await suspendChannel.send(`<@!${user.id}> has been unsuspended.`)
+                            delete suspensions.normal[user.id]
+                            fs.writeFileSync("suspensions.json", JSON.stringify(suspensions))
                         } else {
                             let modLog = guild.channels.cache.find(c => c.id == config.channels.log.mod)
                             await modLog.send(`<@!${user.id}> was supposed to have been unsuspended at ${endTime} (Current Time: ${currentTime}), but they do not have the Suspended role.`)

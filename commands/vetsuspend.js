@@ -16,7 +16,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         "m": 60000,
         "s": 1000
     }
-    if(args.length < 4){
+    if (args.length < 4) {
         return message.channel.send(`You are missing arguments. Expected 4, received ${args.length}`)
     }
     var user = args.shift()
@@ -82,15 +82,21 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         setTimeout(async () => {
             var suspensions = JSON.parse(fs.readFileSync('suspensions.json'))
             if (suspensions.veteran[user.id] != undefined) {
-                delete suspensions.veteran[user.id]
-                fs.writeFileSync("suspensions.json", JSON.stringify(suspensions))
                 suspendEmbed
                     .setColor("#41f230")
                     .setDescription("Unsuspended")
-                await suspendMessage.edit(suspendEmbed)
-                await user.roles.add(config.roles.general.vetraider)
-                await user.roles.remove(config.roles.general.vetsuspended)
-                await user.send("You have been un-vetsuspended.")
+                if (user.roles.cache.has(config.roles.general.vetsuspended)) {
+                    await suspendMessage.edit(suspendEmbed)
+                    await user.roles.add(config.roles.general.vetraider)
+                    await user.roles.remove(config.roles.general.vetsuspended)
+                    await user.send("You have been un-vetsuspended.")
+                    delete suspensions.veteran[user.id]
+                    fs.writeFileSync("suspensions.json", JSON.stringify(suspensions))
+                } else {
+                    let modLog = await message.guild.channels.cache.find(c => c.id == config.channels.log.mod)
+                    await modLog.send(`<@!${user.id}> was supposed to have been un-vetsuspended at ${suspensions.veteran[user.id].endsat} (Current Time: ${currentTime}), but they do not have the Veteran Suspended role.`)
+                }
+
             }
 
         }, time)
@@ -133,15 +139,21 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                         fs.writeFileSync("suspensions.json", JSON.stringify(suspensions))
                         //Timeout for unsuspend
                         setTimeout(async () => {
-                            delete suspensions.veteran[user.id]
-                            fs.writeFileSync("suspensions.json", JSON.stringify(suspensions))
                             suspendEmbed
                                 .setColor("#41f230")
                                 .setDescription("Unsuspended")
-                            await suspendMessage.edit(suspendEmbed)
-                            await user.roles.add(config.roles.general.vetraider)
-                            await user.roles.remove(config.roles.general.vetsuspended)
-                            await user.send("You have been unsuspended.")
+                            if (user.roles.cache.has(config.roles.general.vetsuspended)) {
+
+                                await suspendMessage.edit(suspendEmbed)
+                                await user.roles.add(config.roles.general.vetraider)
+                                await user.roles.remove(config.roles.general.vetsuspended)
+                                await user.send("You have been un-vetsuspended.")
+                                delete suspensions.veteran[user.id]
+                                fs.writeFileSync("suspensions.json", JSON.stringify(suspensions))
+                            } else {
+                                let modLog = await message.guild.channels.cache.find(c => c.id == config.channels.log.mod)
+                                await modLog.send(`<@!${user.id}> was supposed to have been un-vetsuspended at ${suspensions.veteran[user.id].endsat} (Current Time: ${currentTime}), but they do not have the Veteran Suspended role.`)
+                            }
                         }, time)
                     } else {
                         await confirmationMessage.edit("Override Cancelled.")
