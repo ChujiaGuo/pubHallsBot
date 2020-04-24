@@ -985,7 +985,6 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 		}
 	}
 	if (flag.change == true) {
-		let commandFile = require(`./restart.js`);
-		await commandFile.run(client, message, args, Discord);
+		process.exit(1)
 	}
 }
