@@ -26,7 +26,24 @@ client.once("ready", async () => {
     let owner = await client.users.fetch(config.dev)
     await owner.send("Bot Started.")
 })
+client.on("guildMemberAdd", async member => {
+    //People Leaving and Rejoin Guild to Bypass Suspensions
+    let guildId = member.guild.id
+    let id = member.id
+    const suspensions = JSON.parse(fs.readFileSync('suspensions.json'))
+    var temp,vet,perma
+    if(suspensions.normal.id){
+        await member.roles.add(config.roles.general.tempsuspended)
+        temp == true;
+    }
+    if(suspensions.veteran.id && temp != true){
+        await member.roles.add(config.roles.general.vetsuspended)
+    }
+    if(suspensions.perma.id){
+        await member.roles.add(config.roles.general.permasuspended)
+    }
 
+})
 client.on("message", async message => {
 
 
