@@ -632,6 +632,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
         if (auth) {
             collectorAFK.stop()
+            collectorControl.stop()
             await commandMessage.reactions.removeAll()
             let thing = await runMessage.reactions.cache.find(r => r.emoji.name == '❌')
             if (thing) {

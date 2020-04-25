@@ -1,17 +1,15 @@
 {
-    "settings":{
-
+    "settings": {},
+    "aliases": {
+        "mv": "manualverify",
+        "mvv": "manualvetverify",
+        "vs": "vetsuspend",
+        "veteransuspend": "vetsuspend",
+        "vus": "vetunsuspend",
+        "veteranunsuspend": "vetunsuspend",
+        "us": "updatesuspensions",
+        "aa": "addalt",
+        "alt": "addalt"
     },
-    "aliases":{
-"mv":"manualverify",
-"mvv":"manualvetverify",
-"vs":"vetsuspend",
-"veteransuspend":"vetsuspend",
-"vus":"vetunsuspend",
-"veteranunsuspend":"vetunsuspend",
-"us":"updatesuspensions"
-    },
-    "help":{
-        
-    }
+    "help": {}
 }

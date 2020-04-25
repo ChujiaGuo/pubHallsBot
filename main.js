@@ -13,6 +13,7 @@ client.once("ready", async () => {
         await owner.send("Daily Restart.")
         process.exit(1)
     }, reset) */
+    client.user.setPresence({activity:{type:"WATCHING", name:"something do a thing"}})
     let commandFile = require(`./commands/updatesuspensions.js`);
     let message = undefined,
         args = undefined

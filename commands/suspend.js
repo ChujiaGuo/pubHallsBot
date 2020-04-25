@@ -38,7 +38,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         let other = user.roles.hoist.position
         let own = message.member.roles.hoist.position
         if (other >= own) {
-            return message.channel.send("You may not suspend this user as their roles are equal or higher than yours.")
+            return message.channel.send("You may not kick this user as their roles are equal or higher than yours.")
         }
     } catch (e) {
 
