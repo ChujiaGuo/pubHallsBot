@@ -9,7 +9,10 @@
         "veteranunsuspend": "vetunsuspend",
         "us": "updatesuspensions",
         "aa": "addalt",
-        "alt": "addalt"
+        "alt": "addalt",
+        "pm":"parsemembers",
+        "bpm":"bazaarparse",
+        "bm":"bazaarparse"
     },
     "help": {}
 }
