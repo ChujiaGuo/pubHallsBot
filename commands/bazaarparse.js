@@ -52,11 +52,11 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     }
     userIdArray = [... new Set(userIdArray)]
     var usernameArray = []
-    for(var i in userIdArray){
+    for (var i in userIdArray) {
         let user = await message.guild.members.fetch(userIdArray[i])
-        if(/^[a-z0-9]+$/i.test(user.nickname)){
+        if (/^[a-z0-9]+$/i.test(user.nickname)) {
             usernameArray.push(user.nickname.toLowerCase())
-        }else{
+        } else {
             usernameArray.push(user.nickname.toLowerCase().substring(1))
         }
     }
@@ -71,26 +71,50 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
     }
     var result = await ocrClient.textDetection(imageURL)
-    var players = result[0].fullTextAnnotation.text.replace(/\n/g," ").split(' ').slice(3)
-    for(var i in players){
-        players[i] = players[i].replace(",","").toLowerCase().trim()
+    var players = result[0].fullTextAnnotation.text.replace(/\n/g, " ").split(' ').slice(3)
+    for (var i in players) {
+        players[i] = players[i].replace(",", "").toLowerCase().trim()
     }
-    
+
     //Begin Comparisons
     var crasherList = []
-    for(var i in players){
+    for (var i in players) {
         let nickname = players[i]
-        if(nickname.length > 0){
-            if(!usernameArray.includes(nickname)){
+        if (nickname.length > 0) {
+            if (!usernameArray.includes(nickname)) {
                 crasherList.push(nickname)
             }
         }
     }
     crasherList = [... new Set(crasherList)]
-    for(var i in crasherList){
-        crasherList[i] = crasherList[i].charAt(0).toUpperCase()+crasherList[i].substring(1)
+    for (var i in crasherList) {
+        crasherList[i] = crasherList[i].charAt(0).toUpperCase() + crasherList[i].substring(1)
     }
-    crasherList = crasherList.join(', ')
-    await message.channel.send("The following people are at your location when they should not be:")
-    await message.channel.send(crasherList)
+    //Remove ARL+ from crasherList
+    var crasherListNoRL = []
+    for (var i in crasherList) {
+        let nickname = crasherList[i].toLowerCase()
+        let member = await message.guild.members.cache.find(m => m.displayName.toLowerCase().includes(nickname))
+        if (member != undefined) {
+            let commandFile = require(`./permcheck.js`);
+            var auth = await commandFile.run(client, member, 100)
+            if (!auth) {
+                crasherListNoRL.push(nickname)
+            }
+        }else{
+            crasherListNoRL.push(nickname)
+        }
+    }
+
+    //Send stuff
+    var crasherListFormat = crasherListNoRL.join(', ')
+    if (crasherListNoRL.length > 0) {
+        await message.channel.send("The following people are at your location when they should not be (ARL+ Excluded):")
+        await message.channel.send(`\`\`\`${crasherListFormat}\`\`\``)
+        await message.channel.send("As input for -find:")
+        await message.channel.send(`\`\`\`${crasherListNoRL.join(' ')}\`\`\``)
+    } else {
+        await message.channel.send("There are no crashers")
+    }
+
 }
