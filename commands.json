@@ -12,7 +12,8 @@
         "alt": "addalt",
         "pm":"parsemembers",
         "bpm":"bazaarparse",
-        "bm":"bazaarparse"
+        "bm":"bazaarparse",
+        "pc":"parsecharacters"
     },
     "help": {}
 }

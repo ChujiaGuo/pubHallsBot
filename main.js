@@ -71,11 +71,13 @@ client.on("message", async message => {
 
         //Retrive Command File
         cmd = commands.aliases[cmd] || cmd
-        delete require.cache[require.resolve(`./commands/${cmd}.js`)];
-        let commandFile = require(`./commands/${cmd}.js`);
+        let cmdFile = `./commands/${cmd}.js`
+        delete require.cache[require.resolve(cmdFile)];
+        let commandFile = require(cmdFile);
         commandFile.run(client, message, args, Discord);
 
     } catch (e) {
+        console.log(e)
         var errorEmbed = new Discord.MessageEmbed()
             .setColor("#ff1212")
             .setTitle("Error")

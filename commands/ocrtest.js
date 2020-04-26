@@ -25,6 +25,6 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     var result = await ocrClient.textDetection(imageURL)
     var players = result[0].fullTextAnnotation.text.split(' ').slice(3)
     for(var i in players){
-
+        players[i].replace("\n","")
     }
 }
