@@ -7,6 +7,7 @@
     "@google-cloud/vision": "^1.11.0",
     "cheerio": "^1.0.0-rc.3",
     "cors": "^2.8.5",
+    "dependencies": "0.0.1",
     "discord.js": "^12.2.0",
     "file-system": "^2.2.2",
     "js-levenshtein": "^1.1.6",
