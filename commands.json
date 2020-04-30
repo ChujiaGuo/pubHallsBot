@@ -60,6 +60,8 @@
 
         "unsuspend":"**Description:** Unsuspends a user\n\n**Usage: `unsuspend (userId/mention)`**\n`userId/mention` = The ID or mention of the user who is to be unsuspended\n**DISCLAIMER!! Do not use this command if the suspension did not originate from this bot!**\n\n**Aliases:** None",
 
-        "vetunsuspend":"**Description:** Un-vetsuspends a user\n\n**Usage: `vetunsuspend (userId/mention)`**\n`userId/mention` = The ID or mention of the user who is to be un-vetsuspended\n\n**Aliases:** vus, veteranunsuspend"
+        "vetunsuspend":"**Description:** Un-vetsuspends a user\n\n**Usage: `vetunsuspend (userId/mention)`**\n`userId/mention` = The ID or mention of the user who is to be un-vetsuspended\n\n**Aliases:** vus, veteranunsuspend",
+
+        "ping":"**Description:** Displays bot latencies\n\n**Usage: `ping`**\n\n**Aliases:** None"
     }
 }
