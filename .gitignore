@@ -3,3 +3,4 @@ node_modules/
 /blankConfig.json
 oldStuff/
 commands/test.js
+commands/oldafk.js

@@ -2,6 +2,7 @@ const fs = require('fs')
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
     var config = JSON.parse(fs.readFileSync("config.json"))
+    var afk = JSON.parse(fs.readFileSync("afk.json"))
     //Check Perms
     if (message.channel.type != 'text') {
         return message.channel.send("You cannot use this command here.")
@@ -94,13 +95,15 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     if (runLocation.length == 0) {
         return message.channel.send("Please input a location.")
     }
+    afk.location = runLocation
+    fs.writeFileSync('afk.json', JSON.stringify(afk))
 
     //Check for other afks
-    if (config.afk == true) {
+    if (afk.afk == true) {
         return message.channel.send("There is already another AFK check up. If you think this is a mistake, use \`resetafk\` and try again.")
     } else {
-        config.afk = true
-        fs.writeFileSync('config.json', JSON.stringify(config))
+        afk.afk = true
+        fs.writeFileSync('afk.json', JSON.stringify(afk))
     }
 
 
@@ -177,6 +180,10 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             commandMessage = await message.channel.send(controlEmbed)
             break;
     }
+    afk.statusMessageId = runMessage.id
+    afk.infoMessageId = logMessage.id
+    afk.commandMessageId = commandMessage.id
+    fs.writeFileSync('afk.json', JSON.stringify(afk))
     //Timing Events
     var timeleft = config.afkTime
     //Edit AFK every 5 seconds
@@ -188,8 +195,15 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     //End AFK after this time
     var endAFK = setTimeout(async () => {
         clearInterval(afkEdit)
-        config.afk = false
-        fs.writeFileSync('config.json', JSON.stringify(config))
+        afk = {
+            "afk": false,
+            "location":"",
+            "statusMessageId": "",
+            "infoMessageId": "",
+            "commandMessageId": "",
+            "earlyLocationIds": []
+        }
+        fs.writeFileSync('afk.json', JSON.stringify(afk))
         await runAnnouncement.delete()
         await raidingChannel.setName(raidingChannel.name.replace(' <-- Join!', ''))
         await raidingChannel.updateOverwrite(
@@ -269,7 +283,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             user = await message.guild.members.fetch(user[user.length - 1])
             if (r.emoji.name != '❌') {
                 let inLounge = lounge.members.map(u => u.id)
-                if(inLounge.includes(user.id)){
+                if (inLounge.includes(user.id)) {
                     user.voice.setChannel(raidingChannel)
                 }
             } else {
@@ -322,56 +336,33 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         var reactor = await r.users.cache.map(u => u.id)
         reactor = await message.guild.members.fetch(reactor[reactor.length - 1])
         reactorRoles = reactor.roles.cache.map(r => r.id)
+        afk = JSON.parse(fs.readFileSync('afk.json'))
+        runLocation = afk.location
         if (name == "nitro" || name == "shinynitro") {
             //Send Nitro Boosters location
-            if (reactorRoles.includes(config.roles.general.nitro) && nitroCounter < 10 && !nitroArray.includes(`<@!${reactor.id}>`)) {
-                nitroCounter += 1
-                nitroArray.push(`<@!${reactor.id}>`)
-                await reactor.send(`The location of the run in \`${raidingChannel.name}\` has been set to:\n\`${runLocation}\``)
-                controlEmbed
-                    .spliceFields((runType == 'fullskipvoid') ? 5 : 3, 1, { name: "Nitro Boosters:", value: nitroArray.join(', '), inline: false })
-                await commandMessage.edit(controlEmbed)
-                await logMessage.edit(controlEmbed)
-            } else if (reactorRoles.includes(config.roles.general.nitro) && nitroCounter >= 10) {
-                await reactor.send("There have already been 10 people who received nitro.")
-            } else if (reactorRoles.includes(config.roles.general.nitro) && nitroArray.includes(`<@!${reactor.id}>`)) {
-                await reactor.send("You have already received location.")
-            }
+            try {
+                if (reactorRoles.includes(config.roles.general.nitro) && nitroCounter < 10 && !nitroArray.includes(`<@!${reactor.id}>`)) {
+                    nitroCounter += 1
+                    nitroArray.push(`<@!${reactor.id}>`)
+                    await reactor.send(`The location of the run in \`${raidingChannel.name}\` has been set to:\n\`${runLocation}\``)
+                    controlEmbed
+                        .spliceFields((runType == 'fullskipvoid') ? 5 : 3, 1, { name: "Nitro Boosters:", value: nitroArray.join(', '), inline: false })
+                    await commandMessage.edit(controlEmbed)
+                    await logMessage.edit(controlEmbed)
+                    afk.earlyLocationIds.push(reactor.id)
+                    fs.writeFileSync('afk.json', JSON.stringify(afk))
+                } else if (reactorRoles.includes(config.roles.general.nitro) && nitroCounter >= 10) {
+                    await reactor.send("There have already been 10 people who received nitro.")
+                } else if (reactorRoles.includes(config.roles.general.nitro) && nitroArray.includes(`<@!${reactor.id}>`)) {
+                    await reactor.send("You have already received location.")
+                }
+            } catch (e) {
 
+            }
         } else if (name == "vial" && (runType == "void" || runType == "fullskipvoid")) {
             //Confirming vials if necessary
-            let confirmationMessage = await reactor.send(`You have reacted with ${vial}.\nIf you actually plan on bringing a vial, react with ✅.\nIf you did not, or this was a mistake, react with ❌.\nRemember, fake reacting results in suspensions!`)
-            await confirmationMessage.react("✅")
-            await confirmationMessage.react("❌")
-            let confirmationFilter = (r, u) => !u.bot && (r.emoji.name == "✅" || r.emoji.name == "❌")
-            let confirmationCollector = confirmationMessage.createReactionCollector(confirmationFilter, { max: 1, time: 15000 })
-            confirmationCollector.on('collect', async r => {
-                let name = r.emoji.name
-                if (name == '✅') {
-                    if (vialRusherCounter < 3 && !vialRusherArray.includes(`${vial}: <@!${reactor.id}>`)) {
-                        vialRusherCounter += 1
-                        vialRusherArray.push(`${vial}: <@!${reactor.id}>`)
-                        await reactor.send(`The location of the run in \`${raidingChannel.name}\` has been set to:\n\`${runLocation}\`\nThe RL ${message.member.nickname} will be there to confirm your vial.`)
-                        controlEmbed
-                            .spliceFields(2, 1, { name: "Vials:", value: vialRusherArray.join('\n'), inline: false })
-                        await commandMessage.edit(controlEmbed)
-                        await logMessage.edit(controlEmbed)
-                    } else if (vialRusherCounter >= 3) {
-                        await reactor.send(`You have reacted with ✅. However, since we already have enough vials, you will not be getting location early. You *are* however, allowed to bring the vial just in case.`)
-                    } else if (vialRusherArray.includes(`${vial}: <@!${reactor.id}>`)) {
-                        await reactor.send("You have already reacted, and confirmed a vial.")
-                    }
-                } else {
-                    await reactor.send(`You have reacted with ❌. As such, your vial will not be confirmed.`)
-                }
-
-            })
-
-
-        } else if (name == "planewalker" && runType == "cult") {
-            //Confirming rushers if necessary
-            if (reactorRoles.includes(config.roles.general.rusher)) {
-                let confirmationMessage = await reactor.send(`You have reacted with ${rusher}.\nIf you actually plan on rushing, react with ✅.\nIf you did not, or this was a mistake, react with ❌.\nRemember, fake reacting results in suspensions!`)
+            try {
+                let confirmationMessage = await reactor.send(`You have reacted with ${vial}.\nIf you actually plan on bringing a vial, react with ✅.\nIf you did not, or this was a mistake, react with ❌.\nRemember, fake reacting results in suspensions!`)
                 await confirmationMessage.react("✅")
                 await confirmationMessage.react("❌")
                 let confirmationFilter = (r, u) => !u.bot && (r.emoji.name == "✅" || r.emoji.name == "❌")
@@ -379,112 +370,170 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 confirmationCollector.on('collect', async r => {
                     let name = r.emoji.name
                     if (name == '✅') {
-                        if (vialRusherCounter < 3 && !vialRusherArray.includes(`${rusher}: <@!${reactor.id}>`)) {
+                        if (vialRusherCounter < 3 && !vialRusherArray.includes(`${vial}: <@!${reactor.id}>`)) {
                             vialRusherCounter += 1
-                            vialRusherArray.push(`${rusher}: <@!${reactor.id}>`)
-                            await reactor.send(`The location of the run in \`${raidingChannel.name}\` has been set to:\n\`${runLocation}\``)
+                            vialRusherArray.push(`${vial}: <@!${reactor.id}>`)
+                            await reactor.send(`The location of the run in \`${raidingChannel.name}\` has been set to:\n\`${runLocation}\`\nThe RL ${message.member.nickname} will be there to confirm your vial.`)
                             controlEmbed
-                                .spliceFields(2, 1, { name: "Rushers:", value: vialRusherArray.join('\n'), inline: false })
+                                .spliceFields(2, 1, { name: "Vials:", value: vialRusherArray.join('\n'), inline: false })
                             await commandMessage.edit(controlEmbed)
                             await logMessage.edit(controlEmbed)
+                            afk.earlyLocationIds.push(reactor.id)
+                            fs.writeFileSync('afk.json', JSON.stringify(afk))
                         } else if (vialRusherCounter >= 3) {
-                            await reactor.send(`You have reacted with ✅. However, since we already have enough rushers, you will not be getting location early. You *are* however, allowed to bring your rushing class just in case.`)
-                        } else if (vialRusherArray.includes(`${rusher}: <@!${reactor.id}>`)) {
-                            await reactor.send("You have already reacted, and confirmed rushing.")
+                            await reactor.send(`You have reacted with ✅. However, since we already have enough vials, you will not be getting location early. You *are* however, allowed to bring the vial just in case.`)
+                        } else if (vialRusherArray.includes(`${vial}: <@!${reactor.id}>`)) {
+                            await reactor.send("You have already reacted, and confirmed a vial.")
                         }
                     } else {
-                        await reactor.send(`You have reacted with ❌. As such, you will not be confirmed rushing.`)
+                        await reactor.send(`You have reacted with ❌. As such, your vial will not be confirmed.`)
                     }
 
                 })
+            } catch (e) {
+                message.channel.send(`<@!${reactor.id}> tried to react with vial, but there was an error. \`\`\`${e}\`\`\``)
+            }
+
+        } else if (name == "planewalker" && runType == "cult") {
+            //Confirming rushers if necessary
+            try {
+                if (reactorRoles.includes(config.roles.general.rusher)) {
+                    let confirmationMessage = await reactor.send(`You have reacted with ${rusher}.\nIf you actually plan on rushing, react with ✅.\nIf you did not, or this was a mistake, react with ❌.\nRemember, fake reacting results in suspensions!`)
+                    await confirmationMessage.react("✅")
+                    await confirmationMessage.react("❌")
+                    let confirmationFilter = (r, u) => !u.bot && (r.emoji.name == "✅" || r.emoji.name == "❌")
+                    let confirmationCollector = confirmationMessage.createReactionCollector(confirmationFilter, { max: 1, time: 15000 })
+                    confirmationCollector.on('collect', async r => {
+                        let name = r.emoji.name
+                        if (name == '✅') {
+                            if (vialRusherCounter < 3 && !vialRusherArray.includes(`${rusher}: <@!${reactor.id}>`)) {
+                                vialRusherCounter += 1
+                                vialRusherArray.push(`${rusher}: <@!${reactor.id}>`)
+                                await reactor.send(`The location of the run in \`${raidingChannel.name}\` has been set to:\n\`${runLocation}\``)
+                                controlEmbed
+                                    .spliceFields(2, 1, { name: "Rushers:", value: vialRusherArray.join('\n'), inline: false })
+                                await commandMessage.edit(controlEmbed)
+                                await logMessage.edit(controlEmbed)
+                                afk.earlyLocationIds.push(reactor.id)
+                                fs.writeFileSync('afk.json', JSON.stringify(afk))
+                            } else if (vialRusherCounter >= 3) {
+                                await reactor.send(`You have reacted with ✅. However, since we already have enough rushers, you will not be getting location early. You *are* however, allowed to bring your rushing class just in case.`)
+                            } else if (vialRusherArray.includes(`${rusher}: <@!${reactor.id}>`)) {
+                                await reactor.send("You have already reacted, and confirmed rushing.")
+                            }
+                        } else {
+                            await reactor.send(`You have reacted with ❌. As such, you will not be confirmed rushing.`)
+                        }
+                    })
+                }
+            } catch (e) {
+                message.channel.send(`<@!${reactor.id}> tried to react with rusher, but there was an error. \`\`\`${e}\`\`\``)
             }
 
         } else if (name == "lhkey") {
             //Confirming key
-            let confirmationMessage = await reactor.send(`You have reacted with ${key}.\nIf you actually plan on bringing a key, react with ✅.\nIf you did not, or this was a mistake, react with ❌.\nRemember, fake reacting results in suspensions!`)
-            await confirmationMessage.react("✅")
-            await confirmationMessage.react("❌")
-            let confirmationFilter = (r, u) => !u.bot && (r.emoji.name == "✅" || r.emoji.name == "❌")
-            let confirmationCollector = confirmationMessage.createReactionCollector(confirmationFilter, { max: 1, time: 15000 })
-            confirmationCollector.on('collect', async r => {
-                let name = r.emoji.name
-                if (name == '✅') {
-                    if (keyCounter < 1 && !keyArray.includes(`${key}: <@!${reactor.id}>`)) {
-                        keyCounter += 1
-                        keyArray.push(`${key}: <@!${reactor.id}>`)
-                        await reactor.send(`The location of the run in \`${raidingChannel.name}\` has been set to:\n\`${runLocation}\`\nThe RL ${message.member.nickname} will be there to confirm your key.`)
-                        controlEmbed
-                            .spliceFields(1, 1, { name: "Key:", value: keyArray.join('\n'), inline: false })
-                        await commandMessage.edit(controlEmbed)
-                        await logMessage.edit(controlEmbed)
-                    } else if (keyCounter >= 1) {
-                        await reactor.send(`You have reacted with ✅. However, since we already have enough keys, you will not be getting location early. You *are* however, allowed to bring your key just in case.`)
-                    } else if (vialRusherArray.includes(`${rusher}: <@!${reactor.id}>`)) {
-                        await reactor.send("You have already reacted, and confirmed your key.")
+            try {
+                let confirmationMessage = await reactor.send(`You have reacted with ${key}.\nIf you actually plan on bringing a key, react with ✅.\nIf you did not, or this was a mistake, react with ❌.\nRemember, fake reacting results in suspensions!`)
+                await confirmationMessage.react("✅")
+                await confirmationMessage.react("❌")
+                let confirmationFilter = (r, u) => !u.bot && (r.emoji.name == "✅" || r.emoji.name == "❌")
+                let confirmationCollector = confirmationMessage.createReactionCollector(confirmationFilter, { max: 1, time: 15000 })
+                confirmationCollector.on('collect', async r => {
+                    let name = r.emoji.name
+                    if (name == '✅') {
+                        if (keyCounter < 1 && !keyArray.includes(`${key}: <@!${reactor.id}>`)) {
+                            keyCounter += 1
+                            keyArray.push(`${key}: <@!${reactor.id}>`)
+                            await reactor.send(`The location of the run in \`${raidingChannel.name}\` has been set to:\n\`${runLocation}\`\nThe RL ${message.member.nickname} will be there to confirm your key.`)
+                            controlEmbed
+                                .spliceFields(1, 1, { name: "Key:", value: keyArray.join('\n'), inline: false })
+                            await commandMessage.edit(controlEmbed)
+                            await logMessage.edit(controlEmbed)
+                            afk.earlyLocationIds.push(reactor.id)
+                            fs.writeFileSync('afk.json', JSON.stringify(afk))
+                        } else if (keyCounter >= 1) {
+                            await reactor.send(`You have reacted with ✅. However, since we already have enough keys, you will not be getting location early. You *are* however, allowed to bring your key just in case.`)
+                        } else if (vialRusherArray.includes(`${rusher}: <@!${reactor.id}>`)) {
+                            await reactor.send("You have already reacted, and confirmed your key.")
+                        }
+                    } else {
+                        await reactor.send(`You have reacted with ❌. As such, you will not be confirmed bringing a key.`)
                     }
-                } else {
-                    await reactor.send(`You have reacted with ❌. As such, you will not be confirmed bringing a key.`)
-                }
+                })
+            } catch (e) {
+                message.channel.send(`<@!${reactor.id}> tried to react with key, but there was an error. \`\`\`${e}\`\`\``)
+            }
 
-            })
 
         } else if (name == "fsvbrain" && runType == "fullskipvoid") {
             //Confirming brains if necessary
-            let confirmationMessage = await reactor.send(`You have reacted with ${brain}.\nIf you have **85+ MHeal and are 6/8+** and you actually plan on bringing your brain trickster, react with ✅.\nIf you did not, or this was a mistake, react with ❌.\nRemember, fake reacting results in suspensions!`)
-            await confirmationMessage.react("✅")
-            await confirmationMessage.react("❌")
-            let confirmationFilter = (r, u) => !u.bot && (r.emoji.name == "✅" || r.emoji.name == "❌")
-            let confirmationCollector = confirmationMessage.createReactionCollector(confirmationFilter, { max: 1, time: 15000 })
-            confirmationCollector.on('collect', async r => {
-                let name = r.emoji.name
-                if (name == '✅') {
-                    if (brainCounter < 3 && !brainArray.includes(`${brain}: <@!${reactor.id}>`)) {
-                        brainCounter += 1
-                        brainArray.push(`${brain}: <@!${reactor.id}>`)
-                        await reactor.send(`The location of the run in \`${raidingChannel.name}\` has been set to:\n\`${runLocation}\`\nThe RL ${message.member.nickname} will be there to confirm your brain.`)
-                        controlEmbed
-                            .spliceFields(3, 1, { name: "Brains:", value: brainArray.join('\n'), inline: false })
-                        await commandMessage.edit(controlEmbed)
-                        await logMessage.edit(controlEmbed)
-                    } else if (brainCounter >= 3) {
-                        await reactor.send(`You have reacted with ✅. However, since we already have enough brains, you will not be getting location early. You *are* however, allowed to bring your brain trickster just in case.`)
-                    } else if (brainArray.includes(`${brain}: <@!${reactor.id}>`)) {
-                        await reactor.send("You have already reacted, and been confirmed as a brain trickster")
+            try {
+                let confirmationMessage = await reactor.send(`You have reacted with ${brain}.\nIf you have **85+ MHeal and are 6/8+** and you actually plan on bringing your brain trickster, react with ✅.\nIf you did not, or this was a mistake, react with ❌.\nRemember, fake reacting results in suspensions!`)
+                await confirmationMessage.react("✅")
+                await confirmationMessage.react("❌")
+                let confirmationFilter = (r, u) => !u.bot && (r.emoji.name == "✅" || r.emoji.name == "❌")
+                let confirmationCollector = confirmationMessage.createReactionCollector(confirmationFilter, { max: 1, time: 15000 })
+                confirmationCollector.on('collect', async r => {
+                    let name = r.emoji.name
+                    if (name == '✅') {
+                        if (brainCounter < 3 && !brainArray.includes(`${brain}: <@!${reactor.id}>`)) {
+                            brainCounter += 1
+                            brainArray.push(`${brain}: <@!${reactor.id}>`)
+                            await reactor.send(`The location of the run in \`${raidingChannel.name}\` has been set to:\n\`${runLocation}\`\nThe RL ${message.member.nickname} will be there to confirm your brain.`)
+                            controlEmbed
+                                .spliceFields(3, 1, { name: "Brains:", value: brainArray.join('\n'), inline: false })
+                            await commandMessage.edit(controlEmbed)
+                            await logMessage.edit(controlEmbed)
+                            afk.earlyLocationIds.push(reactor.id)
+                            fs.writeFileSync('afk.json', JSON.stringify(afk))
+                        } else if (brainCounter >= 3) {
+                            await reactor.send(`You have reacted with ✅. However, since we already have enough brains, you will not be getting location early. You *are* however, allowed to bring your brain trickster just in case.`)
+                        } else if (brainArray.includes(`${brain}: <@!${reactor.id}>`)) {
+                            await reactor.send("You have already reacted, and been confirmed as a brain trickster")
+                        }
+                    } else {
+                        await reactor.send(`You have reacted with ❌. As such, you will not be confirmed bringing a brain.`)
                     }
-                } else {
-                    await reactor.send(`You have reacted with ❌. As such, you will not be confirmed bringing a brain.`)
-                }
 
-            })
+                })
+            } catch (e) {
+                message.channel.send(`<@!${reactor.id}> tried to react with brain, but there was an error. \`\`\`${e}\`\`\``)
+            }
+
 
         } else if (name == "mystic" && runType == "fullskipvoid") {
             //Confirming mystics if necessary
-            let confirmationMessage = await reactor.send(`You have reacted with ${mystic}.\nIf you have **85+ MHeal and are 6/8+** and you actually plan on bringing your mystic, react with ✅.\nIf you did not, or this was a mistake, react with ❌.\nRemember, fake reacting results in suspensions!`)
-            await confirmationMessage.react("✅")
-            await confirmationMessage.react("❌")
-            let confirmationFilter = (r, u) => !u.bot && (r.emoji.name == "✅" || r.emoji.name == "❌")
-            let confirmationCollector = confirmationMessage.createReactionCollector(confirmationFilter, { max: 1, time: 15000 })
-            confirmationCollector.on('collect', async r => {
-                let name = r.emoji.name
-                if (name == '✅') {
-                    if (brainCounter < 3 && !brainArray.includes(`${brain}: <@!${reactor.id}>`)) {
-                        mysticCounter += 1
-                        mysticArray.push(`${mystic}: <@!${reactor.id}>`)
-                        await reactor.send(`The location of the run in \`${raidingChannel.name}\` has been set to:\n\`${runLocation}\`\nThe RL ${message.member.nickname} will be there to confirm your mystic.`)
-                        controlEmbed
-                            .spliceFields(4, 1, { name: "Mystics:", value: mysticArray.join('\n'), inline: false })
-                        await commandMessage.edit(controlEmbed)
-                        await logMessage.edit(controlEmbed)
-                    } else if (mysticCounter >= 3) {
-                        await reactor.send(`You have reacted with ✅. However, since we already have enough mystics, you will not be getting location early. You *are* however, allowed to bring your mystic just in case.`)
-                    } else if (mysticArray.includes(`${mystic}: <@!${reactor.id}>`)) {
-                        await reactor.send("You have already reacted, and been confirmed as mystic")
+            try {
+                let confirmationMessage = await reactor.send(`You have reacted with ${mystic}.\nIf you have **85+ MHeal and are 6/8+** and you actually plan on bringing your mystic, react with ✅.\nIf you did not, or this was a mistake, react with ❌.\nRemember, fake reacting results in suspensions!`)
+                await confirmationMessage.react("✅")
+                await confirmationMessage.react("❌")
+                let confirmationFilter = (r, u) => !u.bot && (r.emoji.name == "✅" || r.emoji.name == "❌")
+                let confirmationCollector = confirmationMessage.createReactionCollector(confirmationFilter, { max: 1, time: 15000 })
+                confirmationCollector.on('collect', async r => {
+                    let name = r.emoji.name
+                    if (name == '✅') {
+                        if (brainCounter < 3 && !brainArray.includes(`${brain}: <@!${reactor.id}>`)) {
+                            mysticCounter += 1
+                            mysticArray.push(`${mystic}: <@!${reactor.id}>`)
+                            await reactor.send(`The location of the run in \`${raidingChannel.name}\` has been set to:\n\`${runLocation}\`\nThe RL ${message.member.nickname} will be there to confirm your mystic.`)
+                            controlEmbed
+                                .spliceFields(4, 1, { name: "Mystics:", value: mysticArray.join('\n'), inline: false })
+                            await commandMessage.edit(controlEmbed)
+                            await logMessage.edit(controlEmbed)
+                            afk.earlyLocationIds.push(reactor.id)
+                            fs.writeFileSync('afk.json', JSON.stringify(afk))
+                        } else if (mysticCounter >= 3) {
+                            await reactor.send(`You have reacted with ✅. However, since we already have enough mystics, you will not be getting location early. You *are* however, allowed to bring your mystic just in case.`)
+                        } else if (mysticArray.includes(`${mystic}: <@!${reactor.id}>`)) {
+                            await reactor.send("You have already reacted, and been confirmed as mystic")
+                        }
+                    } else {
+                        await reactor.send(`You have reacted with ❌. As such, you will not be confirmed bringing a mystic.`)
                     }
-                } else {
-                    await reactor.send(`You have reacted with ❌. As such, you will not be confirmed bringing a mystic.`)
-                }
-            })
-
+                })
+            } catch (e) {
+                message.channel.send(`<@!${reactor.id}> tried to react with mystic, but there was an error. \`\`\`${e}\`\`\``)
+            }
         } else if (name == "❌") {
             //Ending the afk check
             let commandFile = require(`./permcheck.js`);
@@ -504,8 +553,15 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 clearTimeout(endAFK)
                 clearInterval(afkEdit)
                 await runAnnouncement.delete()
-                config.afk = false
-                fs.writeFileSync('config.json', JSON.stringify(config))
+                afk = {
+                    "afk": false,
+                    "location":"",
+                    "statusMessageId": "",
+                    "infoMessageId": "",
+                    "commandMessageId": "",
+                    "earlyLocationIds": []
+                }
+                fs.writeFileSync('afk.json', JSON.stringify(afk))
                 controlEmbed.setFooter(`The afk check has been ended by ${reactor.nickname}`)
                 await commandMessage.edit(controlEmbed)
                 await logMessage.edit(controlEmbed)
@@ -585,7 +641,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     user = await message.guild.members.fetch(user[user.length - 1])
                     if (r.emoji.name != '❌') {
                         let inLounge = lounge.members.map(u => u.id)
-                        if(inLounge.includes(user.id)){
+                        if (inLounge.includes(user.id)) {
                             user.voice.setChannel(raidingChannel)
                         }
                     } else {
@@ -641,8 +697,15 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             clearTimeout(endAFK)
             clearInterval(afkEdit)
             await runAnnouncement.delete()
-            config.afk = false
-            fs.writeFileSync('config.json', JSON.stringify(config))
+            afk = {
+                "afk": false,
+                "location":"",
+                "statusMessageId": "",
+                "infoMessageId": "",
+                "commandMessageId": "",
+                "earlyLocationIds": []
+            }
+            fs.writeFileSync('afk.json', JSON.stringify(afk))
             runEmbed
                 .setDescription(`The afk check has been aborted.`)
                 .setFooter(`The afk check has been aborted by ${reactor.nickname}`)

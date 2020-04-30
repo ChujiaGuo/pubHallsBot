@@ -13,7 +13,8 @@
         "pm":"parsemembers",
         "bpm":"bazaarparse",
         "bm":"bazaarparse",
-        "pc":"parsecharacters"
+        "pc":"parsecharacters",
+        "loc":"location"
     },
     "help": {}
 }
