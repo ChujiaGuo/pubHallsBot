@@ -522,7 +522,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 confirmationCollector.on('collect', async r => {
                     let name = r.emoji.name
                     if (name == '✅') {
-                        if (brainCounter < 3 && !brainArray.includes(`${brain}: <@!${reactor.id}>`)) {
+                        if (mysticCounter < 3 && !mysticArray.includes(`${brain}: <@!${reactor.id}>`)) {
                             mysticCounter += 1
                             mysticArray.push(`${mystic}: <@!${reactor.id}>`)
                             await reactor.send(`The location of the run in \`${raidingChannel.name}\` has been set to:\n\`${runLocation}\`\nThe RL ${message.member.nickname} will be there to confirm your mystic.`)
