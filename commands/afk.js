@@ -197,7 +197,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         clearInterval(afkEdit)
         afk = {
             "afk": false,
-            "location":"",
+            "location": "",
             "statusMessageId": "",
             "infoMessageId": "",
             "commandMessageId": "",
@@ -240,7 +240,12 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             var auth;
             auth = await commandFile.run(client, user, stayIn);
             if (!auth && !reactIds.includes(id)) {
-                user.voice.setChannel(lounge)
+                try {
+                    user.voice.setChannel(lounge)
+                } catch (e) {
+
+                }
+
             }
 
         }
@@ -284,7 +289,11 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             if (r.emoji.name != '❌') {
                 let inLounge = lounge.members.map(u => u.id)
                 if (inLounge.includes(user.id)) {
-                    user.voice.setChannel(raidingChannel)
+                    try {
+                        user.voice.setChannel(raidingChannel)
+                    } catch (e) {
+
+                    }
                 }
             } else {
                 let commandFile = require(`./permcheck.js`);
@@ -338,6 +347,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         reactorRoles = reactor.roles.cache.map(r => r.id)
         afk = JSON.parse(fs.readFileSync('afk.json'))
         runLocation = afk.location
+        controlEmbed = commandMessage.embeds[0]
         if (name == "nitro" || name == "shinynitro") {
             //Send Nitro Boosters location
             try {
@@ -555,7 +565,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 await runAnnouncement.delete()
                 afk = {
                     "afk": false,
-                    "location":"",
+                    "location": "",
                     "statusMessageId": "",
                     "infoMessageId": "",
                     "commandMessageId": "",
@@ -598,7 +608,12 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     var auth;
                     auth = await commandFile.run(client, user, stayIn);
                     if (!auth && !reactIds.includes(id)) {
-                        user.voice.setChannel(lounge)
+                        try {
+                            user.voice.setChannel(lounge)
+                        } catch (e) {
+
+                        }
+
                     }
 
                 }
@@ -642,7 +657,12 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     if (r.emoji.name != '❌') {
                         let inLounge = lounge.members.map(u => u.id)
                         if (inLounge.includes(user.id)) {
-                            user.voice.setChannel(raidingChannel)
+                            try {
+                                user.voice.setChannel(raidingChannel)
+                            } catch (e){
+                                
+                            }
+                            
                         }
                     } else {
                         let commandFile = require(`./permcheck.js`);
@@ -676,6 +696,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     collectorControl.on('collect', async r => {
         var reactor = await r.users.cache.map(u => u.id)
         reactor = await message.guild.members.fetch(reactor[reactor.length - 1])
+        controlEmbed = commandMessage.embeds[0]
         //Aborting the afk check
         let commandFile = require(`./permcheck.js`);
         var auth;
@@ -699,7 +720,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             await runAnnouncement.delete()
             afk = {
                 "afk": false,
-                "location":"",
+                "location": "",
                 "statusMessageId": "",
                 "infoMessageId": "",
                 "commandMessageId": "",
