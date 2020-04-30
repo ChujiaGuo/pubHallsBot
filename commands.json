@@ -10,11 +10,56 @@
         "us": "updatesuspensions",
         "aa": "addalt",
         "alt": "addalt",
-        "pm":"parsemembers",
-        "bpm":"bazaarparse",
-        "bm":"bazaarparse",
-        "pc":"parsecharacters",
-        "loc":"location"
+        "pm": "parsemembers",
+        "bpm": "bazaarparse",
+        "bm": "bazaarparse",
+        "pc": "parsecharacters",
+        "loc": "location",
+        "cmd": "commands",
+        "cmds": "commands",
+        "kill": "restart"
     },
-    "help": {}
+    "help": {
+        "addalt":"**Description:** Adds an alt to an user\n\n**Usage: `addalt (userId/mention) (altName) (proof)`**\n`userId/mention` = The ID or mention of the user to have an alt added to\n`altName` = The name of the alt to be added\n`proof` = The proof the user owns the alt\n\n**Aliases:** ",
+        
+        "afk": "**Description:** Starts an AFK Check\n\n**Usage: `afk (raidingChannelNumber) (runType) (runLocation)`**\n\n`raidingChannelNumber` = The channel you want to start your AFK Check in\n`runType` = The type of run (void, cult, fullskip void)\n`runLocation` = Where the run is\n\n**Aliases:** None",
+
+        "location": "**Description:** Changes the location of the current AFK Check (from this bot only)\n\n**Usage: `location (runLocation)`**\n`runLocation` = What to change the location to\n\n**Aliases:** loc",
+
+        "bazaarparse": "**Description:** Parses the people who are currently in bazaar\n\n**Usage: `bazaarparse (afkControlMessageId) (userList)`**\n`afkControlMessageId` = The message Id of the control panel (This can be either the one in the info channel or the one in the command channel)\n`userList` = An image of the people in the bazaar (This can be either a link or a raw image)\n\n**Aliases:** bpm, bm",
+
+        "changename": "**Description:** Changes a user's name\n\n**Usage: `changename (userId/mention) (newName) (imageProof)`**\n`userId/mention` = The ID or mention of the user whose name is to be changed\n`newName` = The user's new name\n`imageProof` = An image as proof of the user's new name (This can be either a link or a raw image)\n\n**Aliases:** None",
+
+        "clean":"**Description:** Cleans a raiding channel\n\n**Usage: `clean (raidingChannelNumber)`**\n`raidingChannelNumber` = The channel you want to clean\n\n**Aliases:** None",
+
+        "commands":"**Description:** Shows a list of commands or displays help for a command\n\n**Usage: `commands [command]`**\n`command` = The command you want to get help for\n\n**Aliases:** cmd, cmds",
+        
+        "kick":"**Description:** Kicks a user from the server\n\n**Usage: `kick (userId/mention) (reason)`**\n`userId/mention` = The ID or mention of the user who is to be kicked\n`reason` = Why the user is being kicked\n\n**Aliases:** None",
+
+        "lock":"**Description:** Locks a raiding channel to prevent people from joining\n\n**Usage: `lock (raidingChannelNumber)`**\n`raidingChannelNumber` = The channel you want to lock\n\n**Aliases:** None",
+
+        "unlock":"**Description:** Unlocks a raiding channel to aloow people to join\n\n**Usage: `unlock (raidingChannelNumber)`**\n`raidingChannelNumber` = The channel you want to lock\n\n**Aliases:** None",
+
+        "manualverify":"**Description:** Manually verifies a user\n\n**Usage: `manualverify (userId/mention) (nickname)`**\n`userId/mention` = The ID or mention of the user who is to be verified\n`nickname` = The IGN of the user getting verified\n\n**Aliases:** mv",
+
+        "manualvetverify":"**Description:** Manually verifies a user for the veteran raider role\n\n**Usage: `manualvetverify (userId/mention)`**\n`userId/mention` = The ID or mention of the user who is to be veteran verified\n\n**Aliases:** mvv",
+
+        "parsecharacters":"**Description:** Parses the stats of people currently in a run\n\n**Usage: `parsecharacters (userList)`**\n`userList` = An image of people in the run (This can be either a link or a raw image)\n\n**Aliases:** pc",
+
+        "parsemembers":"**Description:** Parses the people currently in a run\n\n**Usage: `parsecharacters (userList)`**\n`userList` = An image of people in the run (This can be either a link or a raw image)\n\n**Aliases:** pm",
+
+        "resetafk":"**Description:** Resets the AFK Status\n\n**Usage: `resetafk`**\n\n**Aliases:** None",
+
+        "restart":"**Description:** Restarts the bot\n\n**Usage: `restart`**\n\n**Aliases:** kill",
+
+        "setup":"**Description:** Sets up the variables for the bot\n\n**Usage: `setup (setupType)`**\n`setupType` = What you want to set up (p for prefix, c for channels, r for roles, all for all)\n\n**Aliases:** None",
+
+        "suspend":"**Description:** Suspends a user\n\n**Usage: `suspend (userId/Mention) (length) (duration) (reason)`**\n`userId/mention` = The ID or mention of the user who is to be suspended\n`length` = The amount of `duration` to be suspended for (This is a number)\n`duration` = The time the user is being suspended for (d for days, h for hours, m for minutes, s for seconds)\n`reason` = Why the user is being suspended\n**DISCLAIMER!! This command is incredibly buggy, especially if the bot is being updated**\n\n**Aliases:** None",
+
+        "vetsuspend":"**Description:** Veteran suspends a user\n\n**Usage: `vetsuspend (userId/Mention) (length) (duration) (reason)`**\n`userId/mention` = The ID or mention of the user who is to be vet suspended\n`length` = The amount of `duration` to be vet suspended for (This is a number)\n`duration` = The time the user is being vet suspended for (d for days, h for hours, m for minutes, s for seconds)\n`reason` = Why the user is being vet suspended\n**DISCLAIMER!! This command is incredibly buggy, especially if the bot is being updated**\n\n**Aliases:** vs, veteransuspend",
+
+        "unsuspend":"**Description:** Unsuspends a user\n\n**Usage: `unsuspend (userId/mention)`**\n`userId/mention` = The ID or mention of the user who is to be unsuspended\n**DISCLAIMER!! Do not use this command if the suspension did not originate from this bot!**\n\n**Aliases:** None",
+
+        "vetunsuspend":"**Description:** Un-vetsuspends a user\n\n**Usage: `vetunsuspend (userId/mention)`**\n`userId/mention` = The ID or mention of the user who is to be un-vetsuspended\n\n**Aliases:** vus, veteranunsuspend"
+    }
 }

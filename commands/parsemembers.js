@@ -4,6 +4,9 @@ const ocrClient = new vision.ImageAnnotatorClient()
 
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
+    if(!sudo){
+        return message.channel.send("Parsing is currently not supported")
+    }
     var config = JSON.parse(fs.readFileSync('config.json'))
     //Permissions
     if (!sudo) {

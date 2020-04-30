@@ -35,4 +35,5 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     
     let logChannel = message.guild.channels.cache.find(c => c.id == config.channels.log.mod)
     await logChannel.send(`<@!${user.id}> has been verified by <@!${message.author.id}>`)
+    message.channel.send("Manual Verification Success")
 }
