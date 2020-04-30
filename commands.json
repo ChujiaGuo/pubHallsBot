@@ -62,6 +62,8 @@
 
         "vetunsuspend":"**Description:** Un-vetsuspends a user\n\n**Usage: `vetunsuspend (userId/mention)`**\n`userId/mention` = The ID or mention of the user who is to be un-vetsuspended\n\n**Aliases:** vus, veteranunsuspend",
 
-        "ping":"**Description:** Displays bot latencies\n\n**Usage: `ping`**\n\n**Aliases:** None"
+        "ping":"**Description:** Displays bot latencies\n\n**Usage: `ping`**\n\n**Aliases:** None",
+
+        "find":"**Description:** Finds a user\n\n**Usage: `find (userId/mention/nickname)`**\n`userId/mention/nickname` = The ID, mention, or nickname of a user\n\n**Aliases:** None"
     }
 }
