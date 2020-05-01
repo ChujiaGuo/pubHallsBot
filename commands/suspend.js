@@ -26,19 +26,44 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     //Get user
     var user = args.shift()
     if (isNaN(user)) {
-        user = user.slice(3, -1)
+        if (isNaN(user.slice(3, -1)) || user.slice(3, -1).length == 0) {
+            //Get from nickname
+            try {
+                user = await message.guild.members.cache.find(m => m.displayName.toLowerCase().replace(/[^a-z|]/gi, '').split('|').includes(user.toLowerCase()))
+            } catch (e) {
+                returnEmbed.setColor("#ff1212")
+                returnEmbed.setDescription(`I could not find a user with the nickname of: ${args[i]}`)
+                returnEmbed.addField("Error:", e.toString())
+            }
+        } else {
+            //Get from mention
+            try {
+                user = await message.guild.members.fetch(user.slice(3, -1))
+            } catch (e) {
+                returnEmbed.setColor("#ff1212")
+                returnEmbed.setDescription(`I could not find a user with the mention of: <@!${args[i]}>`)
+                returnEmbed.addField("Error:", e.toString())
+            }
+        }
+    } else {
+        //Get from id
+        try {
+            user = await message.guild.members.fetch(user)
+        } catch (e) {
+            returnEmbed.setColor("#ff1212")
+            returnEmbed.setDescription(`I could not find a user with the id of: \`${args[i]}\``)
+            returnEmbed.addField("Error:", e.toString())
+        }
     }
-    try {
-        user = await message.guild.members.fetch(user)
-    } catch (e) {
-        return message.channel.send(`Invalid User:\n\`\`\`${e}\`\`\``)
+    if(user == undefined){
+        return message.channel.send("Invalid User")
     }
     //Check comparative user perms
     try {
         let other = user.roles.hoist.position
         let own = message.member.roles.hoist.position
         if (other >= own) {
-            return message.channel.send("You may not kick this user as their roles are equal or higher than yours.")
+            return message.channel.send("You may not suspend this user as their roles are equal or higher than yours.")
         }
     } catch (e) {
 

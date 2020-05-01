@@ -21,12 +21,37 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     }
     var user = args.shift()
     if (isNaN(user)) {
-        user = user.slice(3, -1)
+        if (isNaN(user.slice(3, -1)) || user.slice(3, -1).length == 0) {
+            //Get from nickname
+            try {
+                user = await message.guild.members.cache.find(m => m.displayName.toLowerCase().replace(/[^a-z|]/gi, '').split('|').includes(user.toLowerCase()))
+            } catch (e) {
+                returnEmbed.setColor("#ff1212")
+                returnEmbed.setDescription(`I could not find a user with the nickname of: ${args[i]}`)
+                returnEmbed.addField("Error:", e.toString())
+            }
+        } else {
+            //Get from mention
+            try {
+                user = await message.guild.members.fetch(user.slice(3, -1))
+            } catch (e) {
+                returnEmbed.setColor("#ff1212")
+                returnEmbed.setDescription(`I could not find a user with the mention of: <@!${args[i]}>`)
+                returnEmbed.addField("Error:", e.toString())
+            }
+        }
+    } else {
+        //Get from id
+        try {
+            user = await message.guild.members.fetch(user)
+        } catch (e) {
+            returnEmbed.setColor("#ff1212")
+            returnEmbed.setDescription(`I could not find a user with the id of: \`${args[i]}\``)
+            returnEmbed.addField("Error:", e.toString())
+        }
     }
-    try {
-        user = await message.guild.members.fetch(user)
-    } catch (e) {
-        return message.channel.send(`Invalid User:\n\`\`\`${e}\`\`\``)
+    if(user == undefined){
+        return message.channel.send("Invalid User")
     }
     if (user.id == message.author.id) {
         return message.channel.send("Why would you vet suspend yourself. (and in case it wasn't obvious, the request is denied)")
@@ -143,7 +168,6 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                                 .setColor("#41f230")
                                 .setDescription("Unsuspended")
                             if (user.roles.cache.has(config.roles.general.vetsuspended)) {
-
                                 await suspendMessage.edit(suspendEmbed)
                                 await user.roles.add(config.roles.general.vetraider)
                                 await user.roles.remove(config.roles.general.vetsuspended)
