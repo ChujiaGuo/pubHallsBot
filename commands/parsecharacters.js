@@ -4,6 +4,11 @@ const cors = require('cors')({ origin: true })
 const cheerio = require('cheerio')
 const vision = require('@google-cloud/vision')
 const ocrClient = new vision.ImageAnnotatorClient()
+const Bottleneck =  require("bottleneck")
+const limiter = new Bottleneck({
+    minTime:1000,
+    maxConcurrent:2
+})
 
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
@@ -21,13 +26,15 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     var imageURL = args.shift();
     if (imageURL == undefined) {
         if (message.attachments.size == 1) {
-            imageURL = message.attachments.map(a => a.proxyURL)[0]
+            imageURL = message.attachments.first().proxyURL
         } else {
             return message.channel.send("Please attach a single image, either as an URL or as a raw image.")
         }
     }
     try {
+        await message.channel.send("Retrieving text...")
         var result = await ocrClient.textDetection(imageURL)
+        await message.channel.send("Text received")
         var players = result[0].fullTextAnnotation.text.replace(/\n/g, " ").split(' ').slice(3)
         for (var i in players) {
             players[i] = players[i].replace(",", "").toLowerCase().trim()
@@ -35,17 +42,23 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         var characters = new Map()
         var invalid = []
     } catch (e) {
-        return message.channel.send(`There was an error using the image to text service.\`\`\`${result[0].error.message}\`\`\``)
+        console.log(e)
+        return message.channel.send(`There was an error using the image to text service.\`\`\`${e}\`\`\``)
     }
 
 
     //Get first character
+    await message.channel.send("Beginning retrieving realmeye data...")
+    var beginMessage = await message.channel.send("Beginning data retrieval for: ")
+    var completeMessage = await message.channel.send("Data retrieval complete for: ")
     try {
         for (var i in players) {
+            beginMessage.edit(`Beginning data retrieval for: ${players[i]}`)
             var url = `https://www.realmeye.com/player/${players[i]}`;
-            var res = await fetch(url);
+            var res = await limiter.schedule(() => fetch(url))
             var html = await res.text();
             var $ = cheerio.load(html)
+            completeMessage.edit(`Data retrieval complete for: ${players[i]}`)
             let characterObject = { "name": players[i] }
             var types = ['class', 'level', 'cqc', 'fame', 'exp', 'place', 'equip', 'max']
             $('table[id=e]').find("tr").eq(1).find('td').each(async x => {
@@ -61,6 +74,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 invalid.push(players[i].charAt(0).toUpperCase() + players[i].substring(1))
             }
         }
+        await message.channel.send("Realmeye data retrieval complete.")
     } catch (e) {
         return message.channel.send("There was an error fetching a realmeye page.")
     }
