@@ -69,6 +69,7 @@ client.on("message", async message => {
     let cmd = args.shift().toLowerCase();
 
     if (cmd.length == 0) return;
+    if(/[^a-z]/gi.test(cmd)) return;
     //Attempt Command
     try {
 
