@@ -4,4 +4,5 @@ node_modules/
 oldStuff/
 commands/test.js
 commands/oldafk.js
+commands/oldsetup.js
 commands/mbrtest.js
