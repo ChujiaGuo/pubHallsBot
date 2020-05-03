@@ -15,10 +15,12 @@
         "bm": "bazaarparse",
         "pc": "parsecharacters",
         "loc": "location",
+        "help":"commands",
         "cmd": "commands",
         "cmds": "commands",
         "kill": "restart",
-        "status": "ping"
+        "status": "ping",
+        "rr":"russianroulette"
     },
     "help": {
         "addalt":"**Description:** Adds an alt to an user\n\n**Usage: `addalt (userId/mention) (altName) (proof)`**\n`userId/mention` = The ID or mention of the user to have an alt added to\n`altName` = The name of the alt to be added\n`proof` = The proof the user owns the alt\n\n**Aliases:** ",

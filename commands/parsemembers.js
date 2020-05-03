@@ -127,14 +127,23 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 
     var crasherListFormat = crasherListNoRL.join(', ')
     if(draggedIn.length > 0){
-        await message.channel.send("The following people were moved in from other channels")
-        await message.channel.send(`\`\`\`${draggedIn.join(', ')}\`\`\``)
+        let draggedInEmbed = new Discord.MessageEmbed()
+        .setColor("#ff1212")
+        .setAuthor("The following people were moved in from other channels:")
+        .setDescription(`\`\`\`${draggedIn.join(', ')}\`\`\``)
+        await message.channel.send(draggedInEmbed)
     }
     if (crasherListNoRL.length > 0) {
-        await message.channel.send("The following people are in your run when they should not be (ARL+ Excluded):")
-        await message.channel.send(`\`\`\`${crasherListFormat}\`\`\``)
-        await message.channel.send("As input for find:")
-        await message.channel.send(`\`\`\`${crasherListNoRL.join(' ')}\`\`\``)
+        let embed1 = new Discord.MessageEmbed()
+        .setColor("#ff1212")
+        .setAuthor("The following people are in your run but not in the raiding channel (ARL+ Excluded):")
+        .setDescription(`\`\`\`${crasherListFormat}\`\`\``)
+        let embed2 = new Discord.MessageEmbed()
+        .setColor("#ff1212")
+        .setAuthor("As input for find:")
+        .setDescription(`\`\`\`${crasherListNoRL.join(' ')}\`\`\``)
+        await message.channel.send(embed1)
+        await message.channel.send(embed2)
     } else {
         await message.channel.send("There are no crashers")
     }
