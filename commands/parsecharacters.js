@@ -48,7 +48,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 
 
     //Get first character
-    var beginMessage = await message.channel.send(`Beginning retrieving realmeye data...0/${players.length}`)
+    var beginMessage = await message.channel.send(`Beginning retrieving realmeye data...`)
     try {
         for (var i in players) {
             var url = `https://www.realmeye.com/player/${players[i]}`;
@@ -69,7 +69,6 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             } else if (players[i].length > 0) {
                 invalid.push(players[i].charAt(0).toUpperCase() + players[i].substring(1))
             }
-            beginMessage.edit(`Beginning retrieving realmeye data...${i+1}/${players.length}`)
         }
         await message.channel.send("Realmeye data retrieval complete.")
     } catch (e) {
