@@ -6,7 +6,7 @@ exports.run = async (client, message, args, Discord) => {
         var commandsEmbed = new Discord.MessageEmbed()
             .setColor("#ff1212")
             .setTitle("Commands List")
-            .setDescription("**__Raiding:__**\n```css\nafk, resetafk, clean, lock, unlock, bazaarparse, parsecharacters, location```\n**__Moderation:__**```css\nmanualverify, manualvetverify, suspend, vetsuspend, unsuspend, unvetsuspend, kick, addalt, changename```\n**__Restricted:__**```css\nsetup```")
+            .setDescription("**__Raiding:__**\n```css\nafk, resetafk, clean, lock, unlock, bazaarparse, parsecharacters, parsemembers, location```\n**__Moderation:__**```css\nmanualverify, manualvetverify, suspend, vetsuspend, unsuspend, unvetsuspend, kick, addalt, changename```\n**__Restricted:__**```css\nsetup```")
         return message.channel.send(commandsEmbed)
     }
     var cmd = args.shift()

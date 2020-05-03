@@ -49,7 +49,7 @@
 
         "parsecharacters":"**Description:** Parses the stats of people currently in a run\n\n**Usage: `parsecharacters (userList)`**\n`userList` = An image of people in the run (This can be either a link or a raw image)\n\n**Aliases:** pc",
 
-        "parsemembers":"**Description:** Parses the people currently in a run\n\n**Usage: `parsecharacters (userList)`**\n`userList` = An image of people in the run (This can be either a link or a raw image)\n\n**Aliases:** pm",
+        "parsemembers":"**Description:** Parses the people currently in a run\n\n**Usage: `parsemembers (raidingChannelNumber) (userList)`**\n`raidingChannelNumber` = The channel you want to parse\n`userList` = An image of people in the run (This can be either a link or a raw image)\n\n**Aliases:** pm",
 
         "resetafk":"**Description:** Resets the AFK Status\n\n**Usage: `resetafk`**\n\n**Aliases:** None",
 
