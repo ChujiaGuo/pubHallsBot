@@ -82,7 +82,13 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             return message.channel.send("Please attach a single image, either as an URL or as a raw image.")
         }
     }
-    var result = await ocrClient.textDetection(imageURL)
+    await message.channel.send("Retrieving text...")
+    try{
+        var result = await ocrClient.textDetection(imageURL)
+    }catch(e){
+        return message.channel.send(`There was an error using the image to text service.\`\`\`${e}\`\`\``)
+    }
+    await message.channel.send("Text Received")
     var players = result[0].fullTextAnnotation.text.replace(/\n/g, " ").split(' ')
     players = players.slice(players.indexOf(players.find(i => i.includes("):"))) + 1)
     for (var i in players) {
@@ -91,7 +97,8 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 
     var channelMembers = raidingChannel.members.map(m => m.displayName)
     var crasherList = [];
-
+    
+    await message.channel.send("Begin parsing...")
     //Start channel parsing
     for (var i in players) {
         if(channelMembers.find(n => n.toLowerCase().replace(/[^a-z|]/gi, '').split('|').includes(players[i].toLowerCase()))==undefined){

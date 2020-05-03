@@ -70,13 +70,20 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             return message.channel.send("Please attach a single image, either as an URL or as a raw image.")
         }
     }
-    var result = await ocrClient.textDetection(imageURL)
+    await message.channel.send("Retrieving text...")
+    try{
+        var result = await ocrClient.textDetection(imageURL)
+    }catch(e){
+        return message.channel.send(`There was an error using the image to text service.\`\`\`${e}\`\`\``)
+    }
+    await message.channel.send("Text Received")
+
     var players = result[0].fullTextAnnotation.text.replace(/\n/g, " ").split(' ')
-    players = players.slice(players.indexOf(players.find(i => i.includes("):")))+1)
+    players = players.slice(players.indexOf(players.find(i => i.includes("):"))) + 1)
     for (var i in players) {
         players[i] = players[i].replace(",", "").toLowerCase().trim()
     }
-
+    await message.channel.send("Begin parsing...")
     //Begin Comparisons
     var crasherList = []
     for (var i in players) {
@@ -110,10 +117,16 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     //Send stuff
     var crasherListFormat = crasherListNoRL.join(', ')
     if (crasherListNoRL.length > 0) {
-        await message.channel.send("The following people are at your location when they should not be (ARL+ Excluded):")
-        await message.channel.send(`\`\`\`${crasherListFormat}\`\`\``)
-        await message.channel.send("As input for -find:")
-        await message.channel.send(`\`\`\`${crasherListNoRL.join(' ')}\`\`\``)
+        let embed1 = new Discord.MessageEmbed()
+        .setColor("#ff1212")
+        .setAuthor("The following people are in your location when they should not be (ARL+ Excluded):")
+        .setDescription(`\`\`\`${crasherListFormat}\`\`\``)
+        let embed2 = new Discord.MessageEmbed()
+        .setColor("#ff1212")
+        .setAuthor("As input for find:")
+        .setDescription(`\`\`\`${crasherListNoRL.join(' ')}\`\`\``)
+        await message.channel.send(embed1)
+        await message.channel.send(embed2)
     } else {
         await message.channel.send("There are no crashers")
     }
