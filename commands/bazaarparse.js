@@ -71,7 +71,8 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
     }
     var result = await ocrClient.textDetection(imageURL)
-    var players = result[0].fullTextAnnotation.text.replace(/\n/g, " ").split(' ').slice(3)
+    var players = result[0].fullTextAnnotation.text.replace(/\n/g, " ").split(' ')
+    players = players.slice(players.indexOf(players.find(i => i.includes("):")))+1)
     for (var i in players) {
         players[i] = players[i].replace(",", "").toLowerCase().trim()
     }
@@ -101,7 +102,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             if (!auth) {
                 crasherListNoRL.push(nickname)
             }
-        }else{
+        } else {
             crasherListNoRL.push(nickname)
         }
     }
