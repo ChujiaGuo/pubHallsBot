@@ -4,9 +4,6 @@ const ocrClient = new vision.ImageAnnotatorClient()
 
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
-    if(!sudo){
-        return message.channel.send("Parsing is currently not supported")
-    }
     var config = JSON.parse(fs.readFileSync('config.json'))
     //Permissions
     if (!sudo) {
@@ -19,7 +16,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     if (args.length < 1) {
         return message.channel.send(`You are missing arguments. Expected 1, received ${args.length}.`)
     }
-    
+
     //Get Channel
     //Find Origin
     var origin = 0;
@@ -76,7 +73,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     var raidingChannel = await message.guild.channels.cache.find(c => c.id == channelNumber)
     var channelMembers = raidingChannel.members
 
-    //Start Image Parsing
+    //Begin Image Parsing
     var imageURL = args.shift();
     if (imageURL == undefined) {
         if (message.attachments.size == 1) {
@@ -86,12 +83,57 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
     }
     var result = await ocrClient.textDetection(imageURL)
-    var players = result[0].fullTextAnnotation.text.split(' ').slice(3)
-    var channelMembers = raidingChannel.members.map(m => m.nickname)
+    var players = result[0].fullTextAnnotation.text.replace(/\n/g, " ").split(' ')
+    players = players.slice(players.indexOf(players.find(i => i.includes("):"))) + 1)
+    for (var i in players) {
+        players[i] = players[i].replace(",", "").toLowerCase().trim()
+    }
+
+    var channelMembers = raidingChannel.members.map(m => m.displayName)
     var crasherList = [];
 
     //Start channel parsing
-    for(var i in players){
-        players[i].replace("\n","")
+    for (var i in players) {
+        if(channelMembers.find(n => n.toLowerCase().replace(/[^a-z|]/gi, '').split('|').includes(players[i].toLowerCase()))==undefined){
+            crasherList.push(players[i].replace(/[^a-z]/gi, ""))
+        }
+    }
+    crasherList = crasherList.filter(Boolean)
+    var draggedIn = []
+    var crasherListNoRL = []
+    for (var i in crasherList) {
+        let nickname = crasherList[i].toLowerCase()
+        let member = await message.guild.members.cache.find(m => m.displayName.toLowerCase().includes(nickname))
+        if (member != undefined) {
+            let commandFile = require(`./permcheck.js`);
+            var auth = await commandFile.run(client, member, 100)
+            if (!auth) {
+                if(member.voice.channel != undefined){
+                    try{
+                        await member.voice.setChannel(raidingChannel)
+                        draggedIn.push(member.displayName)
+                    }catch(e){
+                        console.log(e)
+                        message.channel.send(`An error occured when moving ${member.displayName} in.`)
+                    }
+                }else{
+                    crasherListNoRL.push(nickname)
+                }
+            }
+        } else {
+            crasherListNoRL.push(nickname)
+        }
+    }
+
+    var crasherListFormat = crasherListNoRL.join(', ')
+    if (crasherListNoRL.length > 0) {
+        await message.channel.send("The following people were moved in from other raiding")
+        await message.channel.send(`\`\`\`${draggedIn.join(', ')}\`\`\``)
+        await message.channel.send("The following people are in your run when they should not be (ARL+ Excluded):")
+        await message.channel.send(`\`\`\`${crasherListFormat}\`\`\``)
+        await message.channel.send("As input for find:")
+        await message.channel.send(`\`\`\`${crasherListNoRL.join(' ')}\`\`\``)
+    } else {
+        await message.channel.send("There are no crashers")
     }
 }
