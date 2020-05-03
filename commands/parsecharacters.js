@@ -48,17 +48,13 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 
 
     //Get first character
-    await message.channel.send("Beginning retrieving realmeye data...")
-    var beginMessage = await message.channel.send("Beginning data retrieval for: ")
-    var completeMessage = await message.channel.send("Data retrieval complete for: ")
+    var beginMessage = await message.channel.send(`Beginning retrieving realmeye data...0/${players.length}`)
     try {
         for (var i in players) {
-            beginMessage.edit(`Beginning data retrieval for: ${players[i]}`)
             var url = `https://www.realmeye.com/player/${players[i]}`;
             var res = await limiter.schedule(() => fetch(url))
             var html = await res.text();
             var $ = cheerio.load(html)
-            completeMessage.edit(`Data retrieval complete for: ${players[i]}`)
             let characterObject = { "name": players[i] }
             var types = ['class', 'level', 'cqc', 'fame', 'exp', 'place', 'equip', 'max']
             $('table[id=e]').find("tr").eq(1).find('td').each(async x => {
@@ -73,6 +69,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             } else if (players[i].length > 0) {
                 invalid.push(players[i].charAt(0).toUpperCase() + players[i].substring(1))
             }
+            beginMessage.edit(`Beginning retrieving realmeye data...${i+1}/${players.length}`)
         }
         await message.channel.send("Realmeye data retrieval complete.")
     } catch (e) {
