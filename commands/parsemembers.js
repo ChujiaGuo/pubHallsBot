@@ -126,9 +126,11 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     }
 
     var crasherListFormat = crasherListNoRL.join(', ')
-    if (crasherListNoRL.length > 0) {
-        await message.channel.send("The following people were moved in from other raiding")
+    if(draggedIn.length > 0){
+        await message.channel.send("The following people were moved in from other channels")
         await message.channel.send(`\`\`\`${draggedIn.join(', ')}\`\`\``)
+    }
+    if (crasherListNoRL.length > 0) {
         await message.channel.send("The following people are in your run when they should not be (ARL+ Excluded):")
         await message.channel.send(`\`\`\`${crasherListFormat}\`\`\``)
         await message.channel.send("As input for find:")
