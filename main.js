@@ -70,9 +70,9 @@ client.on("message", async message => {
     //Not a command channel
     let restrictedCommands = ['addalt', 'afk', 'bazaarparse', 'changename', 'clean', 'find', 'kick', 'location', 'lock', 'manualverify', 'manualvetverifiy', 'parsecharacters', 'parsemembers', 'resetafk', 'restart', 'setup', 'suspend', 'unlock', 'unsuspend', 'vetsuspend', 'vetunsuspend']
     let commandArray = Object.values(config.channels.command)
-    commandArray.push(config.channels.veteran.command)
-    commandArray.push(config.channels.normal.command)
-    commandArray.push(config.channels.event.command)
+    commandArray.push(config.channels.veteran.control.command)
+    commandArray.push(config.channels.normal.control.command)
+    commandArray.push(config.channels.event.control.command)
     if (!commandArray.includes(message.channel.id) && restrictedCommands.includes(cmd)) return message.channel.send("Commands have to be used in a designated command channel.");
 
     //Attempt Command

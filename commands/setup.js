@@ -31,7 +31,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     for (var i in currentLocation) {
         if (typeof currentLocation[i] == "object") {
             descriptionString += `\`${i}\` = \`{Object}\`\n\n`
-        } else if (typeof currentLocation[i] == "string") {
+        } else if (typeof currentLocation[i] == "string" || typeof currentLocation[i] == "number") {
             if (i != 'auth' && i != 'dev') {
                 descriptionString += `\`${i}\` = \`${currentLocation[i]}\`\n\n`
             }
@@ -74,7 +74,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     for (var i in currentLocation) {
                         if (typeof currentLocation[i] == "object") {
                             descriptionString += `\`${i}\` = \`{Object}\`\n\n`
-                        } else if (typeof currentLocation[i] == "string") {
+                        } else if (typeof currentLocation[i] == "string" || typeof currentLocation[i] == "number") {
                             if (i != 'auth' && i != 'dev') {
                                 descriptionString += `\`${i}\` = \`${currentLocation[i]}\`\n\n`
                             }
@@ -122,16 +122,18 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     await displayMessage.edit(displayEmbed)
                 } else {
                     try {
-                        eval(currentPath + `.${args[0]}="${args[1]}"`)
+                        eval(currentPath + `["${args[0]}"]="${args[1]}"`)
                         eval('currentLocation =' + currentPath)
                     } catch (e) {
+                        console.log(e)
+                        console.log(currentPath)
                         return message.channel.send(e)
                     }
                     var descriptionString = `${currentPath}\n\n`
                     for (var i in currentLocation) {
                         if (typeof currentLocation[i] == "object") {
                             descriptionString += `\`${i}\` = \`{Object}\`\n\n`
-                        } else if (typeof currentLocation[i] == "string") {
+                        } else if (typeof currentLocation[i] == "string" || typeof currentLocation[i] == "number") {
                             if (i != 'auth' && i != 'dev') {
                                 descriptionString += `\`${i}\` = \`${currentLocation[i]}\`\n\n`
                             }
