@@ -40,20 +40,19 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         oldName = user.user.username + " (No Nickname)"
     }
     try {
+        var logChannel = await message.guild.channels.cache.find(c => c.id == config.channels.log.mod)
+        var logEmbed = new Discord.MessageEmbed()
+            .setColor("#41f230")
+            .setTitle("Name Changed")
+            .setDescription(`Name Changed for:\n\`${user.nickname}\` <@!${user.id}>\nOld Name: ${oldName}\nNew Name: ${newName}\nImage [Here](${imageURL})`)
+            .addField(`User's Server Name: \`${user.nickname}\``, `<@!${user.id}> (Username: ${user.user.username})`, true)
+            .addField(`Mod's Server Name: \`${message.member.nickname}\``, `<@!${message.member.id}> (Username: ${message.member.user.username})`, true)
+            .setImage(imageURL)
+            .setTimestamp()
+        await logChannel.send(logEmbed)
+        await message.channel.send(`Name Changed for: <@!${user.id}>`)
         await user.setNickname(newName)
     } catch (e) {
         return message.channel.send(`For the following reason, I do not have permission to change this user's nickname: \`\`\`${e}\`\`\``)
     }
-
-    var logChannel = await message.guild.channels.cache.find(c => c.id == config.channels.log.mod)
-    var logEmbed = new Discord.MessageEmbed()
-        .setColor("#41f230")
-        .setTitle("Name Changed")
-        .setDescription(`Name Changed for:\n\`${user.nickname}\` <@!${user.id}>\nOld Name: ${oldName}\nNew Name: ${newName}\nImage [Here](${imageURL})`)
-        .addField(`User's Server Name: \`${user.nickname}\``, `<@!${user.id}> (Username: ${user.user.username})`, true)
-        .addField(`Mod's Server Name: \`${message.member.nickname}\``, `<@!${message.member.id}> (Username: ${message.member.user.username})`, true)
-        .setImage(imageURL)
-        .setTimestamp()
-    await logChannel.send(logEmbed)
-    await message.channel.send(`Name Changed for: <@!${user.id}>`)
 }
