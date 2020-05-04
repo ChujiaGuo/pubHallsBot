@@ -1,6 +1,8 @@
 const fs = require('fs')
 const vision = require('@google-cloud/vision')
 const ocrClient = new vision.ImageAnnotatorClient()
+const { createWorker } = require('tesseract.js')
+const worker = createWorker()
 
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
@@ -71,18 +73,19 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
     }
     await message.channel.send("Retrieving text...")
-    try{
-        var result = await ocrClient.textDetection(imageURL)
-    }catch(e){
+    try {
+        var result = await parseImage(imageURL)
+    } catch (e) {
         return message.channel.send(`There was an error using the image to text service.\`\`\`${e}\`\`\``)
     }
     await message.channel.send("Text Received")
-
-    var players = result[0].fullTextAnnotation.text.replace(/\n/g, " ").split(' ')
+    var players = result.replace(/\n/g, " ").split(' ')
     players = players.slice(players.indexOf(players.find(i => i.includes("):"))) + 1)
     for (var i in players) {
         players[i] = players[i].replace(",", "").toLowerCase().trim()
     }
+    players = players.filter(Boolean)
+
     await message.channel.send("Begin parsing...")
     //Begin Comparisons
     var crasherList = []
@@ -130,5 +133,13 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     } else {
         await message.channel.send("There are no crashers")
     }
+}
 
+async function parseImage(image) {
+    await worker.load();
+    await worker.loadLanguage('eng');
+    await worker.initialize('eng');
+    const { data: { text } } = await worker.recognize(image);
+    await worker.terminate();
+    return text;
 }

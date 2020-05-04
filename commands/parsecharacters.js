@@ -5,6 +5,8 @@ const cheerio = require('cheerio')
 const vision = require('@google-cloud/vision')
 const ocrClient = new vision.ImageAnnotatorClient()
 const Bottleneck =  require("bottleneck")
+const { createWorker } = require('tesseract.js')
+const worker = createWorker()
 const limiter = new Bottleneck({
     minTime:1000,
     maxConcurrent:2
@@ -21,30 +23,31 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             return message.channel.send("You do not have permission to use this command.")
         }
     }
+    var characters = new Map()
+    var invalid = []
 
-    //Start Image Parsing
+    //Begin Image Parsing
     var imageURL = args.shift();
     if (imageURL == undefined) {
         if (message.attachments.size == 1) {
-            imageURL = message.attachments.first().proxyURL
+            imageURL = message.attachments.map(a => a.proxyURL)[0]
         } else {
             return message.channel.send("Please attach a single image, either as an URL or as a raw image.")
         }
     }
+    await message.channel.send("Retrieving text...")
     try {
-        await message.channel.send("Retrieving text...")
-        var result = await ocrClient.textDetection(imageURL)
-        await message.channel.send("Text received")
-        var players = result[0].fullTextAnnotation.text.replace(/\n/g, " ").split(' ').slice(3)
-        for (var i in players) {
-            players[i] = players[i].replace(",", "").toLowerCase().trim()
-        }
-        var characters = new Map()
-        var invalid = []
+        var result = await parseImage(imageURL)
     } catch (e) {
-        console.log(e)
         return message.channel.send(`There was an error using the image to text service.\`\`\`${e}\`\`\``)
     }
+    await message.channel.send("Text Received")
+    var players = result.replace(/\n/g, " ").split(' ')
+    players = players.slice(players.indexOf(players.find(i => i.includes("):"))) + 1)
+    for (var i in players) {
+        players[i] = players[i].replace(",", "").toLowerCase().trim()
+    }
+    players = players.filter(Boolean)
 
 
     //Get first character
@@ -93,21 +96,28 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
 
     })
-    var bigMessageString = ""
+    var displayEmbed = new Discord.MessageEmbed()
+    .setColor("#ff1212")
+    .setAuthor("Character Parsing Results:")
     for (var i in sortMaxed) {
         if (sortMaxed[i].length > 0) {
-            bigMessageString += (`The following people are ${i}/8:`)
-            bigMessageString += (`\`\`\`${sortMaxed[i].join(', ')}\`\`\``)
+            displayEmbed.addField(`The following people are ${i}/8:`, `\`\`\`${sortMaxed[i].join(', ')}\`\`\``)
         }
     }
     invalid = invalid.join(', ')
     if (invalid.length > 0) {
-        bigMessageString += ("I could not find information on these people:")
-        bigMessageString += (`\`\`\`${invalid}\`\`\``)
+        displayEmbed.addField("I could not find information on these people:", `\`\`\`${invalid}\`\`\``)
     }
-    await message.channel.send(bigMessageString)
+    await message.channel.send(displayEmbed)
 }
-
+async function parseImage(image) {
+    await worker.load();
+    await worker.loadLanguage('eng');
+    await worker.initialize('eng');
+    const { data: { text } } = await worker.recognize(image);
+    await worker.terminate();
+    return text;
+}
 /*
 Personal Web Scraping Attempt
 var url = `https://www.realmeye.com/player/${players[i]}`;
