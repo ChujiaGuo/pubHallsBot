@@ -56,25 +56,29 @@ client.on("message", async message => {
     if (message.author.bot) return;
     //Not a command
     if (message.content.charAt(0) != config.prefix) return;
-    /*
-    //Not a command channel
-    let commandArray = Object.values(config.channels.command)
-    commandArray.push(config.channels.veteran.command)
-    commandArray.push(config.channels.normal.command)
-    commandArray.push(config.channels.event.command)
-    if (!commandArray.includes(message.channel.id)) return message.channel.send("Command has to be used in a designated command channel.");
-    */
+        
     //Define Command
     let args = message.content.slice(config.prefix.length).trim().split(' ');
     let cmd = args.shift().toLowerCase();
 
+    //Deal with unwanted commands
     if (cmd.length == 0) return;
     if(/[^a-z]/gi.test(cmd)) return;
+    cmd = commands.aliases[cmd] || cmd
+
+    //Check channel
+    //Not a command channel
+    let restrictedCommands = ['addalt', 'afk', 'bazaarparse', 'changename', 'clean', 'find', 'kick', 'location', 'lock', 'manualverify', 'manualvetverifiy', 'parsecharacters', 'parsemembers', 'resetafk', 'restart', 'setup', 'suspend', 'unlock', 'unsuspend', 'vetsuspend', 'vetunsuspend']
+    let commandArray = Object.values(config.channels.command)
+    commandArray.push(config.channels.veteran.command)
+    commandArray.push(config.channels.normal.command)
+    commandArray.push(config.channels.event.command)
+    if (!commandArray.includes(message.channel.id) && restrictedCommands.includes(cmd)) return message.channel.send("Commands have to be used in a designated command channel.");
+
     //Attempt Command
     try {
 
         //Retrive Command File
-        cmd = commands.aliases[cmd] || cmd
         let cmdFile = `./commands/${cmd}.js`
         delete require.cache[require.resolve(cmdFile)];
         let commandFile = require(cmdFile);
