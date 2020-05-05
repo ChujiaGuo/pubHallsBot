@@ -93,7 +93,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     for (var i in players) {
         let nickname = players[i]
         if (nickname.length > 0) {
-            if (!usernameArray.includes(nickname)) {
+            if (!usernameArray.find(n => n.toLowerCase().replace(/[^a-z|]/gi, '').split('|').includes(nickname))) {
                 crasherList.push(nickname)
             }
         }
