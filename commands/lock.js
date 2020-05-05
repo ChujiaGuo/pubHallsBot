@@ -82,6 +82,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     await raidingChannel.setUserLimit(99)
     await raidingChannel.setName(raidingChannel.name.replace(' <-- Join!', ''))
     await raidingChannel.setName(raidingChannel.name.replace(' <-- Join', ''))
+    await raidingChannel.setName(raidingChannel.name.replace(' <--Join', ''))
     await raidingChannel.updateOverwrite(config.roles.general.raider, {
         'CONNECT': false
     })
