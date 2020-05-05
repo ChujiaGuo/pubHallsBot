@@ -2,7 +2,7 @@ const fs = require('fs')
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
     var config = JSON.parse(fs.readFileSync("config.json"))
-    config.postime = parseInt(config.postime)
+    config.postime = parseInt(config.posttime)
     config.afktime = parseInt(config.afktime)
     var afk = JSON.parse(fs.readFileSync("afk.json"))
     //Check Perms
