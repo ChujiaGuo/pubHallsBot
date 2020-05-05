@@ -54,6 +54,7 @@ client.on("message", async message => {
     //Filters
     //Bot
     if (message.author.bot) return;
+    if(message.content.includes(`<@!${client.user.id}> prefix`))return message.channel.send(config.prefix)
     //Not a command
     if (message.content.charAt(0) != config.prefix) return;
         
