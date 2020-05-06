@@ -46,7 +46,6 @@ client.on("guildMemberAdd", async member => {
 
 })
 client.on("rateLimit", r => {
-    console.log(r)
 })
 client.on("message", async message => {
 

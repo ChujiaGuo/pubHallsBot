@@ -26,7 +26,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         let commandFile = require(`./permcheck.js`);
         var auth;
         if (origin == 100) {
-            auth = await commandFile.run(client, message.member, 10000);
+            auth = await commandFile.run(client, message.member, 1000);
         } else if (origin == 10) {
             auth = await commandFile.run(client, message.member, 100);
         } else if (origin == 1) {
@@ -301,7 +301,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 let commandFile = require(`./permcheck.js`);
                 var auth;
                 if (origin == 100) {
-                    auth = await commandFile.run(client, user, 10000);
+                    auth = await commandFile.run(client, user, 100);
                 } else if (origin == 10) {
                     auth = await commandFile.run(client, user, 100);
                 } else if (origin == 1) {
@@ -551,7 +551,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             let commandFile = require(`./permcheck.js`);
             var auth;
             if (origin == 100) {
-                auth = await commandFile.run(client, reactor, 10000);
+                auth = await commandFile.run(client, reactor, 1000);
             } else if (origin == 10) {
                 auth = await commandFile.run(client, reactor, 100);
             } else if (origin == 1) {
@@ -670,7 +670,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                         let commandFile = require(`./permcheck.js`);
                         var auth;
                         if (origin == 100) {
-                            auth = await commandFile.run(client, user, 10000);
+                            auth = await commandFile.run(client, user, 1000);
                         } else if (origin == 10) {
                             auth = await commandFile.run(client, user, 100);
                         } else if (origin == 1) {
@@ -703,7 +703,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         let commandFile = require(`./permcheck.js`);
         var auth;
         if (origin == 100) {
-            auth = await commandFile.run(client, reactor, 10000);
+            auth = await commandFile.run(client, reactor, 1000);
         } else if (origin == 10) {
             auth = await commandFile.run(client, reactor, 100);
         } else if (origin == 1) {
