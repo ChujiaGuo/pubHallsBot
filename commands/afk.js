@@ -181,6 +181,24 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             logMessage = await logChannel.send(controlEmbed)
             commandMessage = await message.channel.send(controlEmbed)
             break;
+        case "oryx3":
+            runAnnouncement = await statusChannel.send(`@here \`Fullskip Void\` (${entity}) started by <@${message.author.id}> in \`${raidingChannel.name}\``)
+            runEmbed
+                .setColor("#ffffff")
+                .setAuthor(`Oryx 3 started by ${message.member.nickname} in ${raidingChannel.name}`, message.author.avatarURL())
+                .setDescription(`To join, **connect to the raiding channel** and then react with ${oryx}\nIf you have a rune, please react with your respective rune. ${helmetRune}${swordRune}${shieldRune}\nIf you are bringing one of the following classes, please react that with class respectively ${warrior}${pally}${knight}\nIf you are bringing one of the following items (and plan on using it), please react with that item respectively ${mseal}${puri}\nIf you have the <@&${config.roles.general.nitro}> role, you may react with the ${shinynitro} for early location (10 max)\nTo end this AFK Check, the raid leader can react with the ❌`)
+            runMessage = await statusChannel.send(runEmbed)
+            controlEmbed = new Discord.MessageEmbed()
+                .addField("Location:", runLocation)
+                .addField("Helmet Runes:", "None")
+                .addField("Sword Runes:", "None")
+                .addField("Shield Runes:", "None")
+                .setColor("#ffffff")
+                .setDescription(`**[AFK Check](${runMessage.url}) control panel for \`${raidingChannel.name}\`\nRun Type: \`Oryx 3\`**`)
+                .addField("Nitro Boosters:", "None")
+            logMessage = await logChannel.send(controlEmbed)
+            commandMessage = await message.channel.send(controlEmbed)
+            break
     }
     afk.statusMessageId = runMessage.id
     afk.infoMessageId = logMessage.id
@@ -228,7 +246,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
         lounge = await runMessage.guild.channels.cache.find(c => c.id == lounge)
         var userIds = await raidingChannel.members.map(u => u.id)
-        var reactIds = (runType == 'cult') ? await runMessage.reactions.cache.map(e => e).find(e => e.emoji.name == 'malus').users.cache.map(u => u.id) : await runMessage.reactions.cache.map(e => e).find(e => e.emoji.name == 'void').users.cache.map(u => u.id)
+        var reactIds = (runType == 'cult') ? await runMessage.reactions.cache.map(e => e).find(e => e.emoji.name == 'malus').users.cache.map(u => u.id) : (runType == 'void' || runType == "fullskipvoid") ? await runMessage.reactions.cache.map(e => e).find(e => e.emoji.name == 'void').users.cache.map(u => u.id) : await runMessage.reactions.cache.map(e => e).find(e => e.emoji.name == 'oryx2').users.cache.map(u => u.id)
         let stayIn;
         if (origin >= 10) {
             stayIn = 100
@@ -323,7 +341,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     }, config.afktime)
 
     //Begin collecting reactions
-    var filterAFK = (r, u) => !u.bot && (r.emoji.id == "702140477432004618" || r.emoji.id == "702140045871808632" || r.emoji.id == "702154477569835048" || r.emoji.id == '702131716726456501' || r.emoji.id == '702140245159837717' || r.emoji.id == '702141265545920562' || r.emoji.id == '702141266057625721' || r.emoji.name == "❌")
+    var filterAFK = (r, u) => !u.bot && (r.emoji.id == "702140477432004618" || r.emoji.id == "702140045871808632" || r.emoji.id == "702154477569835048" || r.emoji.id == '702131716726456501' || r.emoji.id == '702140245159837717' || r.emoji.id == '702141265545920562' || r.emoji.id == '702141266057625721' || r.emoji.id == '707410220883902514' || r.emoji.id == '707410220674056223' || r.emoji.id == '707410220607078412' || r.emoji.name == "❌")
     collectorAFK = runMessage.createReactionCollector(filterAFK, { time: config.afktime })
     var filterControl = (r, u) => !u.bot && (r.emoji.name == "❌")
     collectorControl = commandMessage.createReactionCollector(filterControl, { time: config.afktime })
@@ -341,6 +359,12 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     var brainArray = [];
     var mysticCounter = 0;
     var mysticArray = [];
+    var swordCounter = 0;
+    var swordArray = [];
+    var helmetCounter = 0;
+    var helmetArray = [];
+    var shieldCounter = 0;
+    var shieldArray = [];
 
     collectorAFK.on('collect', async r => {
         let name = r.emoji.name
@@ -524,7 +548,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 confirmationCollector.on('collect', async r => {
                     let name = r.emoji.name
                     if (name == '✅') {
-                        if (mysticCounter < 3 && !mysticArray.includes(`${brain}: <@!${reactor.id}>`)) {
+                        if (mysticCounter < 3 && !mysticArray.includes(`${mystic}: <@!${reactor.id}>`)) {
                             mysticCounter += 1
                             mysticArray.push(`${mystic}: <@!${reactor.id}>`)
                             await reactor.send(`The location of the run in \`${raidingChannel.name}\` has been set to:\n\`${runLocation}\`\nThe RL ${message.member.nickname} will be there to confirm your mystic.`)
@@ -546,7 +570,106 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             } catch (e) {
                 message.channel.send(`<@!${reactor.id}> tried to react with mystic, but there was an error. \`\`\`${e}\`\`\``)
             }
-        } else if (name == "❌") {
+        } else if(name == "helmetRune" && runType == "oryx3"){
+            //Check for helmet runes if necessar
+            try {
+                let confirmationMessage = await reactor.send(`You have reacted with ${helmetRune} (Helmet Rune).\nIf you actually plan on bringing and using the helmet rune, react with ✅.\nIf you did not, or this was a mistake, react with ❌.\nRemember, fake reacting results in suspensions!`)
+                await confirmationMessage.react("✅")
+                await confirmationMessage.react("❌")
+                let confirmationFilter = (r, u) => !u.bot && (r.emoji.name == "✅" || r.emoji.name == "❌")
+                let confirmationCollector = confirmationMessage.createReactionCollector(confirmationFilter, { max: 1, time: 15000 })
+                confirmationCollector.on('collect', async r => {
+                    let name = r.emoji.name
+                    if (name == '✅') {
+                        if (helmetCounter < 3 && !helmetArray.includes(`${helmetRune}: <@!${reactor.id}>`)) {
+                            helmetCounter += 1
+                            helmetArray.push(`${helmetRune}: <@!${reactor.id}>`)
+                            await reactor.send(`The location of the run in \`${raidingChannel.name}\` has been set to:\n\`${runLocation}\`\nThe RL ${message.member.nickname} will be there to confirm your helmet rune.`)
+                            controlEmbed
+                                .spliceFields(1, 1, { name: "Helmet Runes:", value: helmetArray.join('\n'), inline: false })
+                            await commandMessage.edit(controlEmbed)
+                            await logMessage.edit(controlEmbed)
+                            afk.earlyLocationIds.push(reactor.id)
+                            fs.writeFileSync('afk.json', JSON.stringify(afk))
+                        } else if (helmetCounter >= 3) {
+                            await reactor.send(`You have reacted with ✅. However, since we already have enough helmet runes, you will not be getting location early. You *are* however, allowed to bring your helmet rune just in case.`)
+                        } else if (helmetArray.includes(`${helmetRune}: <@!${reactor.id}>`)) {
+                            await reactor.send("You have already reacted, and been confirmed with a helmet rune")
+                        }
+                    } else {
+                        await reactor.send(`You have reacted with ❌. As such, you will not be confirmed bringing a helmet rune.`)
+                    }
+                })
+            } catch (e) {
+                message.channel.send(`<@!${reactor.id}> tried to react with the helmet rune, but there was an error. \`\`\`${e}\`\`\``)
+            }
+        } else if(name == "swordRune" && runType == "oryx3"){
+            //Check for sword runes if necessary
+            try {
+                let confirmationMessage = await reactor.send(`You have reacted with ${swordRune} (Sword Rune).\nIf you actually plan on bringing and using the sword rune, react with ✅.\nIf you did not, or this was a mistake, react with ❌.\nRemember, fake reacting results in suspensions!`)
+                await confirmationMessage.react("✅")
+                await confirmationMessage.react("❌")
+                let confirmationFilter = (r, u) => !u.bot && (r.emoji.name == "✅" || r.emoji.name == "❌")
+                let confirmationCollector = confirmationMessage.createReactionCollector(confirmationFilter, { max: 1, time: 15000 })
+                confirmationCollector.on('collect', async r => {
+                    let name = r.emoji.name
+                    if (name == '✅') {
+                        if (swordCounter < 3 && !swordArray.includes(`${swordRune}: <@!${reactor.id}>`)) {
+                            swordCounter += 1
+                            swordArray.push(`${swordRune}: <@!${reactor.id}>`)
+                            await reactor.send(`The location of the run in \`${raidingChannel.name}\` has been set to:\n\`${runLocation}\`\nThe RL ${message.member.nickname} will be there to confirm your sword rune.`)
+                            controlEmbed
+                                .spliceFields(2, 1, { name: "Sword Runes:", value: swordArray.join('\n'), inline: false })
+                            await commandMessage.edit(controlEmbed)
+                            await logMessage.edit(controlEmbed)
+                            afk.earlyLocationIds.push(reactor.id)
+                            fs.writeFileSync('afk.json', JSON.stringify(afk))
+                        } else if (swordCounter >= 3) {
+                            await reactor.send(`You have reacted with ✅. However, since we already have enough sword runes, you will not be getting location early. You *are* however, allowed to bring your sword rune just in case.`)
+                        } else if (swordArray.includes(`${swordRune}: <@!${reactor.id}>`)) {
+                            await reactor.send("You have already reacted, and been confirmed with a sword rune")
+                        }
+                    } else {
+                        await reactor.send(`You have reacted with ❌. As such, you will not be confirmed bringing a sword rune.`)
+                    }
+                })
+            } catch (e) {
+                message.channel.send(`<@!${reactor.id}> tried to react with the sword rune, but there was an error. \`\`\`${e}\`\`\``)
+            }
+        } else if(name == "shieldRune" && runType == "oryx3"){
+            //Check for shield runes if necessary
+            try {
+                let confirmationMessage = await reactor.send(`You have reacted with ${shieldRune} (Shield Rune).\nIf you actually plan on bringing and using the shield rune, react with ✅.\nIf you did not, or this was a mistake, react with ❌.\nRemember, fake reacting results in suspensions!`)
+                await confirmationMessage.react("✅")
+                await confirmationMessage.react("❌")
+                let confirmationFilter = (r, u) => !u.bot && (r.emoji.name == "✅" || r.emoji.name == "❌")
+                let confirmationCollector = confirmationMessage.createReactionCollector(confirmationFilter, { max: 1, time: 15000 })
+                confirmationCollector.on('collect', async r => {
+                    let name = r.emoji.name
+                    if (name == '✅') {
+                        if (shieldCounter < 3 && !shieldArray.includes(`${shieldRune}: <@!${reactor.id}>`)) {
+                            shieldCounter += 1
+                            shieldArray.push(`${shieldRune}: <@!${reactor.id}>`)
+                            await reactor.send(`The location of the run in \`${raidingChannel.name}\` has been set to:\n\`${runLocation}\`\nThe RL ${message.member.nickname} will be there to confirm your shield rune.`)
+                            controlEmbed
+                                .spliceFields(3, 1, { name: "Shield Runes:", value: shieldArray.join('\n'), inline: false })
+                            await commandMessage.edit(controlEmbed)
+                            await logMessage.edit(controlEmbed)
+                            afk.earlyLocationIds.push(reactor.id)
+                            fs.writeFileSync('afk.json', JSON.stringify(afk))
+                        } else if (shieldCounter >= 3) {
+                            await reactor.send(`You have reacted with ✅. However, since we already have enough shield runes, you will not be getting location early. You *are* however, allowed to bring your shield rune just in case.`)
+                        } else if (shieldArray.includes(`${shieldRune}: <@!${reactor.id}>`)) {
+                            await reactor.send("You have already reacted, and been confirmed with a shield rune")
+                        }
+                    } else {
+                        await reactor.send(`You have reacted with ❌. As such, you will not be confirmed bringing a shield rune.`)
+                    }
+                })
+            } catch (e) {
+                message.channel.send(`<@!${reactor.id}> tried to react with the shield rune, but there was an error. \`\`\`${e}\`\`\``)
+            }
+        }else if (name == "❌") {
             //Ending the afk check
             let commandFile = require(`./permcheck.js`);
             var auth;
@@ -596,7 +719,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 }
                 lounge = await runMessage.guild.channels.cache.find(c => c.id == lounge)
                 var userIds = await raidingChannel.members.map(u => u.id)
-                var reactIds = (runType == 'cult') ? await runMessage.reactions.cache.map(e => e).find(e => e.emoji.name == 'malus').users.cache.map(u => u.id) : await runMessage.reactions.cache.map(e => e).find(e => e.emoji.name == 'void').users.cache.map(u => u.id)
+                var reactIds = (runType == 'cult') ? await runMessage.reactions.cache.map(e => e).find(e => e.emoji.name == 'malus').users.cache.map(u => u.id) : (runType == 'void' || runType == "fullskipvoid") ? await runMessage.reactions.cache.map(e => e).find(e => e.emoji.name == 'void').users.cache.map(u => u.id) : await runMessage.reactions.cache.map(e => e).find(e => e.emoji.name == 'oryx2').users.cache.map(u => u.id)
                 let stayIn;
                 if (origin >= 10) {
                     stayIn = 100
@@ -629,7 +752,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 //Post AFK Message
                 var postTime = config.postime
                 runEmbed
-                    .setDescription(`The post afk check has begun.\nIf you have been moved out, please join lounge and re-react with the ${(runType == 'cult') ? cult : entity} icon to get moved back in.`)
+                    .setDescription(`The post afk check has begun.\nIf you have been moved out, please join lounge and re-react with the ${(runType == 'cult') ? cult : (runType == "void" || runType == "fullskipvoid") ? entity : oryx} icon to get moved back in.`)
                     .setFooter(`Time Remaining: ${Math.floor(postTime / 60000)} Minutes ${(postTime % 60000) / 1000} Seconds | The afk check has been ended by ${reactor.nickname}`)
                 await runMessage.edit(runEmbed)
 
@@ -661,10 +784,10 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                         if (inLounge.includes(user.id)) {
                             try {
                                 user.voice.setChannel(raidingChannel)
-                            } catch (e){
-                                
+                            } catch (e) {
+
                             }
-                            
+
                         }
                     } else {
                         let commandFile = require(`./permcheck.js`);
@@ -784,6 +907,18 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         await runMessage.react(mystic.slice(1, -1))
         await runMessage.react(shinynitro.slice(1, -1))
         await runMessage.react('❌')
+    } else if (runType == "oryx3") {
+        await runMessage.react(oryx.slice(1, -1))
+        await runMessage.react(helmetRune.slice(1, -1))
+        await runMessage.react(swordRune.slice(1, -1))
+        await runMessage.react(shieldRune.slice(1, -1))
+        await runMessage.react(warrior.slice(1, -1))
+        await runMessage.react(pally.slice(1, -1))
+        await runMessage.react(knight.slice(1, -1))
+        await runMessage.react(puri.slice(1, -1))
+        await runMessage.react(mseal.slice(1, -1))
+        await runMessage.react(shinynitro.slice(1, -1))
+        await runMessage.react('❌')
     }
 }
 
@@ -796,7 +931,9 @@ const dungeons = {
     'v': 'void',
     'void': 'void',
     'fsv': 'fullskipvoid',
-    'fullskipvoid': 'fullskipvoid'
+    'fullskipvoid': 'fullskipvoid',
+    'oryx3': "oryx3",
+    'o3': "oryx3"
 }
 //Important Emojis
 var speedy = ""
@@ -814,3 +951,7 @@ var mseal = "<:mseal:702140045930528798>"
 var rusher = "<:planewalker:702140245159837717>"
 var nitro = "<:nitro:702141265545920562>"
 var shinynitro = "<a:shinynitro:702141266057625721>"
+var helmetRune = "<:helmetRune:707410220883902514>"
+var swordRune = "<:swordRune:707410220674056223>"
+var shieldRune = "<:shieldRune:707410220607078412>"
+var oryx = "<:oryx2:707410551491395684>"
