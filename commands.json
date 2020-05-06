@@ -13,6 +13,8 @@
         "pm": "parsemembers",
         "bpm": "bazaarparse",
         "bm": "bazaarparse",
+        "pb":"bazaarparse",
+        "pbm":"bazaarparse",
         "pc": "parsecharacters",
         "loc": "location",
         "help":"commands",
@@ -29,7 +31,7 @@
 
         "location": "**Description:** Changes the location of the current AFK Check (from this bot only)\n\n**Usage: `location (runLocation)`**\n`runLocation` = What to change the location to\n\n**Aliases:** loc",
 
-        "bazaarparse": "**Description:** Parses the people who are currently in bazaar\n\n**Usage: `bazaarparse (afkControlMessageId) (userList)`**\n`afkControlMessageId` = The message Id of the control panel (This can be either the one in the info channel or the one in the command channel)\n`userList` = An image of the people in the bazaar (This can be either a link or a raw image)\n\n**Aliases:** bpm, bm",
+        "bazaarparse": "**Description:** Parses the people who are currently in bazaar\n\n**Usage: `bazaarparse (afkControlMessageId) (userList)`**\n`afkControlMessageId` = The message Id of the control panel (This can be either the one in the info channel or the one in the command channel)\n`userList` = An image of the people in the bazaar (This can be either a link or a raw image)\n\n**Aliases:** bpm, bm, pb, pbm",
 
         "changename": "**Description:** Changes a user's name\n\n**Usage: `changename (userId/mention) (newName) (imageProof)`**\n`userId/mention` = The ID or mention of the user whose name is to be changed\n`newName` = The user's new name\n`imageProof` = An image as proof of the user's new name (This can be either a link or a raw image)\n\n**Aliases:** None",
 
