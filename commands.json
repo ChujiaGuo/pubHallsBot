@@ -7,6 +7,8 @@
         "veteransuspend": "vetsuspend",
         "vus": "vetunsuspend",
         "veteranunsuspend": "vetunsuspend",
+        "unvetsuspend":"vetunsuspend",
+        "uvs":"vetunsuspend",
         "us": "updatesuspensions",
         "aa": "addalt",
         "alt": "addalt",
@@ -65,7 +67,7 @@
 
         "unsuspend":"**Description:** Unsuspends a user\n\n**Usage: `unsuspend (userId/mention/nickname)`**\n`userId/mention/nickname` = The ID, mention, or nickname of the user who is to be unsuspended\n**DISCLAIMER!! Do not use this command if the suspension did not originate from this bot!**\n\n**Aliases:** None",
 
-        "vetunsuspend":"**Description:** Un-vetsuspends a user\n\n**Usage: `vetunsuspend (userId/mention/nickname)`**\n`userId/mention/nickname` = The ID, mention, or nickname of the user who is to be un-vetsuspended\n\n**Aliases:** vus, veteranunsuspend",
+        "vetunsuspend":"**Description:** Un-vetsuspends a user\n\n**Usage: `vetunsuspend (userId/mention/nickname)`**\n`userId/mention/nickname` = The ID, mention, or nickname of the user who is to be un-vetsuspended\n\n**Aliases:** vus, veteranunsuspend, unvetsuspend, uvs",
 
         "ping":"**Description:** Displays bot latencies\n\n**Usage: `ping`**\n\n**Aliases:** status",
 

@@ -7,4 +7,5 @@ commands/oldafk.js
 commands/oldsetup.js
 commands/mbrtest.js
 commands/russianroulette.js
+commands/newafk.js
 eng.traineddata

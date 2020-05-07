@@ -30,7 +30,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         try {
             embedMessage = await infoChannel.messages.fetch(messageId)
         } catch (e) {
-            return message.channel.send(`Invalid Message: \`\`\`${e1}\`\`\``)
+            return message.channel.send(`Invalid Message: \`\`\`${e}\`\`\``)
         }
     }
 

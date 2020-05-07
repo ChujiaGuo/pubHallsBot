@@ -53,7 +53,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     try {
         await user.roles.remove(config.roles.general.vetsuspended)
     } catch (e) {
-        return message.channel.send(`<@!${user.id}> does not have the Suspended Veteran Role`)
+        return message.channel.send(`I could not remove the Vet Suspended role from <@!${user.id}> because of the following reason: ${e}`)
     }
     /* if (suspensions.veteran[user.id] == undefined) {
         return message.channel.send("I do not have records of this user being suspended. Please try another bot.")

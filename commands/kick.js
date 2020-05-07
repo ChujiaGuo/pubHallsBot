@@ -52,7 +52,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         if(message.guild.id == "701484368451076127"){
             await user.send("Please rejoin the test server, thanks! https://discord.gg/CcM6vsA")
         }  
-        user.kick(reason)
+        await user.kick(reason)
         message.channel.send("Done!")
         logChannel.send(kickEmbed)
     } catch (e) {

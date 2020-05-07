@@ -73,8 +73,9 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 .addFields(
                     { name: "Highest Role:", value: `<@&${member.roles.highest.id}>`, inline: true },
                     { name: "Suspended?", value: suspendedString, inline: true },
-                    { name: "Voice Channel:", value: (member.voice.channel) ? member.voice.channel : "None", inline: true }
-
+                    { name: "Voice Channel:", value: (member.voice.channel) ? member.voice.channel : "None", inline: true },
+                    { name: "Is Nitro?", value: (member.roles.cache.has(config.roles.general.nitro)) ? "✅" : "❌", inline: true },
+                    { name: "Realmeye:", value: `https://www.realmeye.com/player/${member.displayName.toLowerCase().replace(/[^a-z|]/gi,"").split('|')[0]}`, inline: true }
                 )
                 .setColor("#41f230")
             await message.channel.send(returnEmbed)
@@ -83,27 +84,27 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
     }
     var returnEmbed = new Discord.MessageEmbed()
-    .setColor("#ff1212")
+        .setColor("#ff1212")
     if (couldNotFind.length > 0) {
-        if(couldNotFind.join(', ').length >= 2048){
-            if(couldNotFind.join(', ').length >= 4096){
+        if (couldNotFind.join(', ').length >= 2048) {
+            if (couldNotFind.join(', ').length >= 4096) {
                 return message.channel.send("That is way too many people (There is a character limit of 2048 in the descriptions). Please split it up.")
             }
-            let a1 = couldNotFind.slice(0, Math.floor(couldNotFind.length/2))
-            let a2 = couldNotFind.slice(Math.floor(couldNotFind.length/2))
+            let a1 = couldNotFind.slice(0, Math.floor(couldNotFind.length / 2))
+            let a2 = couldNotFind.slice(Math.floor(couldNotFind.length / 2))
             returnEmbed.setDescription(`I could not find the following users:\n${a1.join(', ')}`)
             returnEmbed.spliceFields(0, 25)
             await message.channel.send(returnEmbed)
             returnEmbed.setDescription(`I could not find the following users:\n${a2.join(', ')}`)
             returnEmbed.spliceFields(0, 25)
             await message.channel.send(returnEmbed)
-        }else{
+        } else {
             couldNotFind = couldNotFind.join(", ")
             returnEmbed.setDescription(`I could not find the following users:\n${couldNotFind}`)
             returnEmbed.spliceFields(0, 25)
             await message.channel.send(returnEmbed)
         }
-        
+
     }
 
 }
