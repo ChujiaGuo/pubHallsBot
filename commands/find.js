@@ -54,7 +54,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 
         if (member != undefined) {
             //Suspended Anywhere?
-            let suspendedString = "✅";
+            let suspendedString = "";
             if (member.roles.cache.has(config.roles.general.vetsuspended)) {
                 suspendedString += `\n<@&${config.roles.general.vetsuspended}>`
             }
@@ -64,8 +64,10 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             if (member.roles.cache.has(config.roles.general.permasuspended)) {
                 suspendedString += `\n<@&${config.roles.general.permasuspended}>`
             }
-            if (suspendedString.length == 1) {
-                suspendedString = "❌"
+            if (suspendedString.length == 0) {
+                suspendedString += "❌"
+            }else{
+                suspendedString += "\n✅"
             }
 
             returnEmbed
