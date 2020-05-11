@@ -38,13 +38,14 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     //Argument Parsing
     //Channel Number
     var channelNumber = args.shift()
+    var number = channelNumber
     var statusChannel;
     if (isNaN(channelNumber)) {
         return message.channel.send(`\`${channelNumber}\` is an invalid channel number.`)
     }
     //Channel Available?
     if (origin == 100) {
-        if(config.channels.veteran.raiding[channelNumber] == undefined){
+        if (config.channels.veteran.raiding[channelNumber] == undefined) {
             return message.channel.send(`\`${channelNumber}\` is an invalid channel number.`)
         }
         if (config.channels.veteran.raiding[channelNumber].length == 0) {
@@ -54,7 +55,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             statusChannel = config.channels.veteran.control.status
         }
     } else if (origin == 10) {
-        if(config.channels.normal.raiding[channelNumber] == undefined){
+        if (config.channels.normal.raiding[channelNumber] == undefined) {
             return message.channel.send(`\`${channelNumber}\` is an invalid channel number.`)
         }
         if (config.channels.normal.raiding[channelNumber].length == 0) {
@@ -64,7 +65,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             statusChannel = config.channels.normal.control.status
         }
     } else if (origin = 1) {
-        if(config.channels.event.raiding[channelNumber] == undefined){
+        if (config.channels.event.raiding[channelNumber] == undefined) {
             return message.channel.send(`\`${channelNumber}\` is an invalid channel number.`)
         }
         if (config.channels.event.raiding[channelNumber].length == 0) {
@@ -80,9 +81,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     //Fetch channel
     var raidingChannel = await message.guild.channels.cache.find(c => c.id == channelNumber)
     await raidingChannel.setUserLimit(99)
-    await raidingChannel.setName(raidingChannel.name.replace(' <-- Join!', ''))
-    await raidingChannel.setName(raidingChannel.name.replace(' <-- Join', ''))
-    await raidingChannel.setName(raidingChannel.name.replace(' <--Join', ''))
+    await raidingChannel.setName(raidingChannel.name.substring(0, raidingChannel.name.indexOf(number) + 1))
     await raidingChannel.updateOverwrite(config.roles.general.raider, {
         'CONNECT': false
     })
