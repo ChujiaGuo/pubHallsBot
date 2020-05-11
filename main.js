@@ -25,7 +25,6 @@ client.once("ready", async () => {
 
     console.log("Bot Up.")
     let owner = await client.users.fetch(config.dev)
-    await owner.send("Bot Started.")
 })
 client.on("guildMemberAdd", async member => {
     //People Leaving and Rejoin Guild to Bypass Suspensions
