@@ -143,7 +143,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             .setTitle("Error")
             .setDescription(`Error Processing: \`bazaarparse\`\nError Message:\`\`\`${e.toString()}\`\`\`\From User: <@${message.author.id}>\nIn guild: \`${message.guild.name}\``)
         await owner.send(errorEmbed)
-        owner.send()
+        message.channel.send(errorEmbed)
     }
 }
 
