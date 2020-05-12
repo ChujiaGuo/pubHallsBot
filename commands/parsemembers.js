@@ -93,6 +93,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             return message.channel.send(`There was an error using the image to text service.\`\`\`${e}\`\`\``)
         }
         await message.channel.send("Text Received")
+        console.log(result)
         var players = result[0].fullTextAnnotation.text.replace(/\n/g, " ").split(' ')
         //var players = result.replace(/\n/g, " ").split(' ')
         players = players.slice(players.indexOf(players.find(i => i.includes("):"))) + 1)
@@ -114,6 +115,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         crasherList = crasherList.filter(Boolean)
         var draggedIn = []
         var crasherListNoRL = []
+        var notVet = []
         for (var i in crasherList) {
             let nickname = crasherList[i].toLowerCase()
             let member = await message.guild.members.cache.find(m => m.displayName.toLowerCase().includes(nickname))
@@ -121,17 +123,22 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 let commandFile = require(`./permcheck.js`);
                 var auth = await commandFile.run(client, member, 100)
                 if (!auth) {
-                    if (member.voice.channel != undefined) {
-                        try {
-                            await member.voice.setChannel(raidingChannel)
-                            draggedIn.push(member.displayName)
-                        } catch (e) {
-                            console.log(e)
-                            message.channel.send(`An error occured when moving ${member.displayName} in.`)
-                        }
+                    if (origin == 100 && !member.roles.cache.has(config.roles.general.vetraider)) {
+                        notVet.push(nickname)
                     } else {
-                        crasherListNoRL.push(nickname)
+                        if (member.voice.channel != undefined) {
+                            try {
+                                await member.voice.setChannel(raidingChannel)
+                                draggedIn.push(member.displayName)
+                            } catch (e) {
+                                console.log(e)
+                                message.channel.send(`An error occured when moving ${member.displayName} in.`)
+                            }
+                        } else {
+                            crasherListNoRL.push(nickname)
+                        }
                     }
+
                 }
             } else {
                 crasherListNoRL.push(nickname)
@@ -145,6 +152,13 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 .setAuthor("The following people were moved in from other channels:")
                 .setDescription(`\`\`\`${draggedIn.join(', ')}\`\`\``)
             await message.channel.send(draggedInEmbed)
+        }
+        if(notVet.length > 0){
+            let notVetEmbed = new Discord.MessageEmbed()
+                .setColor("#ff1212")
+                .setAuthor("The following people were moved in from other channels:")
+                .setDescription(`\`\`\`${notVet.join(', ')}\`\`\``)
+            await message.channel.send(notVetEmbed)
         }
         if (crasherListNoRL.length > 0) {
             let embed1 = new Discord.MessageEmbed()
