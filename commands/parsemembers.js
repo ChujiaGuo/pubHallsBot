@@ -156,7 +156,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         if(notVet.length > 0){
             let notVetEmbed = new Discord.MessageEmbed()
                 .setColor("#ff1212")
-                .setAuthor("The following people were moved in from other channels:")
+                .setAuthor("The following people do not have the veteran raider role:")
                 .setDescription(`\`\`\`${notVet.join(', ')}\`\`\``)
             await message.channel.send(notVetEmbed)
         }
