@@ -47,6 +47,7 @@ client.on("guildMemberAdd", async member => {
 client.on("rateLimit", r => {
 })
 client.on("message", async message => {
+    config = JSON.parse(fs.readFileSync("config.json"))
 
 
     //Filters
