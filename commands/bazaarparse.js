@@ -137,11 +137,12 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
     }
     catch (e) {
+        console.log(e)
         let owner = await client.users.fetch(config.dev)
         var errorEmbed = new Discord.MessageEmbed()
             .setColor("#ff1212")
             .setTitle("Error")
-            .setDescription(`Error Processing: \`bazaarparse\`\nError Message:\`\`\`${e.toString()}\`\`\`\From User: <@${message.author.id}>\nIn guild: \`${message.guild.name}\``)
+            .setDescription(`Error Processing: \`bazaarparse\`\nError Message:\`\`\`${e.toString()}\`\`\`\From User: <@${message.author.id}>\nIn guild: \`${message.guild.name}\`\nMessage Link: ${message.url}`)
         await owner.send(errorEmbed)
         message.channel.send(errorEmbed)
     }
