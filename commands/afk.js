@@ -2,8 +2,17 @@ const fs = require('fs')
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
     var config = JSON.parse(fs.readFileSync("config.json"))
-    config.postime = parseInt(config.posttime)
-    config.afktime = parseInt(config.afktime)
+    for (var i in config.afksettings) {
+        if (!isNaN(config.afksettings[i])) {
+            config.afksettings[i] = parseInt(config.afksettings[i])
+        } else if (typeof config.afksettings[i] == "object") {
+            for (var x in config.afksettings[i]) {
+                if (!isNaN(config.afksettings[i][x])) {
+                    config.afksettings[i][x] = parseInt(config.afksettings[i][x])
+                }
+            }
+        }
+    }
     var afk = JSON.parse(fs.readFileSync("afk.json"))
     //Check Perms
     if (message.channel.type != 'text') {
@@ -124,7 +133,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     })
     await raidingChannel.setUserLimit(null)
     var runEmbed = new Discord.MessageEmbed()
-        .setFooter(`Time Remaining: ${Math.floor(config.afktime / 60000)} Minutes ${(config.afktime % 60000) / 1000} Seconds`)
+        .setFooter(`Time Remaining: ${Math.floor(config.afksettings.afktime / 60000)} Minutes ${(config.afksettings.afktime % 60000) / 1000} Seconds`)
     var runAnnouncement;
     var runMessage;
     switch (runType) {
@@ -205,7 +214,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     afk.commandMessageId = commandMessage.id
     fs.writeFileSync('afk.json', JSON.stringify(afk))
     //Timing Events
-    var timeleft = config.afktime
+    var timeleft = config.afksettings.afktime
     //Edit AFK every 5 seconds
     var afkEdit = setInterval(async () => {
         timeleft -= 5000
@@ -274,10 +283,10 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         //Begin Post AFK
         //Post AFK Reactions Collector
         var filter = (r, u) => !u.bot && ((runType == 'cult') ? r.emoji.name == 'malus' : r.emoji.name == 'void') || r.emoji.name == '❌'
-        var postAFK = runMessage.createReactionCollector(filter, { time: config.postime })
+        var postAFK = runMessage.createReactionCollector(filter, { time: config.afksettings.posttime })
 
         //Post AFK Message
-        var postTime = config.postime
+        var postTime = config.afksettings.posttime
         runEmbed
             .setDescription(`The post afk check has begun.\nIf you have been moved out, please join lounge and re-react with the ${(runType == 'cult') ? cult : entity} icon to get moved back in.`)
             .setFooter(`Time Remaining: ${Math.floor(postTime / 60000)} Minutes ${(postTime % 60000) / 1000} Seconds | The afk check has ended automatically.`)
@@ -301,7 +310,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 .setFooter(`The afk check has ended automatically`)
                 .setTimestamp()
             await runMessage.edit(runEmbed)
-        }, config.postime)
+        }, config.afksettings.posttime)
 
         postAFK.on('collect', async r => {
             let user = await r.users.cache.map(u => u.id)
@@ -338,13 +347,13 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 }
             }
         })
-    }, config.afktime)
+    }, config.afksettings.afktime)
 
     //Begin collecting reactions
     var filterAFK = (r, u) => !u.bot && (r.emoji.id == "702140477432004618" || r.emoji.id == "702140045871808632" || r.emoji.id == "702154477569835048" || r.emoji.id == '702131716726456501' || r.emoji.id == '702140245159837717' || r.emoji.id == '702141265545920562' || r.emoji.id == '702141266057625721' || r.emoji.id == '707410220883902514' || r.emoji.id == '707410220674056223' || r.emoji.id == '707410220607078412' || r.emoji.name == "❌")
-    collectorAFK = runMessage.createReactionCollector(filterAFK, { time: config.afktime })
+    collectorAFK = runMessage.createReactionCollector(filterAFK, { time: config.afksettings.afktime })
     var filterControl = (r, u) => !u.bot && (r.emoji.name == "❌")
-    collectorControl = commandMessage.createReactionCollector(filterControl, { time: config.afktime })
+    collectorControl = commandMessage.createReactionCollector(filterControl, { time: config.afksettings.afktime })
     await commandMessage.react("❌")
     //End status embed
 
@@ -377,7 +386,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         if (name == "nitro" || name == "shinynitro") {
             //Send Nitro Boosters location
             try {
-                if (reactorRoles.includes(config.roles.general.nitro) && nitroCounter < 10 && !nitroArray.includes(`<@!${reactor.id}>`)) {
+                if (reactorRoles.includes(config.roles.general.nitro) && nitroCounter < config.afksettings.nitrosettings.amound && !nitroArray.includes(`<@!${reactor.id}>`)) {
                     nitroCounter += 1
                     nitroArray.push(`<@!${reactor.id}>`)
                     await reactor.send(`The location of the run in \`${raidingChannel.name}\` has been set to:\n\`${runLocation}\``)
@@ -747,10 +756,10 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 //Begin Post AFK
                 //Post AFK Reactions Collector
                 var filter = (r, u) => !u.bot && ((runType == 'cult') ? r.emoji.name == 'malus' : r.emoji.name == 'void') || r.emoji.name == '❌'
-                var postAFK = runMessage.createReactionCollector(filter, { time: config.postime })
+                var postAFK = runMessage.createReactionCollector(filter, { time: config.afksettings.posttime })
 
                 //Post AFK Message
-                var postTime = config.postime
+                var postTime = config.afksettings.posttime
                 runEmbed
                     .setDescription(`The post afk check has begun.\nIf you have been moved out, please join lounge and re-react with the ${(runType == 'cult') ? cult : (runType == "void" || runType == "fullskipvoid") ? entity : oryx} icon to get moved back in.`)
                     .setFooter(`Time Remaining: ${Math.floor(postTime / 60000)} Minutes ${(postTime % 60000) / 1000} Seconds | The afk check has been ended by ${reactor.nickname}`)
@@ -774,7 +783,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                         .setFooter(`The afk check has ended automatically`)
                         .setTimestamp()
                     await runMessage.edit(runEmbed)
-                }, config.postime)
+                }, config.afksettings.posttime)
 
                 postAFK.on('collect', async r => {
                     let user = await r.users.cache.map(u => u.id)
