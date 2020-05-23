@@ -111,6 +111,9 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         if (invalid.length > 0) {
             displayEmbed.addField("I could not find information on these people:", `\`\`\`${invalid}\`\`\``)
         }
+        if(displayEmbed.fields.length == 0){
+            displayEmbed.addField("There was an error somewhere in the code, but I don't seem to have caught it. Maybe try again later?")
+        }
         await message.channel.send(displayEmbed)
     }
     catch (e) {
