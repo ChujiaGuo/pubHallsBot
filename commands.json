@@ -31,6 +31,8 @@
         
         "afk": "**Description:** Starts an AFK Check\n\n**Usage: `afk (raidingChannelNumber) (runType) (runLocation)`**\n\n`raidingChannelNumber` = The channel you want to start your AFK Check in\n`runType` = The type of run (void, cult, fullskip void)\n`runLocation` = Where the run is\n\n**Aliases:** None",
 
+        "newafk": "**Description:** Starts an AFK Check\n\n**Usage: `afk (raidingChannelNumber) (runType) (runLocation)`**\n\n`raidingChannelNumber` = The channel you want to start your AFK Check in\n`runType` = The type of run (void, cult, fullskip void)\n`runLocation` = Where the run is\n\n**Aliases:** None",
+
         "location": "**Description:** Changes the location of the current AFK Check (from this bot only)\n\n**Usage: `location (runLocation)`**\n`runLocation` = What to change the location to\n\n**Aliases:** loc",
 
         "bazaarparse": "**Description:** Parses the people who are currently in bazaar\n\n**Usage: `bazaarparse (afkControlMessageId) (userList)`**\n`afkControlMessageId` = The message Id of the control panel (This can be either the one in the info channel or the one in the command channel)\n`userList` = An image of the people in the bazaar (This can be either a link or a raw image)\n\n**Aliases:** bpm, bm, pb, pbm",
@@ -71,6 +73,8 @@
 
         "ping":"**Description:** Displays bot latencies\n\n**Usage: `ping`**\n\n**Aliases:** status",
 
-        "find":"**Description:** Finds a user\n\n**Usage: `find (userId/mention/nickname)`**\n`userId/mention/nickname` = The ID, mention, or nickname of a user\n\n**Aliases:** None"
+        "find":"**Description:** Finds a user\n\n**Usage: `find (userId/mention/nickname)`**\n`userId/mention/nickname` = The ID, mention, or nickname of a user\n\n**Aliases:** None",
+
+        "list" : "**Description:** Lists members who have a role\n\n**Usage: `list (roleIdentifier)**\n`roleIdentifier` = The ID, abbriviation, or config name of a role\n\n**Aliases:** None"
     }
 }
