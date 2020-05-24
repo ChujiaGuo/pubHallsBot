@@ -5,6 +5,14 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     if (args.length == 0) {
         return message.channel.send(`Please use a valid role or it's appropriate abbriviation. Valid role identifiers are:\n${Object.keys(config.roles.staff).join(", ") + Object.keys(config.roles.general).join(", ")}`)
     }
+    if (args[0].toLowerCase() == "roles") {
+        let rolesArray = message.guild.roles.cache.map(r => `<@&${r.id}>`)
+        let returnEmbed = new Discord.MessageEmbed()
+            .setAuthor(`All roles in this gulid:`)
+            .setDescription(rolesArray.join(", "))
+            .setColor("#41f230")
+        await message.channel.send(returnEmbed)
+    }
     var invalidRoles = []
     for (var i in args) {
         let roleIdentifier = args[i].replace(/[_-]/gi, " ")
@@ -45,14 +53,14 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             message.channel.send(returnEmbed)
         }
     }
-    if(invalidRoles.length >0){
+    if (invalidRoles.length > 0) {
         let returnEmbed = new Discord.MessageEmbed()
-        .setAuthor(`Invalid Role Identifiers:`)
-        .setDescription(`${invalidRoles.join(', ')}`)
-        .setColor("#ff1212")
+            .setAuthor(`Invalid Role Identifiers:`)
+            .setDescription(`${invalidRoles.join(', ')}`)
+            .setColor("#ff1212")
         message.channel.send(returnEmbed)
     }
-    
+
 
     function abbv(string) {
         string = string.split(' ')
