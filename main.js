@@ -82,6 +82,7 @@ client.on("message", async message => {
     commandArray.push(config.channels.normal.control.command)
     commandArray.push(config.channels.event.control.command)
     if (!commandArray.includes(message.channel.id) && restrictedCommands.includes(cmd)) return message.channel.send("Commands have to be used in a designated command channel.");
+    if(message.channel.type != 'text') return message.channel.send("Sorry, but all commands have to be used in a server.")
 
     //Attempt Command
     try {

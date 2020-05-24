@@ -78,7 +78,8 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                         { name: "Suspended?", value: suspendedString, inline: true },
                         { name: "Voice Channel:", value: (member.voice.channel) ? member.voice.channel : "None", inline: true },
                         { name: "Is Nitro?", value: (member.roles.cache.has(config.roles.general.nitro)) ? "✅" : "❌", inline: true },
-                        { name: "Realmeye:", value: `https://www.realmeye.com/player/${member.displayName.toLowerCase().replace(/[^a-z|]/gi, "").split('|')[0]}`, inline: true }
+                        { name: "Realmeye:", value: `https://www.realmeye.com/player/${member.displayName.toLowerCase().replace(/[^a-z|]/gi, "").split('|')[0]}`, inline: true },
+                        { name: "Roles:", value: `${member.roles.cache.map(r => `<@&${r.id}>`).join(', ')}` }
                     )
                     .setColor("#41f230")
                 await message.channel.send(returnEmbed)
