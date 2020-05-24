@@ -618,28 +618,27 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
     }
     async function confirmReaction(reaction, reactor) {
-        try{
+        try {
             controlEmbed = commandMessage.embeds[0]
             let confirmationMessage = await reactor.send(`You have reacted with ${reaction.emoji} (${reaction.emoji.name}). If you actually plan on bringing and using a ${reaction.emoji}, react with the ✅. If this was an accident, or you don't want to bring and use the ${reaction.emoji}, react with the ❌.`)
             const confirmationFilter = (r, u) => !u.bot && (r.emoji.name == "✅" || r.emoji.name == "❌")
-            let confirmationCollector = confirmationMessage.createReactionCollector(confirmationFilter, {max:1})
+            let confirmationCollector = confirmationMessage.createReactionCollector(confirmationFilter, { max: 1 })
             await confirmationMessage.react("✅")
             await confirmationMessage.react("❌")
             confirmationCollector.on('collect', async (r, u) => {
-                if(r.emoji.name == "❌"){
+                if (r.emoji.name == "❌") {
                     confirmationMessage.edit("The process has been cancelled.")
-                }else{
+                } else {
                     controlEmbed = commandMessage.embeds[0]
-                    if(controlEmbed.fields.find(f => f.name.includes(reaction.emoji)).value.split('\n').length >= config.afksettings.keyamount){
+                    if (controlEmbed.fields.find(f => f.name.includes(reaction.emoji)).value.split('\n').length >= config.afksettings.keyamount && reaction.emoji.name.includes("key") && controlEmbed.fields.find(f => f.name.includes(reaction.emoji)).value != "None") {
+                        return reactor.send("There are too many people who have reacted with this. Please try again during the next afk.")
+                    } else if (controlEmbed.fields.find(f => f.name.includes(reaction.emoji)).value.split('\n').length >= config.afksettings.reactionamount && controlEmbed.fields.find(f => f.name.includes(reaction.emoji)).value != "None") {
                         return reactor.send("There are too many people who have reacted with this. Please try again during the next afk.")
                     }
-                    if(controlEmbed.fields.find(f => f.name.includes(reaction.emoji)).value.split('\n').length >= config.afksettings.reactionamount){
-                        return reactor.send("There are too many people who have reacted with this. Please try again during the next afk.")
-                    }
-                    if(controlEmbed.fields.find(f => f.name.includes(reaction.emoji)).value.includes(reactor.id)){
+                    if (controlEmbed.fields.find(f => f.name.includes(reaction.emoji)).value.includes(reactor.id)) {
                         return reactor.send(`You have already reacted and confirmed a ${reaction.emoji}`)
                     }
-                    controlEmbed.fields.find(f => f.name.includes(reaction.emoji)).value = (controlEmbed.fields.find(f => f.name.includes(reaction.emoji)).value.includes("None")) ? `${reaction.emoji}: <@!${reactor.id}>`:controlEmbed.fields.find(f => f.name.includes(reaction.emoji)).value.concat(`\n${reaction.emoji}: <@!${reactor.id}>`)
+                    controlEmbed.fields.find(f => f.name.includes(reaction.emoji)).value = (controlEmbed.fields.find(f => f.name.includes(reaction.emoji)).value.includes("None")) ? `${reaction.emoji}: <@!${reactor.id}>` : controlEmbed.fields.find(f => f.name.includes(reaction.emoji)).value.concat(`\n${reaction.emoji}: <@!${reactor.id}>`)
                     await commandMessage.edit(controlEmbed)
                     await logMessage.edit(controlEmbed)
                     afk = JSON.parse(fs.readFileSync("afk.json"))
@@ -647,9 +646,10 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     afk.earlyLocationIds = [... new Set(afk.earlyLocationIds)]
                     fs.writeFileSync('afk.json', JSON.stringify(afk))
                     confirmationMessage.edit(`The location of the run in \`${raidingChannel.name}\` has been set to: \`${afk.location}\`. The RL ${message.member.displayName} will be there to confirm your ${reaction.emoji}.`)
+                    await moveIn(reactor)
                 }
             })
-        }catch(e){
+        } catch (e) {
             message.channel.send(`<@!${reactor.id}> tried to react with ${reaction}, but I could not DM them.`)
         }
     }

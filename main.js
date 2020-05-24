@@ -13,7 +13,7 @@ client.once("ready", async () => {
         await owner.send("Daily Restart.")
         process.exit(1)
     }, reset) */
-    client.user.setPresence({activity:{type:"WATCHING", name:"something do a thing"}})
+    client.user.setPresence({ activity: { type: "WATCHING", name: "something do a thing" } })
     let commandFile = require(`./commands/updatesuspensions.js`);
     let message = undefined,
         args = undefined
@@ -22,7 +22,15 @@ client.once("ready", async () => {
     } catch (e) {
         console.log(e)
     }
-
+    afk = {
+        "afk": false,
+        "location": "",
+        "statusMessageId": "",
+        "infoMessageId": "",
+        "commandMessageId": "",
+        "earlyLocationIds": []
+    }
+    fs.writeFileSync('afk.json', JSON.stringify(afk))
     console.log("Bot Up.")
     let owner = await client.users.fetch(config.dev)
 })
@@ -31,15 +39,15 @@ client.on("guildMemberAdd", async member => {
     let guildId = member.guild.id
     let id = member.id
     const suspensions = JSON.parse(fs.readFileSync('suspensions.json'))
-    var temp,vet,perma
-    if(suspensions.normal.id){
+    var temp, vet, perma
+    if (suspensions.normal.id) {
         await member.roles.add(config.roles.general.tempsuspended)
         temp == true;
     }
-    if(suspensions.veteran.id && temp != true){
+    if (suspensions.veteran.id && temp != true) {
         await member.roles.add(config.roles.general.vetsuspended)
     }
-    if(suspensions.perma.id){
+    if (suspensions.perma.id) {
         await member.roles.add(config.roles.general.permasuspended)
     }
 
@@ -53,17 +61,17 @@ client.on("message", async message => {
     //Filters
     //Bot
     if (message.author.bot) return;
-    if(message.content.includes(`<@!${client.user.id}> prefix`))return message.channel.send(config.prefix)
+    if (message.content.includes(`<@!${client.user.id}> prefix`)) return message.channel.send(config.prefix)
     //Not a command
     if (message.content.charAt(0) != config.prefix) return;
-        
+
     //Define Command
     let args = message.content.slice(config.prefix.length).trim().split(' ');
     let cmd = args.shift().toLowerCase();
 
     //Deal with unwanted commands
     if (cmd.length == 0) return;
-    if(/[^a-z]/gi.test(cmd)) return;
+    if (/[^a-z]/gi.test(cmd)) return;
     cmd = commands.aliases[cmd] || cmd
 
     //Check channel
