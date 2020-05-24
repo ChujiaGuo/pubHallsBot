@@ -7,7 +7,7 @@ exports.run = async (client, message, args, Discord) => {
             var commandsEmbed = new Discord.MessageEmbed()
                 .setColor("#ff1212")
                 .setTitle("Commands List")
-                .setDescription("**__Raiding:__**\n```css\nafk, resetafk, clean, lock, unlock, bazaarparse, parsecharacters, parsemembers, location```\n**__Moderation:__**```css\nmanualverify, manualvetverify, suspend, vetsuspend, unsuspend, vetunsuspend, kick, addalt, changename```\n**__Restricted:__**```css\nsetup```")
+                .setDescription("**__General__**:```css\nreport, find```**__Raiding:__**\n```css\nafk, newafk, resetafk, clean, lock, unlock, bazaarparse, parsecharacters, parsemembers, location```\n**__Moderation:__**```css\nmanualverify, manualvetverify, suspend, vetsuspend, unsuspend, vetunsuspend, kick, addalt, changename```\n**__Restricted:__**```css\nsetup```")
                 .setFooter(`Capitalization does not matter | () means required | [] means optional | / means either or\n\`<@!${client.user.id}> prefix\` to show prefix`)
             return message.channel.send(commandsEmbed)
         }

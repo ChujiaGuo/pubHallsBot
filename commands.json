@@ -61,7 +61,9 @@
 
         "restart":"**Description:** Restarts the bot\n\n**Usage: `restart`**\n\n**Aliases:** kill",
 
-        "setup":"**Description:** Sets up the variables for the bot\n\n**Usage: `setup (setupType)`**\n`setupType` = What you want to set up (p for prefix, c for channels, r for roles, all for all)\n\n**Aliases:** None",
+        "report":"**Description:** Reports an error or issue directly to the bot owner\n\n**Usage: `report`**\n\n**Aliases:** None",
+
+        "setup":"**Description:** Sets up the variables for the bot\n\n**Usage: `setup`**\n\n**Aliases:** None",
 
         "suspend":"**Description:** Suspends a user\n\n**Usage: `suspend (userId/mention/nickname) (length) (duration) (reason)`**\n`userId/mention/nickname` = The ID, mention, or nickname of the user who is to be suspended\n`length` = The amount of `duration` to be suspended for (This is a number)\n`duration` = The time the user is being suspended for (d for days, h for hours, m for minutes, s for seconds)\n`reason` = Why the user is being suspended\n**DISCLAIMER!! This command is incredibly buggy, especially if the bot is being updated**\n\n**Aliases:** None",
 
