@@ -434,14 +434,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         controlEmbed = commandMessage.embeds[0]
         //Aborting the afk check
         let commandFile = require(`./permcheck.js`);
-        var auth;
-        if (origin == 100) {
-            auth = await commandFile.run(client, reactor, 1000);
-        } else if (origin == 10) {
-            auth = await commandFile.run(client, reactor, 100);
-        } else if (origin == 1) {
-            auth = await commandFile.run(client, reactor, 1);
-        }
+        var auth = true;
         if (auth) {
             afkCollector.stop()
             controlCollector.stop()
@@ -637,6 +630,9 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     confirmationMessage.edit("The process has been cancelled.")
                 }else{
                     controlEmbed = commandMessage.embeds[0]
+                    if(controlEmbed.fields.find(f => f.name.includes(reaction.emoji)).value.split('\n').length >= config.afksettings.keyamount){
+                        return reactor.send("There are too many people who have reacted with this. Please try again during the next afk.")
+                    }
                     if(controlEmbed.fields.find(f => f.name.includes(reaction.emoji)).value.split('\n').length >= config.afksettings.reactionamount){
                         return reactor.send("There are too many people who have reacted with this. Please try again during the next afk.")
                     }
