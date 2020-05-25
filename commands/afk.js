@@ -268,7 +268,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             let commandFile = require(`./permcheck.js`);
             var auth;
             auth = await commandFile.run(client, user, stayIn);
-            if (!auth && !reactIds.includes(id)) {
+            if (!auth && !reactIds.includes(id) && !afk.earlyLocationIds.includes(user.id)) {
                 try {
                     user.voice.setChannel(lounge)
                 } catch (e) {
@@ -741,7 +741,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     let commandFile = require(`./permcheck.js`);
                     var auth;
                     auth = await commandFile.run(client, user, stayIn);
-                    if (!auth && !reactIds.includes(id)) {
+                    if (!auth && !reactIds.includes(id) && !afk.earlyLocationIds.includes(user.id)) {
                         try {
                             user.voice.setChannel(lounge)
                         } catch (e) {

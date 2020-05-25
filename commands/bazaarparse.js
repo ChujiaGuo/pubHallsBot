@@ -49,19 +49,25 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         })
         while (fieldString.indexOf("<@!") != -1) {
             var idBegin = fieldString.indexOf("<@!") + 3
-            var idEnd = idBegin + 18
+            var idEnd = fieldString.indexOf(">", idBegin)
             userIdArray.push(fieldString.substring(idBegin, idEnd))
             fieldString = fieldString.substring(0, idBegin - 3) + fieldString.substring(idEnd)
         }
         userIdArray = [... new Set(userIdArray)]
         var usernameArray = []
         for (var i in userIdArray) {
-            let user = await message.guild.members.fetch(userIdArray[i])
-            if (/^[a-z0-9]+$/i.test(user.nickname)) {
-                usernameArray.push(user.nickname.toLowerCase())
-            } else {
-                usernameArray.push(user.nickname.toLowerCase().substring(1))
+            try{
+                var user = await message.guild.members.fetch(userIdArray[i])
+                if (/^[a-z0-9]+$/i.test(user.nickname)) {
+                    usernameArray.push(user.nickname.toLowerCase())
+                } else {
+                    usernameArray.push(user.nickname.toLowerCase().substring(1))
+                }
+            }catch(e){
+                await message.channel.send(`There was an error fetch the member object for <@!${userIdArray[i]}>`)
             }
+            
+            
         }
 
         //Begin Image Parsing
@@ -110,7 +116,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             let member = await message.guild.members.cache.find(m => m.displayName.toLowerCase().includes(nickname))
             if (member != undefined) {
                 let commandFile = require(`./permcheck.js`);
-                var auth = await commandFile.run(client, member, 100)
+                let auth = await commandFile.run(client, member, 100)
                 if (!auth) {
                     crasherListNoRL.push(nickname)
                 }
