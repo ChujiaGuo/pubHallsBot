@@ -515,7 +515,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                         } else if (nitroCounter >= config.afksettings.nitrosettings.amount) {
                             await reactor.send("The nitro cap has been reached. Please try again next run.")
                         }
-                    } else if (config.afksettings.nitrosettings.whattodo.toLowerCase() == "spot") {
+                    } else if (config.afksettings.nitrosettings.whattodo.toLowerCase() == "spot" && nitroCounter < config.afksettings.nitrosettings.amount) {
                         if (!nitroArray.includes(`<@!${reactor.id}>`)) {
                             await moveIn(reactor).then((bool) => {
                                 if (!bool) {
@@ -555,7 +555,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                                 await reactor.send("The nitro cap has been reached. Please try again next run.")
                             }
                         } else if (config.afksettings.nitrosettings.whattodo.toLowerCase() == "spot") {
-                            if (!nitroArray.includes(`<@!${reactor.id}>`)) {
+                            if (!nitroArray.includes(`<@!${reactor.id}>`) && nitroCounter < config.afksettings.nitrosettings.amount) {
                                 await moveIn(reactor).then((bool) => {
                                     if (!bool) {
                                         nitroCounter += 1
@@ -650,7 +650,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 }
             })
         } catch (e) {
-            message.channel.send(`<@!${reactor.id}> tried to react with ${reaction}, but I could not DM them.`)
+            message.channel.send(`<@!${reactor.id}> tried to react with ${reaction.emoji}, but I could not DM them.`)
         }
     }
     async function toTimeString(time) {
