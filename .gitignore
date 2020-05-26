@@ -1,6 +1,7 @@
 node_modules/
 /config.json
 /blankConfig.json
+/nitrodelay.json
 oldStuff/
 commands/test.js
 commands/oldafk.js
