@@ -108,7 +108,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             let member = await message.guild.members.cache.find(m => m.displayName.toLowerCase().includes(nickname))
             if (member != undefined) {
                 let commandFile = require(`./permcheck.js`);
-                let auth = await commandFile.run(client, member, 100)
+                let auth = await commandFile.run(client, member, config.roles.staff.arl)
                 if (!auth) {
                     crasherListNoRL.push(nickname)
                 }
