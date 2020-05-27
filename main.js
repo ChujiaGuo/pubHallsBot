@@ -82,7 +82,7 @@ client.on("message", async message => {
     if (cmd != "sudo" && commands.settings[cmd].permsint != "0") {
         let commandFile = require(`./commands/permcheck.js`);
         var auth;
-        auth = await commandFile.run(client, message.member, parseInt(commands.settings[cmd].permsint));
+        auth = await commandFile.run(client, message.member, commands.settings[cmd].permsint);
         if (!auth) {
             let noPerms = new Discord.MessageEmbed()
             .setColor("#ff1212")

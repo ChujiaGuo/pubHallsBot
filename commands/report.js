@@ -23,7 +23,6 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     const filter = m => m == m
     message.author.send("Beginning error report. You can reply with `cancel` to cancel at any time or with `none` if you have no answer.")
     for (var i in reportObject) {
-        console.log(reportObject)
         if (reportObject[i] == 'None' && !cancelled) {
             let promptMessage = await message.author.send(explanationObject[i])
             let result = await promptMessage.channel.awaitMessages(filter, { max: 1 })
