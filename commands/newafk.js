@@ -131,7 +131,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         let user = await message.guild.members.fetch(id)
         let commandFile = require(`./permcheck.js`);
         var auth;
-        auth = await commandFile.run(client, user, 100);
+        auth = await commandFile.run(client, user, commands.settings.afk.permsint);
         if (!auth) {
             try {
                 await user.voice.setChannel(lounge)
@@ -468,13 +468,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             //Does the user have perms?
             let commandFile = require(`./permcheck.js`);
             var auth;
-            if (origin == 100) {
-                auth = await commandFile.run(client, reactor, 1000);
-            } else if (origin == 10) {
-                auth = await commandFile.run(client, reactor, 100);
-            } else if (origin == 1) {
-                auth = await commandFile.run(client, reactor, 1);
-            }
+            auth = await commandFile.run(client, user, commands.settings.afk.permsint);
             if (auth) {
                 endAfk(reactor)
             }

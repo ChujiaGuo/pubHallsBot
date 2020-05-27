@@ -2,6 +2,7 @@ const fs = require('fs')
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
     var config = JSON.parse(fs.readFileSync("config.json"))
+    const commands = JSON.parse(fs.readFileSync("commands.json"))
     for (var i in config.afksettings) {
         if (!isNaN(config.afksettings[i])) {
             config.afksettings[i] = parseInt(config.afksettings[i])
@@ -250,7 +251,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             let user = await message.guild.members.fetch(id)
             let commandFile = require(`./permcheck.js`);
             var auth;
-            auth = await commandFile.run(client, user, stayIn);
+            auth = await commandFile.run(client, user, commands.settings.afk.permsint);
             if (!auth && !reactIds.includes(id) && !afk.earlyLocationIds.includes(user.id)) {
                 try {
                     user.voice.setChannel(lounge)
@@ -310,13 +311,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             } else {
                 let commandFile = require(`./permcheck.js`);
                 var auth;
-                if (origin == 100) {
-                    auth = await commandFile.run(client, user, 100);
-                } else if (origin == 10) {
-                    auth = await commandFile.run(client, user, 100);
-                } else if (origin == 1) {
-                    auth = await commandFile.run(client, user, 1);
-                }
+                auth = await commandFile.run(client, user, commands.settings.afk.permsint);
                 if (auth) {
                     clearInterval(postAFKEdit)
                     clearTimeout(postAFKEnd)
@@ -562,7 +557,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             } catch (e) {
                 message.channel.send(`<@!${reactor.id}> tried to react with mystic, but there was an error. \`\`\`${e}\`\`\``)
             }
-        } else if(name == "helmetRune" && runType == "oryx3"){
+        } else if (name == "helmetRune" && runType == "oryx3") {
             //Check for helmet runes if necessar
             try {
                 let confirmationMessage = await reactor.send(`You have reacted with ${helmetRune} (Helmet Rune).\nIf you actually plan on bringing and using the helmet rune, react with ✅.\nIf you did not, or this was a mistake, react with ❌.\nRemember, fake reacting results in suspensions!`)
@@ -595,7 +590,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             } catch (e) {
                 message.channel.send(`<@!${reactor.id}> tried to react with the helmet rune, but there was an error. \`\`\`${e}\`\`\``)
             }
-        } else if(name == "swordRune" && runType == "oryx3"){
+        } else if (name == "swordRune" && runType == "oryx3") {
             //Check for sword runes if necessary
             try {
                 let confirmationMessage = await reactor.send(`You have reacted with ${swordRune} (Sword Rune).\nIf you actually plan on bringing and using the sword rune, react with ✅.\nIf you did not, or this was a mistake, react with ❌.\nRemember, fake reacting results in suspensions!`)
@@ -628,7 +623,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             } catch (e) {
                 message.channel.send(`<@!${reactor.id}> tried to react with the sword rune, but there was an error. \`\`\`${e}\`\`\``)
             }
-        } else if(name == "shieldRune" && runType == "oryx3"){
+        } else if (name == "shieldRune" && runType == "oryx3") {
             //Check for shield runes if necessary
             try {
                 let confirmationMessage = await reactor.send(`You have reacted with ${shieldRune} (Shield Rune).\nIf you actually plan on bringing and using the shield rune, react with ✅.\nIf you did not, or this was a mistake, react with ❌.\nRemember, fake reacting results in suspensions!`)
@@ -661,17 +656,11 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             } catch (e) {
                 message.channel.send(`<@!${reactor.id}> tried to react with the shield rune, but there was an error. \`\`\`${e}\`\`\``)
             }
-        }else if (name == "❌") {
+        } else if (name == "❌") {
             //Ending the afk check
             let commandFile = require(`./permcheck.js`);
             var auth;
-            if (origin == 100) {
-                auth = await commandFile.run(client, reactor, 1000);
-            } else if (origin == 10) {
-                auth = await commandFile.run(client, reactor, 100);
-            } else if (origin == 1) {
-                auth = await commandFile.run(client, reactor, 1);
-            }
+            auth = await commandFile.run(client, user, commands.settings.afk.permsint);
             if (auth) {
                 let x = await r.emoji.reaction.users
                 await x.remove(reactor.id)
@@ -723,7 +712,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     let user = await message.guild.members.fetch(id)
                     let commandFile = require(`./permcheck.js`);
                     var auth;
-                    auth = await commandFile.run(client, user, stayIn);
+                    auth = await commandFile.run(client, user, commands.settings.afk.permsint);
                     if (!auth && !reactIds.includes(id) && !afk.earlyLocationIds.includes(user.id)) {
                         try {
                             user.voice.setChannel(lounge)
@@ -784,13 +773,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     } else {
                         let commandFile = require(`./permcheck.js`);
                         var auth;
-                        if (origin == 100) {
-                            auth = await commandFile.run(client, user, 1000);
-                        } else if (origin == 10) {
-                            auth = await commandFile.run(client, user, 100);
-                        } else if (origin == 1) {
-                            auth = await commandFile.run(client, user, 1);
-                        }
+                        auth = await commandFile.run(client, user, commands.settings.afk.permsint);
                         if (auth) {
                             clearInterval(postAFKEdit)
                             clearTimeout(postAFKEnd)
@@ -817,13 +800,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         //Aborting the afk check
         let commandFile = require(`./permcheck.js`);
         var auth;
-        if (origin == 100) {
-            auth = await commandFile.run(client, reactor, 1000);
-        } else if (origin == 10) {
-            auth = await commandFile.run(client, reactor, 100);
-        } else if (origin == 1) {
-            auth = await commandFile.run(client, reactor, 1);
-        }
+        auth = await commandFile.run(client, user, commands.settings.afk.permsint);
         if (auth) {
             collectorAFK.stop()
             collectorControl.stop()
