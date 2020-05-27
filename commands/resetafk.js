@@ -7,16 +7,6 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     if (message.channel.type != 'text') {
         return message.channel.send("You cannot use this command here.")
     }
-    //Permission check
-    if (!sudo) {
-        let commandFile = require(`./permcheck.js`);
-        var auth;
-        auth = await commandFile.run(client, message.member, 100);
-
-        if (!auth) {
-            return message.channel.send("You do not have permission to use this command.")
-        }
-    }
     afk = {
         "afk": false,
         "location":"",

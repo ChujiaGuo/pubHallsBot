@@ -22,6 +22,7 @@ exports.run = async (client, message, args, Discord) => {
             return message.channel.send(returnEmbed)
         } else {
             returnEmbed.setDescription(commands.help[cmd])
+            .addField("Minimum Role Required:", `<@&${commands.settings[cmd].permsint=="0"?message.guild.id:commands.settings[cmd].permsint}>`)
             return message.channel.send(returnEmbed)
         }
     }

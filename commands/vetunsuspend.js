@@ -1,13 +1,6 @@
 const fs = require('fs')
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
-    if (!sudo) {
-        let commandFile = require(`./permcheck.js`);
-        var auth = await commandFile.run(client, message.member, 10000)
-        if (!auth) {
-            return message.channel.send("You do not have permission to use this command.")
-        }
-    }
     var config = JSON.parse(fs.readFileSync('config.json'))
     var suspensions = JSON.parse(fs.readFileSync('suspensions.json'))
     var user = args.shift()

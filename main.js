@@ -56,14 +56,14 @@ client.on("rateLimit", r => {
 })
 client.on("message", async message => {
     config = JSON.parse(fs.readFileSync("config.json"))
-
+    commands = JSON.parse(fs.readFileSync("commands.json"))
 
     //Filters
     //Bot
     if (message.author.bot) return;
     if (message.content.includes(`<@!${client.user.id}> prefix`)) return message.channel.send(config.prefix)
     //Not a command
-    if (message.content.charAt(0) != config.prefix) return;
+    if (message.content.indexOf(config.prefix) != 0) return;
 
     //Define Command
     let args = message.content.slice(config.prefix.length).trim().split(' ');
@@ -73,6 +73,24 @@ client.on("message", async message => {
     if (cmd.length == 0) return;
     if (/[^a-z]/gi.test(cmd)) return;
     cmd = commands.aliases[cmd] || cmd
+    if (cmd != "sudo" && (commands.settings[cmd] == undefined || commands.settings[cmd].enabled.toLowerCase() != "true")) {
+        return message.channel.send(`This command is not enabled. Please get a mod to enable it.`)
+    }
+    if(cmd != "sudo" && (!isNaN(commands.settings[cmd].permsint) && commands.settings[cmd].permsint.length == 0)){
+        return message.channel.send("The perms int for this command is not a number. Please get a mod to fix it.")
+    }
+    if (cmd != "sudo" && commands.settings[cmd].permsint != "0") {
+        let commandFile = require(`./commands/permcheck.js`);
+        var auth;
+        auth = await commandFile.run(client, message.member, parseInt(commands.settings[cmd].permsint));
+        if (!auth) {
+            let noPerms = new Discord.MessageEmbed()
+            .setColor("#ff1212")
+            .setAuthor("Permission Denied")
+            .setDescription(`You do not have permission to use this command.\n<@&${commands.settings[cmd].permsint}> or higher is required to use it.`)
+            return message.channel.send(noPerms)
+        }
+    }
 
     //Check channel
     //Not a command channel
@@ -82,7 +100,7 @@ client.on("message", async message => {
     commandArray.push(config.channels.normal.control.command)
     commandArray.push(config.channels.event.control.command)
     if (!commandArray.includes(message.channel.id) && restrictedCommands.includes(cmd)) return message.channel.send("Commands have to be used in a designated command channel.");
-    if(message.channel.type != 'text') return message.channel.send("Sorry, but all commands have to be used in a server.")
+    if (message.channel.type != 'text') return message.channel.send("Sorry, but all commands have to be used in a server.")
 
     //Attempt Command
     try {

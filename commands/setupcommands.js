@@ -6,12 +6,12 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     try {
 
         //Define Basic Variables
-            var config = JSON.parse(fs.readFileSync('config.json'))
-            var currentLocation = config
-            var currentPath = 'config';
+        var commands = JSON.parse(fs.readFileSync('commands.json'))
+        var currentLocation = commands.settings
+        var currentPath = 'commands.settings';
 
         //Setup the beginning
-        var commandsString = "You have begun the setup process.\nWhile here, you have access to following commands:\n\n`move (mv)` -> Allows you to move to a new part of the config file\nExample: `mv channels` will take you to the channels object\n\n`set` -> Sets a variable\nExample:\n`set admin 123456789012345678` will set the admin role to 123456789012345678, while `set admin none` will wipe the admin role\n\n`back` -> Takes you back one step\nExample: Using `back` from `config.channels` will take you to `config`\n\n`close` -> Closes the setup\n\nAll changes will be applied immediately once you close the setup."
+        var commandsString = "You have begun the setup process.\nWhile here, you have access to following commands:\n\n`move (mv)` -> Allows you to move to a new part of the config file\nExample: `mv addalt` will take you to the addalt object (command aliases work)\n\n`set` -> Sets a variable\nExample:\n`set enabled true` will set the a command to enabled, while `set enabled none` will wipe the enabled setting (and turn it off)\n\n`back` -> Takes you back one step\nExample: Using `back` from `commands.settings.addalt` will take you to `commands.settings`\n\n`close` -> Closes the setup\n\nAll changes will be applied immediatlely once you close the setup."
         var commandsEmbed = new Discord.MessageEmbed()
             .setColor("#30ffea")
             .setAuthor(`Setup Started By: ${message.member.displayName}`, message.author.avatarURL())
@@ -51,7 +51,8 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             await m.delete()
 
             let cmd = args.shift()
-            cmd = commands[cmd] || cmd
+            cmd = cmds[cmd] || cmd
+            args[0] = commands.aliases[args[0]] || args[0]
             switch (cmd) {
                 case 'move':
                     if (currentLocation[args[0]] == undefined || typeof currentLocation[args[0]] != "object") {
@@ -71,7 +72,15 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                                 descriptionString += `\`${i}\` = \`{Object}\`\n\n`
                             } else if (typeof currentLocation[i] == "string" || typeof currentLocation[i] == "number") {
                                 if (i != 'auth' && i != 'dev') {
-                                    descriptionString += `\`${i}\` = \`${currentLocation[i]}\`\n\n`
+                                    if (i == "permsint") {
+                                        if (currentLocation[i] == "0") {
+                                            descriptionString += `\`${i}\` = @everyone\`${currentLocation[i]}\`\n\n`
+                                        } else {
+                                            descriptionString += `\`${i}\` = <@&${currentLocation[i]}>\`${currentLocation[i]}\`\n\n`
+                                        }
+                                    } else {
+                                        descriptionString += `\`${i}\` = \`${currentLocation[i]}\`\n\n`
+                                    }
                                 }
                             }
                         }
@@ -97,7 +106,15 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                                 descriptionString += `\`${i}\` = \`{Object}\`\n\n`
                             } else if (typeof currentLocation[i] == "string") {
                                 if (i != 'auth' && i != 'dev') {
-                                    descriptionString += `\`${i}\` = \`${currentLocation[i]}\`\n\n`
+                                    if (i == "permsint") {
+                                        if (currentLocation[i] == "0") {
+                                            descriptionString += `\`${i}\` = @everyone\`${currentLocation[i]}\`\n\n`
+                                        } else {
+                                            descriptionString += `\`${i}\` = <@&${currentLocation[i]}>\`${currentLocation[i]}\`\n\n`
+                                        }
+                                    } else {
+                                        descriptionString += `\`${i}\` = \`${currentLocation[i]}\`\n\n`
+                                    }
                                 }
                             }
                         }
@@ -119,7 +136,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                         try {
                             eval(currentPath + `["${args[0]}"]="${args[1]}"`)
                             eval('currentLocation =' + currentPath)
-                            changes.push(`${m.content}\n`)
+                            changes.push(`${m.content} at ${currentPath}\n`)
                         } catch (e) {
                             console.log(e)
                             console.log(currentPath)
@@ -131,7 +148,15 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                                 descriptionString += `\`${i}\` = \`{Object}\`\n\n`
                             } else if (typeof currentLocation[i] == "string" || typeof currentLocation[i] == "number") {
                                 if (i != 'auth' && i != 'dev') {
-                                    descriptionString += `\`${i}\` = \`${currentLocation[i]}\`\n\n`
+                                    if (i == "permsint") {
+                                        if (currentLocation[i] == "0") {
+                                            descriptionString += `\`${i}\` = @everyone\`${currentLocation[i]}\`\n\n`
+                                        } else {
+                                            descriptionString += `\`${i}\` = <@&${currentLocation[i]}>\`${currentLocation[i]}\`\n\n`
+                                        }
+                                    } else {
+                                        descriptionString += `\`${i}\` = \`${currentLocation[i]}\`\n\n`
+                                    }
                                 }
                             }
                         }
@@ -140,7 +165,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     }
                     break
                 case 'close':
-                    fs.writeFileSync('config.json', JSON.stringify(config))
+                    fs.writeFileSync('commands.json', JSON.stringify(commands))
                     messageCollector.stop()
                     await displayMessage.delete()
                     commandsEmbed.setDescription("The setup has been stopped. The changes should take affect immediately.")
@@ -170,6 +195,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         owner.send()
     }
 }
-let commands = {
-    'mv': 'move'
+let cmds = {
+    'mv': 'move',
+    'aa': 'addalias'
 }

@@ -3,15 +3,6 @@ const fs = require('fs')
 exports.run = async (client, message, args, Discord, sudo = false) => {
     var config = JSON.parse(fs.readFileSync('config.json'))
     try {
-        //Permissions
-        if (!sudo) {
-            let commandFile = require(`./permcheck.js`);
-            var auth = await commandFile.run(client, message.member, 100000)
-            if (!auth) {
-                return message.channel.send("You do not have permission to use this command.")
-            }
-        }
-
         //Number of arguments
         if (args.length < 2) {
             return message.channel.send(`You are missing arguments. Expected 2, received ${args.length}.`)
