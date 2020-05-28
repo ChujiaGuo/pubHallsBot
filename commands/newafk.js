@@ -2,6 +2,7 @@ const fs = require('fs')
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
     var config = JSON.parse(fs.readFileSync("config.json"))
+    var commands = JSON.parse(fs.readFileSync("commands.json"))
     for (var i in config.afksettings) {
         if (!isNaN(config.afksettings[i])) {
             config.afksettings[i] = parseInt(config.afksettings[i])

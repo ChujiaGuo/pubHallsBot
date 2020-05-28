@@ -15,14 +15,12 @@ exports.run = async (client, message, args, Discord) => {
         cmd = commands.aliases[cmd] || cmd
         var returnEmbed = new Discord.MessageEmbed()
             .setColor("#ff1212")
-            .setTitle(`Help Panel for: ${cmd.toLowerCase()}`)
             .setFooter(`Capitalization does not matter | () means required | [] means optional | / means either or\n\`<@!${client.user.id}> prefix\` to show prefix`)
         if (commands.help[cmd] == undefined) {
-            returnEmbed.setDescription("This command does not have a help panel. Please check your spelling.")
+            returnEmbed.setDescription(`**Help Panel for: ${cmd.toLowerCase()}**\n\n` + "This command does not have a help panel. Please check your spelling.")
             return message.channel.send(returnEmbed)
         } else {
-            returnEmbed.setDescription(commands.help[cmd])
-            .addField("Minimum Role Required:", `<@&${commands.settings[cmd].permsint=="0"?message.guild.id:commands.settings[cmd].permsint}>`)
+            returnEmbed.setDescription(`**Help Panel for: ${cmd.toLowerCase()}**\n\n` + commands.help[cmd] + ` ${Object.keys(commands.aliases).filter(c => commands.aliases[c] == cmd).join(", ")}\n\n**Minimum Role Required: **<@&${commands.settings[cmd].permsint=="0"?message.guild.id:commands.settings[cmd].permsint}>\n\n**Command Status: **${commands.settings[cmd].enabled.toLowerCase() == "true" ? "Enabled":"Disabled"}`)
             return message.channel.send(returnEmbed)
         }
     }
