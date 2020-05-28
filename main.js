@@ -73,24 +73,6 @@ client.on("message", async message => {
     if (cmd.length == 0) return;
     if (/[^a-z]/gi.test(cmd)) return;
     cmd = commands.aliases[cmd] || cmd
-    if (cmd != "sudo" && (commands.settings[cmd] == undefined || commands.settings[cmd].enabled.toLowerCase() != "true")) {
-        return message.channel.send(`This command is not enabled. Please get a mod to enable it.`)
-    }
-    if(cmd != "sudo" && (!isNaN(commands.settings[cmd].permsint) && commands.settings[cmd].permsint.length == 0)){
-        return message.channel.send("The perms int for this command is not a number. Please get a mod to fix it.")
-    }
-    if (cmd != "sudo" && commands.settings[cmd].permsint != "0") {
-        let commandFile = require(`./commands/permcheck.js`);
-        var auth;
-        auth = await commandFile.run(client, message.member, commands.settings[cmd].permsint);
-        if (!auth) {
-            let noPerms = new Discord.MessageEmbed()
-            .setColor("#ff1212")
-            .setAuthor("Permission Denied")
-            .setDescription(`You do not have permission to use this command.\n<@&${commands.settings[cmd].permsint}> or higher is required to use it.`)
-            return message.channel.send(noPerms)
-        }
-    }
 
     //Check channel
     //Not a command channel
@@ -107,8 +89,27 @@ client.on("message", async message => {
 
         //Retrive Command File
         let cmdFile = `./commands/${cmd}.js`
+        
         delete require.cache[require.resolve(cmdFile)];
         let commandFile = require(cmdFile);
+        if (cmd != "sudo" && (commands.settings[cmd] == undefined || commands.settings[cmd].enabled.toLowerCase() != "true")) {
+            return message.channel.send(`This command is not enabled. Please get a mod to enable it.`)
+        }
+        if(cmd != "sudo" && (!isNaN(commands.settings[cmd].permsint) && commands.settings[cmd].permsint.length == 0)){
+            return message.channel.send("The perms int for this command is not a number. Please get a mod to fix it.")
+        }
+        if (cmd != "sudo" && commands.settings[cmd].permsint != "0") {
+            let commandFile = require(`./commands/permcheck.js`);
+            var auth;
+            auth = await commandFile.run(client, message.member, commands.settings[cmd].permsint);
+            if (!auth) {
+                let noPerms = new Discord.MessageEmbed()
+                .setColor("#ff1212")
+                .setAuthor("Permission Denied")
+                .setDescription(`You do not have permission to use this command.\n<@&${commands.settings[cmd].permsint}> or higher is required to use it.`)
+                return message.channel.send(noPerms)
+            }
+        }
         commandFile.run(client, message, args, Discord);
 
     } catch (e) {
