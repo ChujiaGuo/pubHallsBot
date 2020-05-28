@@ -40,7 +40,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         try {
             await user.roles.add(config.roles.general.vetraider)
         } catch (e) {
-            return message.channel.send(`Missing Permissions: \`Manage Roles\``)
+            return message.channel.send(`Error: \`\`\`${e}\`\`\``)
         }
         let logChannel = message.guild.channels.cache.find(c => c.id == config.channels.log.mod)
         await logChannel.send(`<@!${user.id}> has been vet verified by <@!${message.author.id}>`)

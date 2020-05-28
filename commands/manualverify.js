@@ -41,7 +41,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         try {
             await user.roles.add(config.roles.general.raider)
         } catch (e) {
-            return message.channel.send(`Missing Permissions: \`Manage Roles\``)
+            return message.channel.send(`Error: \`\`\`${e}\`\`\``)
         }
         try {
             await user.setNickname(ign)
