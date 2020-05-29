@@ -9,7 +9,7 @@ exports.run = async (client, member, checkint) => {
     } */
     try{
         if(member.guild.roles.cache.has(checkint)){
-            if(member.roles.hoist.comparePositionTo(checkint) >= 0){
+            if(member.roles.hoist != null && member.roles.hoist.comparePositionTo(checkint) >= 0){
                 return true
             }else{
                 return false
