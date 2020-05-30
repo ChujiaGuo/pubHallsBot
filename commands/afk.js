@@ -110,7 +110,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     //End Commands/Log embed
     //Setup and send the embed in status
     if (!raidingChannel.name.includes(" <-- Join!")) {
-        await raidingChannel.setName(raidingChannel.name + " <-- Join!")
+        await raidingChannel.setName(`${raidingChannel.name}  <-- Join!`)
     }
     await raidingChannel.updateOverwrite(config.roles.general.raider, {
         'CONNECT': true
@@ -660,7 +660,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             //Ending the afk check
             let commandFile = require(`./permcheck.js`);
             var auth;
-            auth = await commandFile.run(client, user, commands.settings.afk.permsint);
+            auth = await commandFile.run(client, reactor, commands.settings.afk.permsint);
             if (auth) {
                 let x = await r.emoji.reaction.users
                 await x.remove(reactor.id)
@@ -800,7 +800,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         //Aborting the afk check
         let commandFile = require(`./permcheck.js`);
         var auth;
-        auth = await commandFile.run(client, user, commands.settings.afk.permsint);
+        auth = await commandFile.run(client, reactor, commands.settings.afk.permsint);
         if (auth) {
             collectorAFK.stop()
             collectorControl.stop()

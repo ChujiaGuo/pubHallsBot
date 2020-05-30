@@ -85,7 +85,6 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             return message.channel.send(`There was an error using the image to text service.\`\`\`${e}\`\`\``)
         }
         await message.channel.send("Text Received")
-        console.log(result)
         var players = result[0].fullTextAnnotation.text.replace(/\n/g, " ").split(' ')
         //var players = result.replace(/\n/g, " ").split(' ')
         players = players.slice(players.indexOf(players.find(i => i.includes("):"))) + 1)
