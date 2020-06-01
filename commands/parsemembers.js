@@ -199,6 +199,14 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 .addField("As input for find:", crasherListNoRL.join(" "))
             await message.channel.send(crasherEmbed)
         }
+        statusEmbed
+            .setDescription(`Parsing done by: <@!${message.member.id}>\nParse status: Parse Complete`)
+            .addField(`Players detected by text recognition:`, players.join(", "))
+            .addField(`Users currently in ${raidingChannel.name}`, channelMembers.join(', '))
+            .setImage(imageURL)
+            .setFooter("Parse done at ")
+            .setTimestamp()
+        await statusMessage.edit(statusEmbed)
     }
     catch (e) {
         let owner = await client.users.fetch(config.dev)
