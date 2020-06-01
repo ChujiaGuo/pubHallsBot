@@ -469,7 +469,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             //Does the user have perms?
             let commandFile = require(`./permcheck.js`);
             var auth;
-            auth = await commandFile.run(client, user, commands.settings.afk.permsint);
+            auth = await commandFile.run(client, reactor, commands.settings.afk.permsint);
             if (auth) {
                 endAfk(reactor)
             }
