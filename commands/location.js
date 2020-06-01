@@ -25,6 +25,9 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 
 
         var newLocation = args.join(' ')
+        if(newLocation.length == 0){
+            return message.channel.send("Please specify a location.")
+        }
         afk.location = newLocation
         fs.writeFileSync('afk.json', JSON.stringify(afk))
         afk.earlyLocationIds = [... new Set(afk.earlyLocationIds)]
