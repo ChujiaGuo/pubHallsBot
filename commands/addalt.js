@@ -41,6 +41,10 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         } catch (e) {
             return message.channel.send(`For the following reason, I do not have permission to change this user's nickname: \`\`\`${e}\`\`\``)
         }
+        var checkUsers = await message.guild.members.cache.find(m => m.displayName.toLowerCase().replace(/[^a-z|]/gi, '').split('|').includes(altName.toLowerCase()))
+        if(checkUsers){
+            return message.channel.send(`There is already a user with the name: \`${altName}\` <@!${checkUsers.id}>`)
+        }
 
         var logChannel = await message.guild.channels.cache.find(c => c.id == config.channels.log.mod)
         var logEmbed = new Discord.MessageEmbed()
