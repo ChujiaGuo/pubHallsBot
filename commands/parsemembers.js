@@ -170,43 +170,53 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 crasherListNoRL.push(nickname)
             }
         }
-        if (altList.length > 0) {
-            let altEmbed = new Discord.MessageEmbed()
-                .setColor("#41f230")
-                .setAuthor("The following people are in your voice channel but not in game (potential alts):")
-                .setDescription(altList.join(", "))
-            await message.channel.send(altEmbed)
-        }
-        if (otherVCList.length > 0) {
-            let otherVCEmbed = new Discord.MessageEmbed()
-                .setColor("#41f230")
-                .setAuthor("The following people are in a different voice channel:")
-                .setDescription(otherVCList.join("\n"))
-                .addField("As input for find:", otherVCNames.join(" "))
-            await message.channel.send(otherVCEmbed)
-        }
-        if (notVet.length > 0) {
-            let notVetEmbed = new Discord.MessageEmbed()
-                .setColor("#41f230")
-                .setAuthor("The following people are not veteran raiders:")
-                .setDescription(notVet.join(", "))
-                .addField("As input for find:", notVet.join(" "))
-            await message.channel.send(notVetEmbed)
-        }
-        if (crasherListNoRL.length > 0) {
-            let crasherEmbed = new Discord.MessageEmbed()
-                .setColor("#41f230")
-                .setAuthor("The following people are not in the voice channel (ARL+ Excluded):")
-                .setDescription(crasherList.join(", "))
-                .addField("As input for find:", crasherListNoRL.join(" "))
-            await message.channel.send(crasherEmbed)
-        }
-        statusEmbed
-            .setDescription(`Parsing done by: <@!${message.member.id}>\nParse status: Parse Complete`)
-            .setImage(imageURL)
-            .setFooter("Parse done at ")
-            .setTimestamp()
-        await statusMessage.edit(statusEmbed)
+        try {
+            if (altList.length > 0) {
+                let altEmbed = new Discord.MessageEmbed()
+                    .setColor("#41f230")
+                    .setAuthor("The following people are in your voice channel but not in game (potential alts):")
+                    .setDescription(altList.join(", "))
+                await message.channel.send(altEmbed)
+            }
+        } catch (e) { }
+        try {
+            if (otherVCList.length > 0) {
+                let otherVCEmbed = new Discord.MessageEmbed()
+                    .setColor("#41f230")
+                    .setAuthor("The following people are in a different voice channel:")
+                    .setDescription(otherVCList.join("\n"))
+                    .addField("As input for find:", otherVCNames.join(" "))
+                await message.channel.send(otherVCEmbed)
+            }
+        } catch (e) { }
+        try {
+            if (notVet.length > 0) {
+                let notVetEmbed = new Discord.MessageEmbed()
+                    .setColor("#41f230")
+                    .setAuthor("The following people are not veteran raiders:")
+                    .setDescription(notVet.join(", "))
+                    .addField("As input for find:", notVet.join(" "))
+                await message.channel.send(notVetEmbed)
+            }
+        } catch (e) { }
+        try {
+            if (crasherListNoRL.length > 0) {
+                let crasherEmbed = new Discord.MessageEmbed()
+                    .setColor("#41f230")
+                    .setAuthor("The following people are not in the voice channel (ARL+ Excluded):")
+                    .setDescription(crasherList.join(", "))
+                    .addField("As input for find:", crasherListNoRL.join(" "))
+                await message.channel.send(crasherEmbed)
+            }
+        } catch (e) { }
+        try {
+            statusEmbed
+                .setDescription(`Parsing done by: <@!${message.member.id}>\nParse status: Parse Complete`)
+                .setImage(imageURL)
+                .setFooter("Parse done at ")
+                .setTimestamp()
+            await statusMessage.edit(statusEmbed)
+        } catch (e) { }
     }
     catch (e) {
         console.log(e)
