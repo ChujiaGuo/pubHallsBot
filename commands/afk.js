@@ -79,8 +79,8 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     var statusChannel = await message.guild.channels.cache.find(c => c.id == statusChannel)
 
     //Run Type
-    var runType = args.shift().toLowerCase()
-    if (!dungeons.hasOwnProperty(runType)) {
+    var runType = args.shift()
+    if (runType == undefined || !dungeons.hasOwnProperty(runType)) {
         return message.channel.send(`\`${runType}\` is not a valid run type. Please check your spelling.`)
     }
     runType = dungeons[runType]
@@ -226,7 +226,9 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         controlEmbed.setFooter(`The afk check has ended automatically.`)
         await commandMessage.edit(controlEmbed)
         await logMessage.edit(controlEmbed)
-        await commandMessage.reactions.removeAll()
+        try {
+            await commandMessage.reactions.removeAll()
+        } catch (e) { }
         await raidingChannel.setUserLimit(99)
         //Begin Moving people out
         var lounge;
@@ -288,7 +290,9 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         var postAFKEnd = setTimeout(async () => {
             clearInterval(postAFKEdit)
             let thing = await runMessage.reactions.cache.find(r => r.emoji.name == '❌')
-            await thing.remove()
+            try {
+                await thing.remove()
+            } catch (e) { }
             runEmbed
                 .setDescription(`The afk check has ended. We are currently running with ${raidingChannel.members.map(u => u.id).length} raiders.\nIf you missed this run, another will be starting shortly.`)
                 .setFooter(`The afk check has ended automatically`)
@@ -316,7 +320,9 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     clearInterval(postAFKEdit)
                     clearTimeout(postAFKEnd)
                     let thing = await runMessage.reactions.cache.find(r => r.emoji.name == '❌')
-                    await thing.remove()
+                    try {
+                        await thing.remove()
+                    } catch (e) { }
                     runEmbed
                         .setDescription(`The afk check has ended. We are currently running with ${raidingChannel.members.map(u => u.id).length} raiders.\nIf you missed this run, another will be starting shortly.`)
                         .setFooter(`The afk check has been ended by ${user.nickname}`)
@@ -663,7 +669,9 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             auth = await commandFile.run(client, reactor, commands.settings.afk.permsint);
             if (auth) {
                 let x = await r.emoji.reaction.users
-                await x.remove(reactor.id)
+                try {
+                    await x.remove(reactor.id)
+                } catch (e) { }
                 //await r.emoji.users.remove(reactor.id)
                 collectorAFK.stop()
                 clearTimeout(endAFK)
@@ -681,7 +689,9 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 controlEmbed.setFooter(`The afk check has been ended by ${reactor.nickname}`)
                 await commandMessage.edit(controlEmbed)
                 await logMessage.edit(controlEmbed)
-                await commandMessage.reactions.removeAll()
+                try {
+                    await commandMessage.reactions.removeAll()
+                } catch (e) { }
                 await raidingChannel.setName(raidingChannel.name.replace(' <-- Join!', ''))
                 await raidingChannel.updateOverwrite(
                     config.roles.general.raider,
@@ -749,7 +759,9 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 var postAFKEnd = setTimeout(async () => {
                     clearInterval(postAFKEdit)
                     let thing = await runMessage.reactions.cache.find(r => r.emoji.name == '❌')
-                    await thing.remove()
+                    try {
+                        await thing.remove()
+                    } catch (e) { }
                     runEmbed
                         .setDescription(`The afk check has ended. We are currently running with ${raidingChannel.members.map(u => u.id).length} raiders.\nIf you missed this run, another will be starting shortly.`)
                         .setFooter(`The afk check has ended automatically`)
@@ -778,7 +790,9 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                             clearInterval(postAFKEdit)
                             clearTimeout(postAFKEnd)
                             let thing = await runMessage.reactions.cache.find(r => r.emoji.name == '❌')
-                            await thing.remove()
+                            try {
+                                await thing.remove()
+                            } catch (e) { }
                             runEmbed
                                 .setDescription(`The afk check has ended. We are currently running with ${raidingChannel.members.map(u => u.id).length} raiders.\nIf you missed this run, another will be starting shortly.`)
                                 .setFooter(`The afk check has been ended by ${user.nickname}`)
@@ -804,10 +818,14 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         if (auth) {
             collectorAFK.stop()
             collectorControl.stop()
-            await commandMessage.reactions.removeAll()
+            try {
+                await commandMessage.reactions.removeAll()
+            } catch (e) { }
             let thing = await runMessage.reactions.cache.find(r => r.emoji.name == '❌')
             if (thing) {
-                await thing.remove()
+                try {
+                    await thing.remove()
+                } catch (e) { }
             }
             clearTimeout(endAFK)
             clearInterval(afkEdit)
@@ -828,7 +846,9 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             controlEmbed.setFooter(`The afk check has been aborted by ${reactor.nickname}`)
             await commandMessage.edit(controlEmbed)
             await logMessage.edit(controlEmbed)
-            await commandMessage.reactions.removeAll()
+            try {
+                await commandMessage.reactions.removeAll()
+            } catch (e) { }
             await runMessage.edit(runEmbed)
             await raidingChannel.setName(raidingChannel.name.replace(' <-- Join!', ''))
             await raidingChannel.updateOverwrite(
