@@ -77,14 +77,23 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 return message.channel.send("Please attach a single image, either as an URL or as a raw image.")
             }
         }
-        await message.channel.send("Retrieving text...")
+        var statusEmbed = new Discord.MessageEmbed()
+            .setColor("#41f230")
+            .setAuthor("Parsing Information")
+            .setDescription(`Parsing done by: <@!${message.member.id}>\nParse status: Retrieving Text`)
+        var statusMessage = await message.channel.send(statusEmbed)
         try {
             //var result = await parseImage(imageURL)
             var result = await ocrClient.textDetection(imageURL)
         } catch (e) {
-            return message.channel.send(`There was an error using the image to text service.\`\`\`${e}\`\`\``)
+            statusEmbed
+                .setColor("#ff1212")
+                .setDescription(`Parsing done by: <@!${message.member.id}>\nParse status: Error\`\`\`${e}\`\`\``)
+            return statusMessage.edit(statusEmbed)
         }
-        await message.channel.send("Text Received")
+        statusEmbed
+            .setDescription(`Parsing done by: <@!${message.member.id}>\nParse status: Text Received`)
+        await statusMessage.edit(statusEmbed)
         var players = result[0].fullTextAnnotation.text.replace(/\n/g, " ").split(' ')
         //var players = result.replace(/\n/g, " ").split(' ')
         players = players.slice(players.indexOf(players.find(i => i.includes("):"))) + 1)
@@ -92,30 +101,55 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             players[i] = players[i].replace(",", "").toLowerCase().trim()
         }
         players = players.filter(Boolean)
+        var channelMembers = raidingChannel.members.map(m => `<@!${m.id}>`)
+        try {
+            statusEmbed
+                .setDescription(`Parsing done by: <@!${message.member.id}>\nParse status: Text Received`)
+                .addField(`Players detected by text recognition:`, players.join(", "))
+                .addField(`Users currently in ${raidingChannel.name}`, channelMembers.join(', '))
+                .setImage(imageURL)
+                .setFooter("Parse done at ")
+                .setTimestamp()
+            await statusMessage.edit(statusEmbed)
+        } catch (e) { }
+        channelMembers = raidingChannel.members.map(m => m)
+        var crasherList = []
+        var crasherListNames = []
+        var otherVCList = []
+        var altList = []
 
-        var channelMembers = raidingChannel.members.map(m => m)
-        var crasherList = [];
-
-        await message.channel.send("Begin parsing...")
+        try {
+            statusEmbed
+                .setDescription(`Parsing done by: <@!${message.member.id}>\nParse status: Beginning Parsing`)
+            await statusMessage.edit(statusEmbed)
+        } catch (e) { }
         //Start channel parsing
         //People in /who but not in channel
         for (var i in players) {
-            let member = channelMembers.find(n => n.displayName.toLowerCase().replace(/[^a-z|]/gi, '').split('|').includes(players[i].toLowerCase()))
+            let member = message.guild.members.cache.find(n => n.displayName.toLowerCase().replace(/[^a-z|]/gi, '').split('|').includes(players[i].toLowerCase()))
             if (member == undefined) {
+                //People who aren't in the server
                 crasherList.push(players[i].replace(/[^a-z]/gi, ""))
-            }else{
-                channelMembers.splice(channelMembers.indexOf(member), 1)
+                crasherListNames.push(players[i].replace(/[^a-z]/gi, ""))
+            } else if (member.voice.channel == undefined) {
+                crasherList.push(`<@!${member.id}>`)
+                crasherListNames.push(players[i].replace(/[^a-z]/gi, ""))
+            } else if (member.voice.channel != undefined && member.voice.channel != raidingChannel) {
+                otherVCList.push(`<@!${member.id}> \`${players[i]}\`: <#${member.voice.channelID}>`)
+            } else {
+                channelMembers = channelMembers.splice(channelMembers.indexOf(member), 1)
             }
         }
-        let altList = channelMembers.map(m => `<@!${m.id}>`)
-        
+
+        altList = channelMembers.map(m => `<@!${m.id}>`)
+
         crasherList = crasherList.filter(Boolean)
-        var draggedIn = []
+        crasherListNames = crasherListNames.filter(Boolean)
         var crasherListNoRL = []
         var notVet = []
-        for (var i in crasherList) {
-            let nickname = crasherList[i].toLowerCase()
-            let member = await message.guild.members.cache.find(m => m.displayName.toLowerCase().includes(nickname))
+        for (var i in crasherListNames) {
+            let nickname = crasherListNames[i].toLowerCase()
+            let member = await message.guild.members.cache.find(m => m.displayName.toLowerCase().replace(/[^a-z|]/gi, '').split('|').includes(nickname))
             if (member != undefined) {
                 let commandFile = require(`./permcheck.js`);
                 var auth = await commandFile.run(client, member, config.roles.staff.arl)
@@ -123,60 +157,46 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     if (origin == 100 && !member.roles.cache.has(config.roles.general.vetraider)) {
                         notVet.push(nickname)
                     } else {
-                        if (member.voice.channel != undefined && false) {
-                            try {
-                                await member.voice.setChannel(raidingChannel)
-                                draggedIn.push(member.displayName)
-                            } catch (e) {
-                                console.log(e)
-                                message.channel.send(`An error occured when moving ${member.displayName} in.`)
-                            }
-                        } else {
-                            crasherListNoRL.push(nickname)
-                        }
+                        crasherListNoRL.push(nickname)
                     }
-
+                } else {
+                    let thing = crasherList.find(n => n.includes(member.id))
+                    if (thing) {
+                        crasherList = crasherList.splice(indexOf(thing), 1)
+                    }
                 }
             } else {
                 crasherListNoRL.push(nickname)
             }
         }
-
-        var crasherListFormat = crasherListNoRL.join(', ')
-        if (draggedIn.length > 0) {
-            let draggedInEmbed = new Discord.MessageEmbed()
-                .setColor("#ff1212")
-                .setAuthor("The following people were moved in from other channels:")
-                .setDescription(`\`\`\`${draggedIn.join(', ')}\`\`\``)
-            await message.channel.send(draggedInEmbed)
-        }
-        if(notVet.length > 0){
-            let notVetEmbed = new Discord.MessageEmbed()
-                .setColor("#ff1212")
-                .setAuthor("The following people do not have the veteran raider role:")
-                .setDescription(`\`\`\`${notVet.join(', ')}\`\`\``)
-            await message.channel.send(notVetEmbed)
-        }
-        if(altList.length > 0){
+        if (altList.length > 0) {
             let altEmbed = new Discord.MessageEmbed()
-                .setColor("#ff1212")
-                .setAuthor("The following people are potentially alts:")
-                .setDescription(`\`\`\`${altList.join(', ')}\`\`\``)
+                .setColor("#41f230")
+                .setAuthor("The following people are in your voice channel but not in game (potential alts):")
+                .setDescription(altList.join(", "))
             await message.channel.send(altEmbed)
         }
+        if (otherVCList.length > 0) {
+            let otherVCEmbed = new Discord.MessageEmbed()
+                .setColor("#41f230")
+                .setAuthor("The following people are in a different voice channel:")
+                .setDescription(otherVCList.join("\n"))
+            await message.channel.send(otherVCEmbed)
+        }
+        if (notVet.length > 0) {
+            let notVetEmbed = new Discord.MessageEmbed()
+                .setColor("#41f230")
+                .setAuthor("The following people are not veteran raiders:")
+                .setDescription(notVet.join(", "))
+            await message.channel.send(notVetEmbed)
+        }
         if (crasherListNoRL.length > 0) {
-            let embed1 = new Discord.MessageEmbed()
-                .setColor("#ff1212")
-                .setAuthor("The following people are in your run but not in the raiding channel (ARL+ Excluded):")
-                .setDescription(`\`\`\`${crasherListFormat}\`\`\``)
-            let embed2 = new Discord.MessageEmbed()
-                .setColor("#ff1212")
-                .setAuthor("As input for find:")
-                .setDescription(`\`\`\`${crasherListNoRL.join(' ')}\`\`\``)
-            await message.channel.send(embed1)
-            await message.channel.send(embed2)
-        } else {
-            await message.channel.send("There are no crashers")
+            let crasherEmbed = new Discord.MessageEmbed()
+                .setColor("#41f230")
+                .setAuthor("The following people are not in the voice channel (ARL+ Excluded):")
+                .setDescription(crasherList.join(", "))
+                .addField("As input for find:", crasherListNoRL.join(" "))
+            await message.channel.send(crasherEmbed)
         }
     }
     catch (e) {
