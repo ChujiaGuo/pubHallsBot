@@ -106,7 +106,6 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             statusEmbed
                 .setDescription(`Parsing done by: <@!${message.member.id}>\nParse status: Text Received`)
                 .addField(`Players detected by text recognition:`, players.join(", "))
-                .addField(`Users currently in ${raidingChannel.name}`, channelMembers.join(', '))
                 .setImage(imageURL)
                 .setFooter("Parse done at ")
                 .setTimestamp()
@@ -116,6 +115,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         var crasherList = []
         var crasherListNames = []
         var otherVCList = []
+        var otherVCNames = []
         var altList = []
 
         try {
@@ -136,6 +136,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 crasherListNames.push(players[i].replace(/[^a-z]/gi, ""))
             } else if (member.voice.channel != undefined && member.voice.channel != raidingChannel) {
                 otherVCList.push(`<@!${member.id}> \`${players[i]}\`: <#${member.voice.channelID}>`)
+                otherVCNames.push(`${member.displayName}`)
             } else {
                 channelMembers.splice(channelMembers.indexOf(member), 1)
             }
@@ -181,6 +182,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 .setColor("#41f230")
                 .setAuthor("The following people are in a different voice channel:")
                 .setDescription(otherVCList.join("\n"))
+                .addField("As input for find:", otherVCNames.join(" "))
             await message.channel.send(otherVCEmbed)
         }
         if (notVet.length > 0) {
@@ -207,6 +209,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         await statusMessage.edit(statusEmbed)
     }
     catch (e) {
+        console.log(e)
         let owner = await client.users.fetch(config.dev)
         var errorEmbed = new Discord.MessageEmbed()
             .setColor("#ff1212")
