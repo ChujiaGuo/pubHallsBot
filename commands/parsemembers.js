@@ -201,8 +201,6 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
         statusEmbed
             .setDescription(`Parsing done by: <@!${message.member.id}>\nParse status: Parse Complete`)
-            .addField(`Players detected by text recognition:`, players.join(", "))
-            .addField(`Users currently in ${raidingChannel.name}`, channelMembers.join(', '))
             .setImage(imageURL)
             .setFooter("Parse done at ")
             .setTimestamp()
