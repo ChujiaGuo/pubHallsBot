@@ -136,7 +136,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 crasherListNames.push(players[i].replace(/[^a-z]/gi, ""))
             } else if (member.voice.channel != undefined && member.voice.channel != raidingChannel) {
                 otherVCList.push(`<@!${member.id}> \`${players[i]}\`: <#${member.voice.channelID}>`)
-                otherVCNames.push(`${member.displayName}`)
+                otherVCNames.push(`${member.displayName}`.replace(/[^a-z]/gi,""))
             } else {
                 channelMembers.splice(channelMembers.indexOf(member), 1)
             }
