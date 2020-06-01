@@ -93,16 +93,22 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
         players = players.filter(Boolean)
 
-        var channelMembers = raidingChannel.members.map(m => m.displayName)
+        var channelMembers = raidingChannel.members.map(m => m)
         var crasherList = [];
 
         await message.channel.send("Begin parsing...")
         //Start channel parsing
+        //People in /who but not in channel
         for (var i in players) {
-            if (channelMembers.find(n => n.toLowerCase().replace(/[^a-z|]/gi, '').split('|').includes(players[i].toLowerCase())) == undefined) {
+            let member = channelMembers.find(n => n.displayName.toLowerCase().replace(/[^a-z|]/gi, '').split('|').includes(players[i].toLowerCase()))
+            if (member == undefined) {
                 crasherList.push(players[i].replace(/[^a-z]/gi, ""))
+            }else{
+                channelMembers.splice(channelMembers.indexOf(member), 1)
             }
         }
+        let altList = channelMembers.map(m => `<@!${m.id}>`)
+        
         crasherList = crasherList.filter(Boolean)
         var draggedIn = []
         var crasherListNoRL = []
@@ -117,7 +123,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     if (origin == 100 && !member.roles.cache.has(config.roles.general.vetraider)) {
                         notVet.push(nickname)
                     } else {
-                        if (member.voice.channel != undefined) {
+                        if (member.voice.channel != undefined && false) {
                             try {
                                 await member.voice.setChannel(raidingChannel)
                                 draggedIn.push(member.displayName)
@@ -150,6 +156,13 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 .setAuthor("The following people do not have the veteran raider role:")
                 .setDescription(`\`\`\`${notVet.join(', ')}\`\`\``)
             await message.channel.send(notVetEmbed)
+        }
+        if(altList.length > 0){
+            let altEmbed = new Discord.MessageEmbed()
+                .setColor("#ff1212")
+                .setAuthor("The following people are potentially alts:")
+                .setDescription(`\`\`\`${altList.join(', ')}\`\`\``)
+            await message.channel.send(altEmbed)
         }
         if (crasherListNoRL.length > 0) {
             let embed1 = new Discord.MessageEmbed()
