@@ -137,7 +137,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             } else if (member.voice.channel != undefined && member.voice.channel != raidingChannel) {
                 otherVCList.push(`<@!${member.id}> \`${players[i]}\`: <#${member.voice.channelID}>`)
             } else {
-                channelMembers = channelMembers.splice(channelMembers.indexOf(member), 1)
+                channelMembers.splice(channelMembers.indexOf(member), 1)
             }
         }
 
@@ -162,7 +162,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 } else {
                     let thing = crasherList.find(n => n.includes(member.id))
                     if (thing) {
-                        crasherList = crasherList.splice(indexOf(thing), 1)
+                        crasherList.splice(crasherList.indexOf(thing), 1)
                     }
                 }
             } else {
@@ -188,6 +188,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 .setColor("#41f230")
                 .setAuthor("The following people are not veteran raiders:")
                 .setDescription(notVet.join(", "))
+                .addField("As input for find:", notVet.join(" "))
             await message.channel.send(notVetEmbed)
         }
         if (crasherListNoRL.length > 0) {
