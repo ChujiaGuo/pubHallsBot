@@ -105,10 +105,15 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         try {
             statusEmbed
                 .setDescription(`Parsing done by: <@!${message.member.id}>\nParse status: Text Received`)
-                .addField(`Players detected by text recognition:`, players.join(", "))
-                .setImage(imageURL)
                 .setFooter("Parse done at ")
                 .setTimestamp()
+            if (config.parsesettings.displayNames.toLowerCase() == "true") {
+                statusEmbed.addField(`Players detected by text recognition:`, players.join(", "))
+
+            }
+            if (config.parsesettings.displayImage.toLowerCase() == "true") {
+                statusEmbed.setImage(imageURL)
+            }
             await statusMessage.edit(statusEmbed)
         } catch (e) { }
         channelMembers = raidingChannel.members.map(m => m)
@@ -138,7 +143,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             } else if (member.voice.channel != undefined && member.voice.channel != raidingChannel) {
                 //People in a different voice channel
                 otherVCList.push(`<@!${member.id}> \`${players[i]}\`: <#${member.voice.channelID}>`)
-                otherVCNames.push(`${member.displayName}`.replace(/[^a-z]/gi,""))
+                otherVCNames.push(`${member.displayName}`.replace(/[^a-z]/gi, ""))
             } else {
                 //Removes them from channelMembers if they are in the correct voice channel
                 channelMembers.splice(channelMembers.indexOf(member), 1)
