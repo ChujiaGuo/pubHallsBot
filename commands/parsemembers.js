@@ -132,12 +132,15 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 crasherList.push(players[i].replace(/[^a-z]/gi, ""))
                 crasherListNames.push(players[i].replace(/[^a-z]/gi, ""))
             } else if (member.voice.channel == undefined) {
+                //People who aren't in a voice channel but are a member
                 crasherList.push(`<@!${member.id}>`)
                 crasherListNames.push(players[i].replace(/[^a-z]/gi, ""))
             } else if (member.voice.channel != undefined && member.voice.channel != raidingChannel) {
+                //People in a different voice channel
                 otherVCList.push(`<@!${member.id}> \`${players[i]}\`: <#${member.voice.channelID}>`)
                 otherVCNames.push(`${member.displayName}`.replace(/[^a-z]/gi,""))
             } else {
+                //Removes them from channelMembers if they are in the correct voice channel
                 channelMembers.splice(channelMembers.indexOf(member), 1)
             }
         }
