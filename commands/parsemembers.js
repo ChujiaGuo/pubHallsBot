@@ -163,11 +163,16 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 let commandFile = require(`./permcheck.js`);
                 var auth = await commandFile.run(client, member, config.roles.staff.arl)
                 if (!auth) {
-                    if (origin == 100 && !member.roles.cache.has(config.roles.general.vetraider)) {
-                        notVet.push(nickname)
-                    } else {
+                    if(config.parsesettings.displayVet.toLowerCase() == "true"){
+                        if (origin == 100 && !member.roles.cache.has(config.roles.general.vetraider)) {
+                            notVet.push(nickname)
+                        } else {
+                            crasherListNoRL.push(nickname)
+                        }
+                    }else {
                         crasherListNoRL.push(nickname)
                     }
+                    
                 } else {
                     let thing = crasherList.find(n => n.includes(member.id))
                     if (thing) {
