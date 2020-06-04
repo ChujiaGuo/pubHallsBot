@@ -89,13 +89,13 @@ client.on("message", async message => {
 
         //Retrive Command File
         let cmdFile = `./commands/${cmd}.js`
-        
+
         delete require.cache[require.resolve(cmdFile)];
         let commandFile = require(cmdFile);
         if (cmd != "sudo" && (commands.settings[cmd] == undefined || commands.settings[cmd].enabled.toLowerCase() != "true")) {
             return message.channel.send(`This command is not enabled. Please get a mod to enable it.`)
         }
-        if(cmd != "sudo" && (!isNaN(commands.settings[cmd].permsint) && commands.settings[cmd].permsint.length == 0)){
+        if (cmd != "sudo" && (!isNaN(commands.settings[cmd].permsint) && commands.settings[cmd].permsint.length == 0)) {
             return message.channel.send("The perms int for this command is not a number. Please get a mod to fix it.")
         }
         if (cmd != "sudo" && commands.settings[cmd].permsint != "0") {
@@ -104,13 +104,47 @@ client.on("message", async message => {
             auth = await commandFile.run(client, message.member, commands.settings[cmd].permsint);
             if (!auth) {
                 let noPerms = new Discord.MessageEmbed()
-                .setColor("#ff1212")
-                .setAuthor("Permission Denied")
-                .setDescription(`You do not have permission to use this command.\n<@&${commands.settings[cmd].permsint}> or higher is required to use it.`)
+                    .setColor("#ff1212")
+                    .setAuthor("Permission Denied")
+                    .setDescription(`You do not have permission to use this command.\n<@&${commands.settings[cmd].permsint}> or higher is required to use it.`)
                 return message.channel.send(noPerms)
             }
         }
-        commandFile.run(client, message, args, Discord);
+        try {
+            await message.guild.members.fetch()
+            commandFile.run(client, message, args, Discord);
+        } catch (e) {
+            await message.channel.send(`There was an error updating the cache: \`\`\`${e}\`\`\``)
+            let errorUpdate = await message.channel.send("Would you like to run the command with a previous cache?")
+            await errorUpdate.react("✅")
+            await errorUpdate.react("❌")
+            const confirmationFilter = (r, u) => !u.bot && (r.emoji.name == "✅" || r.emoji.name == "❌") && u.id == message.author.id
+            await errorUpdate.awaitReactions(confirmationFilter, { max: 1, time: 15000 })
+                .then(async (r, u) => {
+                    if (r.size > 0) {
+                        r = r.map(e => e)[0]
+                        console.log(r)
+                        if (r.emoji.name == "✅") {
+                            errorUpdate.edit("Confirmation given. The command will now run.")
+                            commandFile.run(client, message, args, Discord)
+                            try {
+                                errorUpdate.reactions.removeAll()
+                            } catch (e) { }
+                        } else {
+                            errorUpdate.edit("Confirmation withheld. The command is now aborted.")
+                            try {
+                                errorUpdate.reactions.removeAll()
+                            } catch (e) { }
+                        }
+                    } else {
+                        errorUpdate.edit("No confirmation was given. The command is now aborted.")
+                        try {
+                            errorUpdate.reactions.removeAll()
+                        } catch (e) { }
+                    }
+                })
+        }
+
 
     } catch (e) {
         console.log(e)
