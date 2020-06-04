@@ -225,7 +225,6 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         try {
             statusEmbed
                 .setDescription(`Parsing done by: <@!${message.member.id}>\nParse status: Parse Complete`)
-                .setImage(imageURL)
                 .setFooter("Parse done at ")
                 .setTimestamp()
             await statusMessage.edit(statusEmbed)
