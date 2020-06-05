@@ -1,13 +1,25 @@
 const fs = require('fs')
 
 exports.run = async (client, message, args, Discord) => {
+    var config = JSON.parse(fs.readFileSync("config.json"))
+    var permcheck = require(`./permcheck.js`)
     try {
         var commands = JSON.parse(fs.readFileSync("commands.json"))
         if (args.length == 0) {
+            let categories = [... new Set(Object.values(commands.settings).map(cmd => cmd.category))].sort()
+            let sorted = {}
+            for(var x in categories){
+                let type = categories[x]
+                sorted[type] = Object.entries(commands.settings).filter(cmd => cmd.length > 1 && cmd[1].category != undefined && cmd[1].category.toLowerCase() == type)
+            }
+            var descriptionString = ""
+            for(var x in sorted){
+                descriptionString += `**__${x.charAt(0).toUpperCase() + x.substring(1)}__**:\`\`\`css\n${sorted[x].map(a => a[0]).join(", ").length == 0 ? "None":sorted[x].map(a => a[0]).join(", ")}\`\`\``
+            }
             var commandsEmbed = new Discord.MessageEmbed()
                 .setColor("#ff1212")
                 .setTitle("Commands List")
-                .setDescription("**__General__**:```css\nreport, find```**__Raiding:__**\n```css\nafk, newafk, resetafk, clean, lock, unlock, bazaarparse, parsecharacters, parsemembers, location```\n**__Moderation:__**```css\nmanualverify, manualvetverify, suspend, vetsuspend, unsuspend, vetunsuspend, kick, addalt, changename```\n**__Restricted:__**```css\nsetup```")
+                .setDescription(descriptionString)
                 .setFooter(`Capitalization does not matter | () means required | [] means optional | / means either or\n\`<@!${client.user.id}> prefix\` to show prefix`)
             return message.channel.send(commandsEmbed)
         }
@@ -20,11 +32,12 @@ exports.run = async (client, message, args, Discord) => {
             returnEmbed.setDescription(`**Help Panel for: ${cmd.toLowerCase()}**\n\n` + "This command does not have a help panel. Please check your spelling.")
             return message.channel.send(returnEmbed)
         } else {
-            returnEmbed.setDescription(`**Help Panel for: ${cmd.toLowerCase()}**\n\n` + commands.help[cmd] + ` ${Object.keys(commands.aliases).filter(c => commands.aliases[c] == cmd).join(", ")}\n\n**Minimum Role Required: **<@&${commands.settings[cmd].permsint=="0"?message.guild.id:commands.settings[cmd].permsint}>\n\n**Command Status: **${commands.settings[cmd].enabled.toLowerCase() == "true" ? "Enabled":"Disabled"}`)
+            returnEmbed.setDescription(`**Help Panel for: ${cmd.toLowerCase()}**\n\n` + commands.help[cmd] + ` ${Object.keys(commands.aliases).filter(c => commands.aliases[c] == cmd).join(", ")}\n\n**Minimum Role Required: **<@&${commands.settings[cmd].permsint == "0" ? message.guild.id : commands.settings[cmd].permsint}>\n\n**Command Status: **${commands.settings[cmd].enabled.toLowerCase() == "true" ? "Enabled" : "Disabled"}`)
             return message.channel.send(returnEmbed)
         }
     }
     catch (e) {
+        console.log(e)
         let owner = await client.users.fetch(config.dev)
         var errorEmbed = new Discord.MessageEmbed()
             .setColor("#ff1212")
