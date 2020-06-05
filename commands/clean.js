@@ -98,7 +98,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 let user = await message.guild.members.fetch(id)
                 let commandFile = require(`./permcheck.js`);
                 var auth;
-                auth = await commandFile.run(client, user, stayIn);
+                auth = await commandFile.run(client, user, config.roles.staff.arl);
                 if (!auth) {
                     user.voice.setChannel(lounge)
                 }
