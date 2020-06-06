@@ -131,8 +131,8 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         //Start channel parsing
         //People in /who but not in channel
         for (var i in players) {
-            let member = message.guild.members.cache.find(n => n.displayName.toLowerCase().replace(/[^a-z|]/gi, '').split('|').includes(players[i].toLowerCase()))
-            if (member == undefined || member.user.username == member.displayName) {
+            let member = message.guild.members.cache.find(n => n.nickname != null && n.displayName.toLowerCase().replace(/[^a-z|]/gi, '').split('|').includes(players[i].toLowerCase()))
+            if (member == undefined) {
                 //People who aren't in the server
                 crasherList.push(players[i].replace(/[^a-z]/gi, ""))
                 crasherListNames.push(players[i].replace(/[^a-z]/gi, ""))
@@ -158,8 +158,8 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         var notVet = []
         for (var i in crasherListNames) {
             let nickname = crasherListNames[i].toLowerCase()
-            let member = await message.guild.members.cache.find(m => m.displayName.toLowerCase().replace(/[^a-z|]/gi, '').split('|').includes(nickname))
-            if (member != undefined || member.user.username == member.displayName) {
+            let member = await message.guild.members.cache.find(m => m.nickname != null && m.displayName.toLowerCase().replace(/[^a-z|]/gi, '').split('|').includes(nickname))
+            if (member != undefined) {
                 let commandFile = require(`./permcheck.js`);
                 var auth = await commandFile.run(client, member, config.roles.staff.arl)
                 if (!auth) {
