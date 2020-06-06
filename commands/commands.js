@@ -10,7 +10,7 @@ exports.run = async (client, message, args, Discord) => {
             let sorted = {}
             for(var x in categories){
                 let type = categories[x]
-                sorted[type] = Object.entries(commands.settings).filter(cmd => cmd.length > 1 && cmd[1].category != undefined && cmd[1].category.toLowerCase() == type)
+                sorted[type] = Object.entries(commands.settings).filter(cmd => cmd.length > 1 && cmd[1].category != undefined && cmd[1].category.toLowerCase() == type && cmd[1].enabled.toLowerCase() == "true")
                 let allowedCommands = []
                 for(var y in sorted[type]){   
                     let auth = await permcheck.run(client, message.member, sorted[type][y][1].permsint == "0"? message.guild.id:sorted[type][y][1].permsint)
