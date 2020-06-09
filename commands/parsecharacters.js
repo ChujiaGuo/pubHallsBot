@@ -148,7 +148,7 @@ exports.run = async (client, message, args, Discord, sudo = false, results = und
                 invalidUsers.push(characterObject.Name)
             } else {
                 if (valid[0] != true) {
-                    noReqs.push(`${characterObject.Name}(${characterObject.Class}):\n Level: \`${characterObject.L}\`CQC: \`${characterObject.CQC}\`Fame: \`${characterObject.Fame}\`Place: \`${characterObject["Pl."]}\`${characterObject.Equipment.map(a => a[0]).join("")}Maxed: \`${characterObject.Maxed}\`\nReason: ${valid[1] ? valid[1].join() : undefined}`)
+                    noReqs.push(`(${characterObject.Name})[https://www.realmeye.com/player/${characterObject.Name}](${characterObject.Class}):\n Level: \`${characterObject.L}\`CQC: \`${characterObject.CQC}\`Fame: \`${characterObject.Fame}\`Place: \`${characterObject["Pl."]}\`${characterObject.Equipment.map(a => a[0]).join("")}Maxed: \`${characterObject.Maxed}\`\nReason: ${valid[1] ? valid[1].join() : undefined}`)
                 }
             }
         } let descriptionString = noReqs.join("\n\n")
