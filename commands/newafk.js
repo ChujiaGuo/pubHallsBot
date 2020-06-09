@@ -416,7 +416,6 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         try {
             await message.reply(`Remember to log the key pop! The command is: \`-pop lh ${controlEmbed.fields.find(f => f.name.includes("Key")).value.substring(controlEmbed.fields.find(f => f.name.includes(key)).value.indexOf(": ")).replace(/[^0-9]/gi, "")}\``)
         } catch (e) {
-            console.log(e)
         }
     }
     async function abortAfk(r) {

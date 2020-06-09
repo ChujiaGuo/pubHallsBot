@@ -147,7 +147,6 @@ client.on("message", async message => {
 
 
     } catch (e) {
-        console.log(e)
         var errorEmbed = new Discord.MessageEmbed()
             .setColor("#ff1212")
             .setTitle("Error")
