@@ -50,7 +50,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         for (var i in userIdArray) {
             try{
                 var user = await message.guild.members.fetch(userIdArray[i])
-                if (/^[a-z0-9]+$/i.test(user.nickname)) {
+                if (/^[a-z0-9|]+$/i.test(user.nickname)) {
                     usernameArray.push(user.nickname.toLowerCase())
                 } else {
                     usernameArray.push(user.nickname.toLowerCase().substring(1))

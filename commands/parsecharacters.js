@@ -163,7 +163,7 @@ exports.run = async (client, message, args, Discord, sudo = false, results = und
             let returnEmbed = new Discord.MessageEmbed()
                 .setAuthor("The following people have unreachable profiles")
                 .setColor("#41f230")
-                .setDescription(invalidUsers.join)
+                .setDescription(invalidUsers.join(", "))
             await message.channel.send(returnEmbed)
         }
         statusEmbed
