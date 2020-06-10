@@ -148,16 +148,24 @@ exports.run = async (client, message, args, Discord, sudo = false, results = und
                 invalidUsers.push(characterObject.Name)
             } else {
                 if (valid[0] != true) {
-                    noReqs.push(`(${characterObject.Name})[https://www.realmeye.com/player/${characterObject.Name}](${characterObject.Class}):\n Level: \`${characterObject.L}\`CQC: \`${characterObject.CQC}\`Fame: \`${characterObject.Fame}\`Place: \`${characterObject["Pl."]}\`${characterObject.Equipment.map(a => a[0]).join("")}Maxed: \`${characterObject.Maxed}\`\nReason: ${valid[1] ? valid[1].join() : undefined}`)
+                    noReqs.push(`[${characterObject.Name}](https://www.realmeye.com/player/${characterObject.Name}) (${characterObject.Class}):\n Level: \`${characterObject.L}\`CQC: \`${characterObject.CQC}\`Fame: \`${characterObject.Fame}\`Place: \`${characterObject["Pl."]}\`${characterObject.Equipment.map(a => a[0]).join("")}Maxed: \`${characterObject.Maxed}\`\nReason: ${valid[1] ? valid[1].join() : undefined}`)
                 }
             }
-        } let descriptionString = noReqs.join("\n\n")
+        }
+        let descriptionString = noReqs.join("\n\n")
         let returnEmbed = new Discord.MessageEmbed()
             .setAuthor("The following people do not meet requirements")
             .setColor("#41f230")
-            .setDescription(descriptionString.substring(0, descriptionString.substring(0, 2000).lastIndexOf("\n\n") + 2))
-        descriptionString = descriptionString.substring(descriptionString.substring(0, 2000).lastIndexOf("\n\n") + 2)
+            .setDescription(descriptionString.substring(0, descriptionString.substring(0, 2048).lastIndexOf("\n\n") + 2))
+        descriptionString = descriptionString.substring(descriptionString.substring(0, 2048).lastIndexOf("\n\n") + 2)
         await message.channel.send(returnEmbed)
+        if (invalidUsers.length > 0) {
+            let returnEmbed = new Discord.MessageEmbed()
+                .setAuthor("The following people have unreachable profiles")
+                .setColor("#41f230")
+                .setDescription(invalidUsers.join)
+            await message.channel.send(returnEmbed)
+        }
         statusEmbed
             .setDescription(`Parsing done by: <@!${message.member.id}>\nParse status: Parsing Complete`)
         await statusMessage.edit(statusEmbed)
@@ -166,8 +174,8 @@ exports.run = async (client, message, args, Discord, sudo = false, results = und
             let reasons = []
             //Check Gear Requirements
             let equipmentTier = characterObject.Equipment.map(a => a[1].replace(/ST/gi, "-2").replace(/UT/gi, "-1").replace(/[^0-9-\n]/gi, ""))
-            for(var i in equipmentTier){
-                if(equipmentTier[i].length == 0){
+            for (var i in equipmentTier) {
+                if (equipmentTier[i].length == 0) {
                     equipmentTier[i] = "None"
                 }
             }
