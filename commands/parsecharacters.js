@@ -173,7 +173,7 @@ exports.run = async (client, message, args, Discord, sudo = false, results = und
             let valid = true
             let reasons = []
             //Check Gear Requirements
-            let equipmentTier = characterObject.Equipment.map(a => a[1].replace(/ST/gi, "-2").replace(/UT/gi, "-1").replace(/[^0-9-\n]/gi, ""))
+            let equipmentTier = characterObject.Equipment.map(a => a[1].replace(/ST/gi, "-1").replace(/UT/gi, "-1").replace(/[^0-9-\n]/gi, ""))
             for (var i in equipmentTier) {
                 if (equipmentTier[i].length == 0) {
                     equipmentTier[i] = "None"
