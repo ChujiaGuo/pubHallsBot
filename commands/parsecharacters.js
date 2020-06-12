@@ -111,7 +111,7 @@ exports.run = async (client, message, args, Discord, sudo = false, results = und
                                     if (equip) {
                                         itemArray.push([`<:${equip.name}:${equip.id}>`, tier])
                                     } else {
-                                        itemArray.push([`⬛`, tier])
+                                        itemArray.push([`🚫`, tier])
                                     }
                                 } else {
                                     itemArray.push([`<:Backpack:719952565139406928>`, "UT"])
