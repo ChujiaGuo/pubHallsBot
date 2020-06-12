@@ -4,6 +4,8 @@ node_modules/
 /nitrodelay.json
 /afk.json
 /commands.json
+/acceptedleaverequests.json
+/currentleaverequests.json
 oldStuff/
 commands/test.js
 commands/oldafk.js

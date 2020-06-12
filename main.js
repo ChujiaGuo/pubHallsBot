@@ -32,7 +32,24 @@ client.once("ready", async () => {
     }
     fs.writeFileSync('afk.json', JSON.stringify(afk))
     console.log("Bot Up.")
-    let owner = await client.users.fetch(config.dev)
+    setInterval(async () => {
+        let leaverequests = JSON.parse(fs.readFileSync('acceptedleaverequests.json'))
+        for (var i in leaverequests) {
+            let currentTime = Date.now()
+            if (currentTime >= leaverequests[i].endingAt) {
+                let guild = await client.guilds.resolve(leaverequests[i].guildId)
+                let member = await guild.members.fetch(i)
+                let channel = await guild.channels.cache.find(c => c.id == config.channels.log.leaverequest)
+                let embed = new Discord.MessageEmbed()
+                    .setColor("#41f230")
+                    .setAuthor(`${member.nickname}(Username: ${member.user.username})'s leave has expired`)
+                    .setDescription(`Their roles:\n${leaverequests[i].roles.join(", ")}`)
+                await channel.send(`<@!${leaverequests[i].approvedBy}>, <@!${member.id}>'s leave has expired. If they want to stay on leave, please have them request leave again.`, embed)
+                delete leaverequests[i]
+            }
+        }
+        fs.writeFileSync('acceptedleaverequests.json', JSON.stringify(leaverequests))
+    }, 60000)
 })
 client.on("guildMemberAdd", async member => {
     //People Leaving and Rejoin Guild to Bypass Suspensions
