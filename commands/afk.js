@@ -90,14 +90,14 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     if (runLocation.length == 0) {
         return message.channel.send("Please input a location.")
     }
-    afk.location = runLocation
+    afk[origin].location = runLocation
     fs.writeFileSync('afk.json', JSON.stringify(afk))
 
     //Check for other afks
-    if (afk.afk == true) {
+    if (afk[origin].afk == true) {
         return message.channel.send("There is already another AFK check up. If you think this is a mistake, use \`resetafk\` and try again.")
     } else {
-        afk.afk = true
+        afk[origin].afk = true
         fs.writeFileSync('afk.json', JSON.stringify(afk))
     }
 
@@ -159,7 +159,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             runAnnouncement = await statusChannel.send(`@here \`Fullskip Void\` (${entity}) started by <@${message.author.id}> in \`${raidingChannel.name}\``)
             runEmbed
                 .setColor("#000080")
-                .setAuthor(`Void started by ${message.member.nickname} in ${raidingChannel.name}`, message.author.avatarURL())
+                .setAuthor(`Fullskip Void started by ${message.member.nickname} in ${raidingChannel.name}`, message.author.avatarURL())
                 .setDescription(`To join, **connect to the raiding channel** and then react with ${entity}\nIf you have a key or a vial, react with ${key} or ${vial} respectively\nIf you are bringing one of the following classes, please react that with class respectively ${warrior}${pally}${knight}\nIf you are bringing one of the following items (and plan on using it), please react with that item respectively ${mseal}${puri}\nIf have a mystic or a brain trickster and plan on bringing it, react with the one you are bringing ${mystic}${brain}\nIf you have the <@&${config.roles.general.nitro}> role, you may react with the ${shinynitro} for early location (10 max)\nTo end this AFK Check, the raid leader can react with the ❌`)
             runMessage = await statusChannel.send(runEmbed)
             controlEmbed = new Discord.MessageEmbed()
@@ -193,9 +193,9 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             commandMessage = await message.channel.send(controlEmbed)
             break
     }
-    afk.statusMessageId = runMessage.id
-    afk.infoMessageId = logMessage.id
-    afk.commandMessageId = commandMessage.id
+    afk[origin].statusMessageId = runMessage.id
+    afk[origin].infoMessageId = logMessage.id
+    afk[origin].commandMessageId = commandMessage.id
     fs.writeFileSync('afk.json', JSON.stringify(afk))
     //Timing Events
     var timeleft = config.afksettings.afktime
@@ -208,7 +208,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     //End AFK after this time
     var endAFK = setTimeout(async () => {
         clearInterval(afkEdit)
-        afk = {
+        afk[origin] = {
             "afk": false,
             "location": "",
             "statusMessageId": "",
@@ -254,7 +254,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             let commandFile = require(`./permcheck.js`);
             var auth;
             auth = await commandFile.run(client, user, commands.settings.afk.permsint);
-            if (!auth && !reactIds.includes(id) && !afk.earlyLocationIds.includes(user.id)) {
+            if (!auth && !reactIds.includes(id) && !afk[origin].earlyLocationIds.includes(user.id)) {
                 try {
                     user.voice.setChannel(lounge)
                 } catch (e) {
@@ -298,6 +298,11 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 .setFooter(`The afk check has ended automatically`)
                 .setTimestamp()
             await runMessage.edit(runEmbed)
+            try {
+                await message.reply(`Remember to log the key pop! The command is: \`-pop lh ${controlEmbed.fields.find(f => f.name.includes("Key")).value.substring(controlEmbed.fields.find(f => f.name.includes("Key")).value.indexOf(": ")).replace(/[^0-9]/gi, "")}\``)
+            } catch (e) {
+                console.log(e)
+            }
         }, config.afksettings.posttime)
 
         postAFK.on('collect', async r => {
@@ -328,9 +333,9 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                         .setFooter(`The afk check has been ended by ${user.nickname}`)
                         .setTimestamp()
                     await runMessage.edit(runEmbed)
-                    try{
-                    await message.reply(`Remember to log the key pop! The command is: \`-pop lh ${controlEmbed.fields.find(f => f.name.includes("Key")).value.substring(controlEmbed.fields.find(f => f.name.includes("Key")).value.indexOf(": ")).replace(/[^0-9]/gi,"")}\``)
-                    }catch(e){
+                    try {
+                        await message.reply(`Remember to log the key pop! The command is: \`-pop lh ${controlEmbed.fields.find(f => f.name.includes("Key")).value.substring(controlEmbed.fields.find(f => f.name.includes("Key")).value.indexOf(": ")).replace(/[^0-9]/gi, "")}\``)
+                    } catch (e) {
                         console.log(e)
                     }
                 }
@@ -370,7 +375,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         reactor = await message.guild.members.fetch(reactor[reactor.length - 1])
         reactorRoles = reactor.roles.cache.map(r => r.id)
         afk = JSON.parse(fs.readFileSync('afk.json'))
-        runLocation = afk.location
+        runLocation = afk[origin].location
         controlEmbed = commandMessage.embeds[0]
         if (name == "nitro" || name == "shinynitro") {
             //Send Nitro Boosters location
@@ -383,7 +388,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                         .spliceFields((runType == 'fullskipvoid') ? 5 : 3, 1, { name: "Nitro Boosters:", value: nitroArray.join(', '), inline: false })
                     await commandMessage.edit(controlEmbed)
                     await logMessage.edit(controlEmbed)
-                    afk.earlyLocationIds.push(reactor.id)
+                    afk[origin].earlyLocationIds.push(reactor.id)
                     fs.writeFileSync('afk.json', JSON.stringify(afk))
                 } else if (reactorRoles.includes(config.roles.general.nitro) && nitroCounter >= 10) {
                     await reactor.send("There have already been 10 people who received nitro.")
@@ -412,7 +417,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                                 .spliceFields(2, 1, { name: "Vials:", value: vialRusherArray.join('\n'), inline: false })
                             await commandMessage.edit(controlEmbed)
                             await logMessage.edit(controlEmbed)
-                            afk.earlyLocationIds.push(reactor.id)
+                            afk[origin].earlyLocationIds.push(reactor.id)
                             fs.writeFileSync('afk.json', JSON.stringify(afk))
                         } else if (vialRusherCounter >= 3) {
                             await reactor.send(`You have reacted with ✅. However, since we already have enough vials, you will not be getting location early. You *are* however, allowed to bring the vial just in case.`)
@@ -448,7 +453,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                                     .spliceFields(2, 1, { name: "Rushers:", value: vialRusherArray.join('\n'), inline: false })
                                 await commandMessage.edit(controlEmbed)
                                 await logMessage.edit(controlEmbed)
-                                afk.earlyLocationIds.push(reactor.id)
+                                afk[origin].earlyLocationIds.push(reactor.id)
                                 fs.writeFileSync('afk.json', JSON.stringify(afk))
                             } else if (vialRusherCounter >= 3) {
                                 await reactor.send(`You have reacted with ✅. However, since we already have enough rushers, you will not be getting location early. You *are* however, allowed to bring your rushing class just in case.`)
@@ -483,7 +488,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                                 .spliceFields(1, 1, { name: "Key:", value: keyArray.join('\n'), inline: false })
                             await commandMessage.edit(controlEmbed)
                             await logMessage.edit(controlEmbed)
-                            afk.earlyLocationIds.push(reactor.id)
+                            afk[origin].earlyLocationIds.push(reactor.id)
                             fs.writeFileSync('afk.json', JSON.stringify(afk))
                         } else if (keyCounter >= 1) {
                             await reactor.send(`You have reacted with ✅. However, since we already have enough keys, you will not be getting location early. You *are* however, allowed to bring your key just in case.`)
@@ -518,7 +523,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                                 .spliceFields(3, 1, { name: "Brains:", value: brainArray.join('\n'), inline: false })
                             await commandMessage.edit(controlEmbed)
                             await logMessage.edit(controlEmbed)
-                            afk.earlyLocationIds.push(reactor.id)
+                            afk[origin].earlyLocationIds.push(reactor.id)
                             fs.writeFileSync('afk.json', JSON.stringify(afk))
                         } else if (brainCounter >= 3) {
                             await reactor.send(`You have reacted with ✅. However, since we already have enough brains, you will not be getting location early. You *are* however, allowed to bring your brain trickster just in case.`)
@@ -554,7 +559,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                                 .spliceFields(4, 1, { name: "Mystics:", value: mysticArray.join('\n'), inline: false })
                             await commandMessage.edit(controlEmbed)
                             await logMessage.edit(controlEmbed)
-                            afk.earlyLocationIds.push(reactor.id)
+                            afk[origin].earlyLocationIds.push(reactor.id)
                             fs.writeFileSync('afk.json', JSON.stringify(afk))
                         } else if (mysticCounter >= 3) {
                             await reactor.send(`You have reacted with ✅. However, since we already have enough mystics, you will not be getting location early. You *are* however, allowed to bring your mystic just in case.`)
@@ -587,7 +592,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                                 .spliceFields(1, 1, { name: "Helmet Runes:", value: helmetArray.join('\n'), inline: false })
                             await commandMessage.edit(controlEmbed)
                             await logMessage.edit(controlEmbed)
-                            afk.earlyLocationIds.push(reactor.id)
+                            afk[origin].earlyLocationIds.push(reactor.id)
                             fs.writeFileSync('afk.json', JSON.stringify(afk))
                         } else if (helmetCounter >= 3) {
                             await reactor.send(`You have reacted with ✅. However, since we already have enough helmet runes, you will not be getting location early. You *are* however, allowed to bring your helmet rune just in case.`)
@@ -620,7 +625,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                                 .spliceFields(2, 1, { name: "Sword Runes:", value: swordArray.join('\n'), inline: false })
                             await commandMessage.edit(controlEmbed)
                             await logMessage.edit(controlEmbed)
-                            afk.earlyLocationIds.push(reactor.id)
+                            afk[origin].earlyLocationIds.push(reactor.id)
                             fs.writeFileSync('afk.json', JSON.stringify(afk))
                         } else if (swordCounter >= 3) {
                             await reactor.send(`You have reacted with ✅. However, since we already have enough sword runes, you will not be getting location early. You *are* however, allowed to bring your sword rune just in case.`)
@@ -653,7 +658,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                                 .spliceFields(3, 1, { name: "Shield Runes:", value: shieldArray.join('\n'), inline: false })
                             await commandMessage.edit(controlEmbed)
                             await logMessage.edit(controlEmbed)
-                            afk.earlyLocationIds.push(reactor.id)
+                            afk[origin].earlyLocationIds.push(reactor.id)
                             fs.writeFileSync('afk.json', JSON.stringify(afk))
                         } else if (shieldCounter >= 3) {
                             await reactor.send(`You have reacted with ✅. However, since we already have enough shield runes, you will not be getting location early. You *are* however, allowed to bring your shield rune just in case.`)
@@ -682,7 +687,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 clearTimeout(endAFK)
                 clearInterval(afkEdit)
                 await runAnnouncement.delete()
-                afk = {
+                afk[origin] = {
                     "afk": false,
                     "location": "",
                     "statusMessageId": "",
@@ -728,7 +733,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     let commandFile = require(`./permcheck.js`);
                     var auth;
                     auth = await commandFile.run(client, user, commands.settings.afk.permsint);
-                    if (!auth && !reactIds.includes(id) && !afk.earlyLocationIds.includes(user.id)) {
+                    if (!auth && !reactIds.includes(id) && !afk[origin].earlyLocationIds.includes(user.id)) {
                         try {
                             user.voice.setChannel(lounge)
                         } catch (e) {
@@ -772,9 +777,9 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                         .setFooter(`The afk check has ended automatically`)
                         .setTimestamp()
                     await runMessage.edit(runEmbed)
-                    try{
-                    await message.reply(`Remember to log the key pop! The command is: \`-pop lh ${controlEmbed.fields.find(f => f.name.includes("Key")).value.substring(controlEmbed.fields.find(f => f.name.includes("Key")).value.indexOf(": ")).replace(/[^0-9]/gi,"")}\``)
-                    }catch(e){
+                    try {
+                        await message.reply(`Remember to log the key pop! The command is: \`-pop lh ${controlEmbed.fields.find(f => f.name.includes("Key")).value.substring(controlEmbed.fields.find(f => f.name.includes("Key")).value.indexOf(": ")).replace(/[^0-9]/gi, "")}\``)
+                    } catch (e) {
                         console.log(e)
                     }
                 }, config.afksettings.posttime)
@@ -808,6 +813,11 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                                 .setFooter(`The afk check has been ended by ${user.nickname}`)
                                 .setTimestamp()
                             await runMessage.edit(runEmbed)
+                            try {
+                                await message.reply(`Remember to log the key pop! The command is: \`-pop lh ${controlEmbed.fields.find(f => f.name.includes("Key")).value.substring(controlEmbed.fields.find(f => f.name.includes("Key")).value.indexOf(": ")).replace(/[^0-9]/gi, "")}\``)
+                            } catch (e) {
+                                console.log(e)
+                            }
                         }
                     }
                 })
@@ -840,7 +850,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             clearTimeout(endAFK)
             clearInterval(afkEdit)
             await runAnnouncement.delete()
-            afk = {
+            afk[origin] = {
                 "afk": false,
                 "location": "",
                 "statusMessageId": "",

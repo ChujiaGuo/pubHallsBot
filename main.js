@@ -1,7 +1,7 @@
 const fs = require("fs");
 const dist = require("js-levenshtein")
 const Discord = require("discord.js");
-const client = new Discord.Client();
+const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'] });
 var config = JSON.parse(fs.readFileSync("config.json"))
 var commands = JSON.parse(fs.readFileSync("commands.json"))
 
@@ -22,13 +22,33 @@ client.once("ready", async () => {
     } catch (e) {
         console.log(e)
     }
+    let currentRuns = JSON.parse(fs.readFileSync('afk.json')).currentRuns
     afk = {
-        "afk": false,
-        "location": "",
-        "statusMessageId": "",
-        "infoMessageId": "",
-        "commandMessageId": "",
-        "earlyLocationIds": []
+        100: {
+            "afk": false,
+            "location": "",
+            "statusMessageId": "",
+            "infoMessageId": "",
+            "commandMessageId": "",
+            "earlyLocationIds": []
+        },
+        10: {
+            "afk": false,
+            "location": "",
+            "statusMessageId": "",
+            "infoMessageId": "",
+            "commandMessageId": "",
+            "earlyLocationIds": []
+        },
+        1: {
+            "afk": false,
+            "location": "",
+            "statusMessageId": "",
+            "infoMessageId": "",
+            "commandMessageId": "",
+            "earlyLocationIds": []
+        },
+        "currentRuns": currentRuns
     }
     fs.writeFileSync('afk.json', JSON.stringify(afk))
     console.log("Bot Up.")
@@ -69,7 +89,70 @@ client.on("guildMemberAdd", async member => {
     }
 
 })
-client.on("rateLimit", r => {
+client.on("messageReactionAdd", async (r, u) => {
+    if (u.bot) return;
+    if (r.partial) await r.fetch().catch(e => console.log(e))
+    var afk = JSON.parse(fs.readFileSync('afk.json'))
+    var currentleaverequests = JSON.parse(fs.readFileSync('currentleaverequests.json'))
+    if (!afk.currentRuns[r.message.id] && !currentleaverequests[r.message.id]) {
+        return
+    } else if (afk.currentRuns[r.message.id]) {
+        let raidChannel = await r.message.guild.channels.cache.find(c => c.id == afk.currentRuns[r.message.id])
+        await raidChannel.delete().catch(e => console.log(e))
+        await r.message.delete().catch(e => console.log(e))
+        delete afk.currentRuns[r.message.id]
+        fs.writeFileSync('afk.json', JSON.stringify(afk))
+    }else if(currentleaverequests[r.message.id]){
+        var requestMessage = r.message
+        var requestEmbed = requestMessage.embeds[0]
+        var requestObject = currentleaverequests[r.message.id]
+        let logChannelGeneral = await r.message.guild.channels.cache.find(c => c.id == config.channels.log.statusupdatesgeneral)
+        let logChannelMod = await r.message.guild.channels.cache.find(c => c.id == config.channels.log.statusupdatesmod)
+        let mod = await r.message.guild.member(u)
+        if (r.emoji.name == "✅") {
+            try {
+                await requestMessage.reactions.removeAll()
+            } catch (e) { }
+            let d = new Date(requestEmbed.timestamp)
+            requestEmbed
+                .setColor("#41f230")
+                .setFooter(requestEmbed.footer.text.trim() + ` ${d.toDateString()}\nRequest approved by ${mod.nickname} at `)
+                .setDescription(requestEmbed.description.substring(0, requestEmbed.description.lastIndexOf("React")))
+                .setTimestamp()
+            await requestMessage.edit(requestEmbed)
+            requestObject["approvedBy"] = mod.id
+            let acceptedleaverequests = JSON.parse(fs.readFileSync("acceptedleaverequests.json"))
+            acceptedleaverequests[requestObject.requestFrom] = requestObject
+            fs.writeFileSync("acceptedleaverequests.json", JSON.stringify(acceptedleaverequests))
+            delete currentleaverequests[r.message.id]
+            fs.writeFileSync('currentleaverequests.json', JSON.stringify(currentleaverequests))
+            await logChannelGeneral.send(`<@!${requestObject.requestFrom}> on leave for ${await toTimeString(requestObject.duration)}`)
+            await logChannelMod.send(requestEmbed)
+            let member = await r.message.guild.members.fetch(requestObject.requestFrom)
+            await member.send("You request for leave has been accepted.")
+        } else if (r.emoji.name == "❌") {
+            try {
+                await requestMessage.reactions.removeAll()
+            } catch (e) { }
+            let d = new Date(requestEmbed.timestamp)
+            requestEmbed
+                .setColor("#ff1212")
+                .setFooter(requestEmbed.footer.text.trim() + ` ${d.toDateString()}\nRequest denied by ${mod.nickname} at `)
+                .setDescription(requestEmbed.description.substring(0, requestEmbed.description.lastIndexOf("React")))
+                .setTimestamp()
+            await requestMessage.edit(requestEmbed)
+            delete currentleaverequests[r.message.id]
+            fs.writeFileSync('currentleaverequests.json', JSON.stringify(currentleaverequests))
+            let member = await r.message.guild.members.fetch(requestObject.requestFrom)
+            await member.send("You request for leave has been denied.")
+        } else if (r.emoji.name == "❓") {
+            let d = new Date(requestEmbed.timestamp)
+            requestEmbed
+                .setColor("#7f9a67")
+                .setFooter(requestEmbed.footer.text.trim() + ` ${d.toDateString()}\nRequest pending review from ${mod.nickname} at `)
+            await requestMessage.edit(requestEmbed)
+        }
+    }
 })
 client.on("message", async message => {
     config = JSON.parse(fs.readFileSync("config.json"))
@@ -191,3 +274,6 @@ client.on("message", async message => {
 })
 
 client.login(config.auth)
+async function toTimeString(time) {
+    return `${Math.floor(time / 604800000)} Weeks ${Math.floor(time % 604800000) / 86400000} Days`
+}

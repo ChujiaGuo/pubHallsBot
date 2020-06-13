@@ -56,50 +56,9 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         "endingAt": Date.now() + duration,
         "roles": message.member.roles.cache.map(r => r).filter(r => r.position >= message.guild.roles.cache.get(config.roles.staff.eo).position).map(r => `<@&${r.id}>`)
     }
-    const requestFilter = (r, u) => !u.bot && ["✅", "❌", "❓"].includes(r.emoji.name)
-    let requestCollector = requestMessage.createReactionCollector(requestFilter)
-    requestCollector.on('collect', async (r, u) => {
-        let mod = await message.guild.member(u)
-        if (r.emoji.name == "✅") {
-            try {
-                await requestMessage.reactions.removeAll()
-            } catch (e) { }
-            requestCollector.stop()
-            let d = new Date(requestEmbed.timestamp)
-            requestEmbed
-                .setColor("#41f230")
-                .setFooter(requestEmbed.footer.text.trim() + ` ${d.toDateString()}\nRequest approved by ${mod.nickname} at `)
-                .setDescription(requestEmbed.description.substring(0, requestEmbed.description.lastIndexOf("React")))
-                .setTimestamp()
-            await requestMessage.edit(requestEmbed)
-            requestObject['approvedBy'] = mod.id
-            let acceptedleaverequests = JSON.parse(fs.readFileSync("acceptedleaverequests.json"))
-            acceptedleaverequests[message.author.id] = requestObject
-            fs.writeFileSync("acceptedleaverequests.json", JSON.stringify(acceptedleaverequests))
-            await logChannelGeneral.send(`<@!${message.author.id}> on leave for ${await toTimeString(duration)}`)
-            await logChannelMod.send(requestEmbed)
-            await message.author.send("Your request for leave has been approved.")
-        } else if (r.emoji.name == "❌") {
-            try {
-                await requestMessage.reactions.removeAll()
-            } catch (e) { }
-            requestCollector.stop()
-            let d = new Date(requestEmbed.timestamp)
-            requestEmbed
-                .setColor("#ff1212")
-                .setFooter(requestEmbed.footer.text.trim() + ` ${d.toDateString()}\nRequest denied by ${mod.nickname} at `)
-                .setDescription(requestEmbed.description.substring(0, requestEmbed.description.lastIndexOf("React")))
-                .setTimestamp()
-            await requestMessage.edit(requestEmbed)
-            await message.author.send("Your request for leave has been denied.")
-        } else if (r.emoji.name == "❓") {
-            let d = new Date(requestEmbed.timestamp)
-            requestEmbed
-                .setColor("#7f9a67")
-                .setFooter(requestEmbed.footer.text.trim() + ` ${d.toDateString()}\nRequest pending review from ${mod.nickname} at `)
-            await requestMessage.edit(requestEmbed)
-        }
-    })
+    let currentleaverequests = JSON.parse(fs.readFileSync("currentleaverequests.json"))
+    currentleaverequests[requestMessage.id] = requestObject
+    fs.writeFileSync("currentleaverequests.json", JSON.stringify(currentleaverequests))
     await requestMessage.react("✅")
     await requestMessage.react("❌")
     await requestMessage.react("❓")

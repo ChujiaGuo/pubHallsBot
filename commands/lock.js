@@ -64,16 +64,14 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
         //Fetch channel
         var raidingChannel = await message.guild.channels.cache.find(c => c.id == channelNumber)
-        await raidingChannel.setUserLimit(99)
+        let newName = ""
         if (raidingChannel.name.includes(number)) {
-            await raidingChannel.setName(raidingChannel.name.substring(0, raidingChannel.name.indexOf(number) + 1))
+            newName = (raidingChannel.name.substring(0, raidingChannel.name.indexOf(number) + 1))
         } else {
-            await raidingChannel.setName(raidingChannel.name.replace(" <-- Join!", ""))
+            newName = (raidingChannel.name.replace(" <-- Join!", ""))
 
         }
-        await raidingChannel.updateOverwrite(config.roles.general.raider, {
-            'CONNECT': false
-        })
+        await raidingChannel.edit({name:newName, userLimit:99, permissionOverwrites:[{id:config.roles.general.raider, deny: 'CONNECT'}]}).catch(e => console.log(e))
         return message.channel.send(`<@!${message.author.id}> Done!`)
     }
     catch (e) {

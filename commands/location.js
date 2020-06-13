@@ -8,9 +8,6 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         if (message.channel.type != 'text') {
             return message.channel.send("You cannot use this command here.")
         }
-        if (!afk.afk) {
-            return message.channel.send("There is no AFK Check up at this time.")
-        }
         var origin = 0;
         //Check origin channel
         if (message.channel.id == config.channels.veteran.control.command) {
@@ -22,28 +19,32 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         } else {
             return message.channel.send("You cannot use this command here.")
         }
+        if (!afk[origin].afk) {
+            return message.channel.send("There is no AFK Check up at this time.")
+        }
+        
 
 
         var newLocation = args.join(' ')
         if(newLocation.length == 0){
             return message.channel.send("Please specify a location.")
         }
-        afk.location = newLocation
+        afk[origin].location = newLocation
         fs.writeFileSync('afk.json', JSON.stringify(afk))
-        afk.earlyLocationIds = [... new Set(afk.earlyLocationIds)]
-        for (i in afk.earlyLocationIds) {
-            let member = await message.guild.members.fetch(afk.earlyLocationIds[i])
+        afk[origin].earlyLocationIds = [... new Set(afk[origin].earlyLocationIds)]
+        for (i in afk[origin].earlyLocationIds) {
+            let member = await message.guild.members.fetch(afk[origin].earlyLocationIds[i])
             await member.send(`The RL has changed the location to:\n\`${newLocation}\``)
         }
         var infoMessage = await message.guild.channels.cache.find(c => c.id == config.channels.log.raid)
         var commandMessage
         try {
-            commandMessage = await message.channel.messages.fetch(afk.commandMessageId)
+            commandMessage = await message.channel.messages.fetch(afk[origin].commandMessageId)
         } catch (e) {
             return message.channel.send(`The following error appeared when fetching the command message:\`\`\`${e}\`\`\``)
         }
         try {
-            infoMessage = await infoMessage.messages.fetch(afk.infoMessageId)
+            infoMessage = await infoMessage.messages.fetch(afk[origin].infoMessageId)
         } catch (e) {
             return message.channel.send(`The following error appeared when fetching the info message:\`\`\`${e}\`\`\``)
         }
