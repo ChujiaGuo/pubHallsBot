@@ -26,50 +26,53 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             return message.channel.send("You cannot use this command here.")
         }
         //Channel Number
-        var channelNumber = args.shift()
+        var channelNumber = args.shift();
+        var imageURL = args.shift() || channelNumber;
         var statusChannel;
-        if (isNaN(channelNumber)) {
-            return message.channel.send(`\`${channelNumber}\` is an invalid channel number.`)
-        }
         //Channel Available?
-        if (origin == 100) {
-            if (config.channels.veteran.raiding[channelNumber] == undefined) {
-                return message.channel.send(`\`${channelNumber}\` is an invalid channel number.`)
-            }
-            if (config.channels.veteran.raiding[channelNumber].length == 0) {
-                return message.channel.send(`Raiding Channel \`${channelNumber}\` has not been configured. Please have an admin add it using setup.`)
-            } else {
-                channelNumber = config.channels.veteran.raiding[channelNumber]
-            }
-        } else if (origin == 10) {
-            if (config.channels.normal.raiding[channelNumber] == undefined) {
-                return message.channel.send(`\`${channelNumber}\` is an invalid channel number.`)
-            }
-            if (config.channels.normal.raiding[channelNumber].length == 0) {
-                return message.channel.send(`Raiding Channel \`${channelNumber}\` has not been configured. Please have an admin add it using setup.`)
-            } else {
-                channelNumber = config.channels.normal.raiding[channelNumber]
-            }
-        } else if (origin = 1) {
-            if (config.channels.event.raiding[channelNumber] == undefined) {
-                return message.channel.send(`\`${channelNumber}\` is an invalid channel number.`)
-            }
-            if (config.channels.event.raiding[channelNumber].length == 0) {
-                return message.channel.send(`Raiding Channel \`${channelNumber}\` has not been configured. Please have an admin add it using setup.`)
-            }
-            else {
-                return message.channel.send("Events aren't supported yet. Sorry.")
-                channelNumber = config.channels.event.raiding[channelNumber]
-            }
+        if (message.member.voice.channelID) {
+            channelNumber = message.member.voice.channelID
+        } else if (message.guild.channels.cache.find(c => c.id == channelNumber) && message.guild.channels.cache.find(c => c.id == channelNumber).type == "voice") {
+            channelNumber = channelNumber
         } else {
-            return message.channel.send("You should not be here.")
+            if (origin == 100) {
+                if (config.channels.veteran.raiding[channelNumber] == undefined) {
+                    return message.channel.send(`\`${channelNumber}\` is an invalid channel number.`)
+                }
+                if (config.channels.veteran.raiding[channelNumber].length == 0) {
+                    return message.channel.send(`Raiding Channel \`${channelNumber}\` has not been configured. Please have an admin add it using setup.`)
+                } else {
+                    channelNumber = config.channels.veteran.raiding[channelNumber]
+                }
+            } else if (origin == 10) {
+                if (config.channels.normal.raiding[channelNumber] == undefined) {
+                    return message.channel.send(`\`${channelNumber}\` is an invalid channel number.`)
+                }
+                if (config.channels.normal.raiding[channelNumber].length == 0) {
+                    return message.channel.send(`Raiding Channel \`${channelNumber}\` has not been configured. Please have an admin add it using setup.`)
+                } else {
+                    channelNumber = config.channels.normal.raiding[channelNumber]
+                }
+            } else if (origin = 1) {
+                if (config.channels.event.raiding[channelNumber] == undefined) {
+                    return message.channel.send(`\`${channelNumber}\` is an invalid channel number.`)
+                }
+                if (config.channels.event.raiding[channelNumber].length == 0) {
+                    return message.channel.send(`Raiding Channel \`${channelNumber}\` has not been configured. Please have an admin add it using setup.`)
+                }
+                else {
+                    return message.channel.send("Events aren't supported yet. Sorry.")
+                    channelNumber = config.channels.event.raiding[channelNumber]
+                }
+            } else {
+                return message.channel.send("You should not be here.")
+            }
         }
         //Fetch channel
         var raidingChannel = await message.guild.channels.cache.find(c => c.id == channelNumber)
         var channelMembers = raidingChannel.members
 
         //Begin Image Parsing
-        var imageURL = args.shift();
         if (imageURL == undefined) {
             if (message.attachments.size == 1) {
                 imageURL = message.attachments.map(a => a.proxyURL)[0]
@@ -163,16 +166,16 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 let commandFile = require(`./permcheck.js`);
                 var auth = await commandFile.run(client, member, config.roles.staff.arl)
                 if (!auth) {
-                    if(config.parsesettings.displayVet.toLowerCase() == "true"){
+                    if (config.parsesettings.displayVet.toLowerCase() == "true") {
                         if (origin == 100 && !member.roles.cache.has(config.roles.general.vetraider)) {
                             notVet.push(nickname)
                         } else {
                             crasherListNoRL.push(nickname)
                         }
-                    }else {
+                    } else {
                         crasherListNoRL.push(nickname)
                     }
-                    
+
                 } else {
                     let thing = crasherList.find(n => n.includes(member.id))
                     if (thing) {
