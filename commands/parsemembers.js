@@ -8,9 +8,6 @@ const worker = createWorker()
 exports.run = async (client, message, args, Discord, sudo = false) => {
     var config = JSON.parse(fs.readFileSync('config.json'))
     try {
-        if (args.length < 1) {
-            return message.channel.send(`You are missing arguments. Expected 1, received ${args.length}.`)
-        }
 
         //Get Channel
         //Find Origin
@@ -25,15 +22,18 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         } else {
             return message.channel.send("You cannot use this command here.")
         }
+
         //Channel Number
-        var channelNumber = args.shift();
-        var imageURL = args.shift() || channelNumber;
-        var statusChannel;
+        var channelNumber = args[0]
+        var imageURL = "";
+
         //Channel Available?
         if (message.member.voice.channelID) {
             channelNumber = message.member.voice.channelID
+            imageURL = args[0]
         } else if (message.guild.channels.cache.find(c => c.id == channelNumber) && message.guild.channels.cache.find(c => c.id == channelNumber).type == "voice") {
             channelNumber = channelNumber
+            imageURL = args[1]
         } else {
             if (origin == 100) {
                 if (config.channels.veteran.raiding[channelNumber] == undefined) {
@@ -67,18 +67,21 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             } else {
                 return message.channel.send("You should not be here.")
             }
+            imageURL = args[1]
         }
+
         //Fetch channel
         var raidingChannel = await message.guild.channels.cache.find(c => c.id == channelNumber)
+        if(!raidingChannel){
+            return message.channel.send("Invalid Channel")
+        }
         var channelMembers = raidingChannel.members
 
         //Begin Image Parsing
-        if (imageURL == undefined) {
-            if (message.attachments.size == 1) {
-                imageURL = message.attachments.map(a => a.proxyURL)[0]
-            } else {
-                return message.channel.send("Please attach a single image, either as an URL or as a raw image.")
-            }
+        if (message.attachments.size == 1 || imageURL) {
+            imageURL = message.attachments.map(a => a.proxyURL)[0] || imageURL
+        } else {
+            return message.channel.send("Please attach a single image, either as an URL or as a raw image.")
         }
         var statusEmbed = new Discord.MessageEmbed()
             .setColor("#41f230")
