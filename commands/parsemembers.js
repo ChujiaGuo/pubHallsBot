@@ -30,7 +30,11 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         //Channel Available?
         if (message.member.voice.channelID) {
             channelNumber = message.member.voice.channelID
-            imageURL = args[0]
+            if(args.length == 1){
+                imageURL = args[0]
+            }else{
+                imageURL = args[1]
+            }
         } else if (message.guild.channels.cache.find(c => c.id == channelNumber) && message.guild.channels.cache.find(c => c.id == channelNumber).type == "voice") {
             channelNumber = channelNumber
             imageURL = args[1]
@@ -83,6 +87,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         } else {
             return message.channel.send("Please attach a single image, either as an URL or as a raw image.")
         }
+        return console.log(imageURL)
         var statusEmbed = new Discord.MessageEmbed()
             .setColor("#41f230")
             .setAuthor("Parsing Information")
