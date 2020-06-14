@@ -401,7 +401,10 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         //Edit the channel
         let newName = ""
         newName = raidingChannel.name.replace(" <-- Join!", "")
-        await raidingChannel.edit({ name: newName, permissionOverwrites: [{ id: config.roles.general.raider, deny: 'CONNECT' }], position: raidingChannel.parent.children.filter(c => c.type == "voice").size - 1 }).catch(e => console.log(e))
+        await raidingChannel.updateOverwrite(config.roles.general.raider, {
+            CONNECT: false
+        })
+        await raidingChannel.edit({ name: newName, position: raidingChannel.parent.children.filter(c => c.type == "voice").size - 1 }).catch(e => console.log(e))
         let runEmbed = new Discord.MessageEmbed()
         if (runType == "cult") {
             runEmbed
