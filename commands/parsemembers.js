@@ -30,9 +30,9 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         //Channel Available?
         if (message.member.voice.channelID) {
             channelNumber = message.member.voice.channelID
-            if(args.length == 1){
+            if (args.length == 1) {
                 imageURL = args[0]
-            }else{
+            } else {
                 imageURL = args[1]
             }
         } else if (message.guild.channels.cache.find(c => c.id == channelNumber) && message.guild.channels.cache.find(c => c.id == channelNumber).type == "voice") {
@@ -76,7 +76,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 
         //Fetch channel
         var raidingChannel = await message.guild.channels.cache.find(c => c.id == channelNumber)
-        if(!raidingChannel){
+        if (!raidingChannel) {
             return message.channel.send("Invalid Channel")
         }
         var channelMembers = raidingChannel.members
@@ -92,20 +92,32 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             .setAuthor("Parsing Information")
             .setDescription(`Parsing done by: <@!${message.member.id}>\nParse status: Retrieving Text`)
         var statusMessage = await message.channel.send(statusEmbed)
+        var google = true;
         try {
-            //var result = await parseImage(imageURL)
             var result = await ocrClient.textDetection(imageURL)
         } catch (e) {
             statusEmbed
                 .setColor("#ff1212")
-                .setDescription(`Parsing done by: <@!${message.member.id}>\nParse status: Error\`\`\`${e}\`\`\``)
-            return statusMessage.edit(statusEmbed)
+                .setDescription(`Parsing done by: <@!${message.member.id}>\nParse status: Error\nAttempting to use Tesseract Text Recognition. This may take a bit longer.\`\`\`${e}\`\`\``)
+            statusMessage.edit(statusEmbed)
+            try {
+                var result = await parseImage(imageURL)
+                google = false;
+            } catch (e) {
+                statusEmbed
+                    .setColor("#ff1212")
+                    .setDescription(`Parsing done by: <@!${message.member.id}>\nParse status: Error Tesseract Failed\`\`\`${e}\`\`\``)
+                statusMessage.edit(statusEmbed)
+            }
         }
         statusEmbed
             .setDescription(`Parsing done by: <@!${message.member.id}>\nParse status: Text Received`)
         await statusMessage.edit(statusEmbed)
-        var players = result[0].fullTextAnnotation.text.replace(/\n/g, " ").split(' ')
-        //var players = result.replace(/\n/g, " ").split(' ')
+        if(google){
+            var players = result[0].fullTextAnnotation.text.replace(/\n/g, " ").split(' ')
+        }else{
+            var players = result.replace(/\n/g, " ").split(' ')
+        }
         players = players.slice(players.indexOf(players.find(i => i.includes("):"))) + 1)
         for (var i in players) {
             players[i] = players[i].replace(",", "").toLowerCase().trim()
