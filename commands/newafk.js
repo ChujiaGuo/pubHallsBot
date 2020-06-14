@@ -128,6 +128,12 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         CONNECT: true,
         VIEW_CHANNEL: true
     })
+    if(origin == 100){
+        await raidingChannel.updateOverwrite(config.roles.general.vetraider, {
+            CONNECT: true,
+            VIEW_CHANNEL: true
+        })
+    }
     await message.channel.send(`${raidingChannel.name} has been created. Beginning AFK Check.`)
 
     await raidingChannel.setUserLimit(config.afksettings.maxinraiding)
