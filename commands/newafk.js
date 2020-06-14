@@ -124,6 +124,10 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     lounge = await message.guild.channels.cache.find(c => c.id == lounge)
     raidingChannel = await raidingChannel.clone({ name: `${message.member.nickname.replace(/[^a-z|]/gi, "").split("|")[0]}'s ${runName}`, parent: message.channel.parent.id })
     await raidingChannel.setPosition(lounge.position)
+    await raidingChannel.updateOverwrite(config.roles.general.raider, {
+        CONNECT: true,
+        VIEW_CHANNEL: true
+    })
     await message.channel.send(`${raidingChannel.name} has been created. Beginning AFK Check.`)
 
     await raidingChannel.setUserLimit(config.afksettings.maxinraiding)
