@@ -71,7 +71,10 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             newName = (raidingChannel.name.replace(" <-- Join!", ""))
 
         }
-        await raidingChannel.edit({name:newName, userLimit:99, permissionOverwrites:[{id:config.roles.general.raider, deny: 'CONNECT'}]}).catch(e => console.log(e))
+        await raidingChannel.updateOverwrite(config.roles.general.raider, {
+            CONNECT: false
+        })
+        await raidingChannel.edit({name:newName, userLimit:99}).catch(e => console.log(e))
         return message.channel.send(`<@!${message.author.id}> Done!`)
     }
     catch (e) {
