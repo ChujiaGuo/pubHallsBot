@@ -156,11 +156,11 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             commandMessage = await message.channel.send(controlEmbed)
             break;
         case "fullskipvoid":
-            runAnnouncement = await statusChannel.send(`@here \`Fullskip Void\` (${entity}) started by <@${message.author.id}> in \`${raidingChannel.name}\``)
+            runAnnouncement = await statusChannel.send(`@here \`Fullskip Void\` (${speedy}) started by <@${message.author.id}> in \`${raidingChannel.name}\``)
             runEmbed
                 .setColor("#000080")
                 .setAuthor(`Fullskip Void started by ${message.member.nickname} in ${raidingChannel.name}`, message.author.avatarURL())
-                .setDescription(`To join, **connect to the raiding channel** and then react with ${entity}\nIf you have a key or a vial, react with ${key} or ${vial} respectively\nIf you are bringing one of the following classes, please react that with class respectively ${warrior}${pally}${knight}\nIf you are bringing one of the following items (and plan on using it), please react with that item respectively ${mseal}${puri}\nIf have a mystic or a brain trickster and plan on bringing it, react with the one you are bringing ${mystic}${brain}\nIf you have the <@&${config.roles.general.nitro}> role, you may react with the ${shinynitro} for early location (10 max)\nTo end this AFK Check, the raid leader can react with the ❌`)
+                .setDescription(`To join, **connect to the raiding channel** and then react with ${speedy}\nIf you have a key or a vial, react with ${key} or ${vial} respectively\nIf you are bringing one of the following classes, please react that with class respectively ${warrior}${pally}${knight}\nIf you are bringing one of the following items (and plan on using it), please react with that item respectively ${mseal}${puri}\nIf have a mystic or a brain trickster and plan on bringing it, react with the one you are bringing ${mystic}${brain}\nIf you have the <@&${config.roles.general.nitro}> role, you may react with the ${shinynitro} for early location (10 max)\nTo end this AFK Check, the raid leader can react with the ❌`)
             runMessage = await statusChannel.send(runEmbed)
             controlEmbed = new Discord.MessageEmbed()
                 .addField("Location:", runLocation)
@@ -175,7 +175,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             commandMessage = await message.channel.send(controlEmbed)
             break;
         case "oryx3":
-            runAnnouncement = await statusChannel.send(`@here \`Fullskip Void\` (${entity}) started by <@${message.author.id}> in \`${raidingChannel.name}\``)
+            runAnnouncement = await statusChannel.send(`@here \`Oryx 3\` (${oryx}) started by <@${message.author.id}> in \`${raidingChannel.name}\``)
             runEmbed
                 .setColor("#ffffff")
                 .setAuthor(`Oryx 3 started by ${message.member.nickname} in ${raidingChannel.name}`, message.author.avatarURL())
@@ -274,7 +274,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         //Post AFK Message
         var postTime = config.afksettings.posttime
         runEmbed
-            .setDescription(`The post afk check has begun.\nIf you have been moved out, please join lounge and re-react with the ${(runType == 'cult') ? cult : entity} icon to get moved back in.`)
+            .setDescription(`The post afk check has begun.\nIf you have been moved out, please join lounge and re-react with the ${(runType == 'cult') ? cult : (runType == 'void ') ? entity : (runType == 'fullskipvoid') ? speedy : oryx} icon to get moved back in.`)
             .setFooter(`Time Remaining: ${Math.floor(postTime / 60000)} Minutes ${(postTime % 60000) / 1000} Seconds | The afk check has ended automatically.`)
         await runMessage.edit(runEmbed)
 
@@ -720,7 +720,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 }
                 lounge = await runMessage.guild.channels.cache.find(c => c.id == lounge)
                 var userIds = await raidingChannel.members.map(u => u.id)
-                var reactIds = (runType == 'cult') ? await runMessage.reactions.cache.map(e => e).find(e => e.emoji.name == 'malus').users.cache.map(u => u.id) : (runType == 'void' || runType == "fullskipvoid") ? await runMessage.reactions.cache.map(e => e).find(e => e.emoji.name == 'void').users.cache.map(u => u.id) : await runMessage.reactions.cache.map(e => e).find(e => e.emoji.name == 'oryx2').users.cache.map(u => u.id)
+                var reactIds = (runType == 'cult') ? await runMessage.reactions.cache.map(e => e).find(e => e.emoji.name == 'malus').users.cache.map(u => u.id) : (runType == 'void') ? await runMessage.reactions.cache.map(e => e).find(e => e.emoji.name == 'void').users.cache.map(u => u.id) : (runType == "fullskipvoid") ? await runMessage.reactions.cache.map(e => e).find(e => e.emoji.name == 'fastvoid').users.cache.map(u => u.id) : await runMessage.reactions.cache.map(e => e).find(e => e.emoji.name == 'oryx2').users.cache.map(u => u.id)
                 let stayIn;
                 if (origin >= 10) {
                     stayIn = 100
@@ -753,7 +753,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 //Post AFK Message
                 var postTime = config.afksettings.posttime
                 runEmbed
-                    .setDescription(`The post afk check has begun.\nIf you have been moved out, please join lounge and re-react with the ${(runType == 'cult') ? cult : (runType == "void" || runType == "fullskipvoid") ? entity : oryx} icon to get moved back in.`)
+                    .setDescription(`The post afk check has begun.\nIf you have been moved out, please join lounge and re-react with the ${(runType == 'cult') ? cult : (runType == "void") ? entity : (runType == "fullskipvoid") ? speedy : oryx} icon to get moved back in.`)
                     .setFooter(`Time Remaining: ${Math.floor(postTime / 60000)} Minutes ${(postTime % 60000) / 1000} Seconds | The afk check has been ended by ${reactor.nickname}`)
                 await runMessage.edit(runEmbed)
 
@@ -904,7 +904,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         await runMessage.react(shinynitro.slice(1, -1))
         await runMessage.react('❌')
     } else if (runType == 'fullskipvoid') {
-        await runMessage.react(entity.slice(1, -1))
+        await runMessage.react(speedy.slice(1, -1))
         await runMessage.react(key.slice(1, -1))
         await runMessage.react(vial.slice(1, -1))
         await runMessage.react(warrior.slice(1, -1))
@@ -945,7 +945,7 @@ const dungeons = {
     'o3': "oryx3"
 }
 //Important Emojis
-var speedy = ""
+var speedy = "<:fastvoid:721756760448434278>"
 var entity = "<:void:702140045997375558>"
 var cult = "<:malus:702140045833928964>"
 var key = "<:lhkey:702140477432004618>"

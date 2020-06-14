@@ -82,7 +82,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         mainEmoji = entity
         runName = "Void"
     } else if (runType == 'fullskipvoid') {
-        mainEmoji = entity
+        mainEmoji = speedy
         runName = "Fullskip Void"
     } else if (runType == 'oryx3') {
         mainEmoji == oryx
@@ -223,7 +223,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 .setColor("#000080")
                 .setAuthor(`Fullskip Void starting soon in ${raidingChannel.name}`, message.author.avatarURL())
                 .setDescription(`Fullskip Void starting soon in ${raidingChannel.name}! Be prepared to join.`)
-            statusMessage = await statusChannel.send(`@here \`Fullskip Void\` (${entity}) starting in \`${raidingChannel.name}\` by <@${message.author.id}> in \`${config.afksettings.afkdelay / 1000}\` seconds.`, statusEmbed)
+            statusMessage = await statusChannel.send(`@here \`Fullskip Void\` (${speedy}) starting in \`${raidingChannel.name}\` by <@${message.author.id}> in \`${config.afksettings.afkdelay / 1000}\` seconds.`, statusEmbed)
             controlEmbed
                 .addField("Location:", runLocation)
                 .addField(`People who reacted with ${key}:`, "None")
@@ -262,7 +262,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             statusEmbed
                 .setColor("#ff1212")
                 .setAuthor(`Cult started by ${message.member.nickname} in ${raidingChannel.name}`, message.author.avatarURL())
-                .setDescription(`To join, **connect to the raiding channel** and then react with ${cult}\nIf you have a key, react with ${key}\nIf you are bringing one of the following classes, please with react that class respectively ${warrior}${pally}${knight}\nIf you are bringing one of the following items (and plan on using it), please react with that item respectively ${mseal}${puri}\nIf you plan on rushing and have the <@&${config.roles.general.rusher}> role, you may react with ${rusher}\nIf you have the <@&${config.roles.general.nitro}> role, you may react with ${shinynitro} for early location\n(10 max, randomly chosen)\nTo end this AFK Check, the raid leader can react with ❌`)
+                .setDescription(`To join, **connect to the raiding channel** and then react with ${mainEmoji}\nIf you have a key, react with ${key}\nIf you are bringing one of the following classes, please with react that class respectively ${warrior}${pally}${knight}\nIf you are bringing one of the following items (and plan on using it), please react with that item respectively ${mseal}${puri}\nIf you plan on rushing and have the <@&${config.roles.general.rusher}> role, you may react with ${rusher}\nIf you have the <@&${config.roles.general.nitro}> role, you may react with ${shinynitro} for early location\n(10 max, randomly chosen)\nTo end this AFK Check, the raid leader can react with ❌`)
                 .setFooter(`Time Remaining: ${Math.floor(config.afksettings.afktime / 60000)} Minutes ${(config.afksettings.afktime % 60000) / 1000} Seconds`)
             await statusMessage.edit(`@here \`Cult\` (${cult}) started by <@${message.author.id}> in \`${raidingChannel.name}\``, statusEmbed)
             await raidingChannel.updateOverwrite(config.roles.general.raider, {
@@ -288,7 +288,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             statusEmbed
                 .setColor("#000080")
                 .setAuthor(`Void started by ${message.member.nickname} in ${raidingChannel.name}`, message.author.avatarURL())
-                .setDescription(`To join, **connect to the raiding channel** and then react with ${entity}\nIf you have a key or a vial, react with ${key} or ${vial} respectively\nIf you are bringing one of the following classes, please react with that class respectively ${warrior}${pally}${knight}\nIf you are bringing one of the following items (and plan on using it), please react with that item respectively ${mseal}${puri}\nIf you plan on rushing and have the <@&${config.roles.general.rusher}> role, you may react with ${rusher}\nIf you have the <@&${config.roles.general.nitro}> role, you may react with the ${shinynitro} for early location\n(10 max, randomly chosen)\nTo end this AFK Check, the raid leader can react with the ❌`)
+                .setDescription(`To join, **connect to the raiding channel** and then react with ${mainEmoji}\nIf you have a key or a vial, react with ${key} or ${vial} respectively\nIf you are bringing one of the following classes, please react with that class respectively ${warrior}${pally}${knight}\nIf you are bringing one of the following items (and plan on using it), please react with that item respectively ${mseal}${puri}\nIf you plan on rushing and have the <@&${config.roles.general.rusher}> role, you may react with ${rusher}\nIf you have the <@&${config.roles.general.nitro}> role, you may react with the ${shinynitro} for early location\n(10 max, randomly chosen)\nTo end this AFK Check, the raid leader can react with the ❌`)
                 .setFooter(`Time Remaining: ${Math.floor(config.afksettings.afktime / 60000)} Minutes ${(config.afksettings.afktime % 60000) / 1000} Seconds`)
             await statusMessage.edit(`@here \`Void\` (${entity}) started by <@${message.author.id}> in \`${raidingChannel.name}\``, statusEmbed)
             await raidingChannel.updateOverwrite(config.roles.general.raider, {
@@ -314,7 +314,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             statusEmbed
                 .setColor("#000080")
                 .setAuthor(`Fullskip Void started by ${message.member.nickname} in ${raidingChannel.name}`, message.author.avatarURL())
-                .setDescription(`To join, **connect to the raiding channel** and then react with ${entity}\nIf you have a key or a vial, react with ${key} or ${vial} respectively\nIf you are bringing one of the following classes, please react that with class respectively ${warrior}${pally}${knight}\nIf you are bringing one of the following items (and plan on using it), please react with that item respectively ${mseal}${puri}\nIf have a mystic or a brain trickster and plan on bringing it, react with the one you are bringing ${mystic}${brain}\nIf you have the <@&${config.roles.general.nitro}> role, you may react with the ${shinynitro} for early location (10 max, randomly chosen)\nTo end this AFK Check, the raid leader can react with the ❌`)
+                .setDescription(`To join, **connect to the raiding channel** and then react with ${mainEmoji}\nIf you have a key or a vial, react with ${key} or ${vial} respectively\nIf you are bringing one of the following classes, please react that with class respectively ${warrior}${pally}${knight}\nIf you are bringing one of the following items (and plan on using it), please react with that item respectively ${mseal}${puri}\nIf have a mystic or a brain trickster and plan on bringing it, react with the one you are bringing ${mystic}${brain}\nIf you have the <@&${config.roles.general.nitro}> role, you may react with the ${shinynitro} for early location (10 max, randomly chosen)\nTo end this AFK Check, the raid leader can react with the ❌`)
                 .setFooter(`Time Remaining: ${Math.floor(config.afksettings.afktime / 60000)} Minutes ${(config.afksettings.afktime % 60000) / 1000} Seconds`)
             await statusMessage.edit(`@here \`Fullskip Void\` (${entity}) started by <@${message.author.id}> in \`${raidingChannel.name}\``, statusEmbed)
             await raidingChannel.updateOverwrite(config.roles.general.raider, {
@@ -405,8 +405,9 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             .setTimestamp()
         await statusMessage.edit("", statusEmbed).catch(e => console.log(e))
         try {
-            await message.reply(`Remember to log the key pop! The command is: \`-pop lh ${controlEmbed.fields.find(f => f.name.includes("Key")).value.substring(controlEmbed.fields.find(f => f.name.includes(key)).value.indexOf(": ")).replace(/[^0-9]/gi, "")}\``)
+            await message.reply(`Remember to log the key pop! The command is: \`-pop lh ${controlEmbed.fields.find(f => f.name.includes("lhkey")).value.substring(controlEmbed.fields.find(f => f.name.includes(key)).value.indexOf(": ")).replace(/[^0-9]/gi, "")}\``)
         } catch (e) {
+            console.log(e)
         }
         //Edit the channel
         let newName = ""
@@ -689,7 +690,7 @@ const dungeons = {
     "realmclearing": "realmclearing"
 }
 //Important Emojis
-var speedy = ""
+var speedy = "<:fastvoid:721756760448434278>"
 var entity = "<:void:702140045997375558>"
 var cult = "<:malus:702140045833928964>"
 var key = "<:lhkey:702140477432004618>"
