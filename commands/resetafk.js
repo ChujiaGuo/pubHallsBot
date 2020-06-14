@@ -7,9 +7,20 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     if (message.channel.type != 'text') {
         return message.channel.send("You cannot use this command here.")
     }
-    afk = {
+    var origin = 0;
+    //Check origin channel
+    if (message.channel.id == config.channels.veteran.control.command) {
+        origin = 100
+    } else if (message.channel.id == config.channels.normal.control.command) {
+        origin = 10
+    } else if (message.channel.id == config.channels.event.control.command) {
+        origin = 1
+    } else {
+        return message.channel.send("You cannot use this command here.")
+    }
+    afk[origin] = {
         "afk": false,
-        "location":"",
+        "location": "",
         "statusMessageId": "",
         "infoMessageId": "",
         "commandMessageId": "",

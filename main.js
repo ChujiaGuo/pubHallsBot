@@ -22,7 +22,7 @@ client.once("ready", async () => {
     } catch (e) {
         console.log(e)
     }
-    let currentRuns = JSON.parse(fs.readFileSync('afk.json')).currentRuns
+    let currentRuns = JSON.parse(fs.readFileSync('afk.json')).currentRuns || {}
     afk = {
         100: {
             "afk": false,

@@ -32,7 +32,6 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     } else {
         return message.channel.send("You cannot use this command here.")
     }
-
     //Argument Parsing
     //Channel Number
     var cloneChannel = args.shift()
@@ -63,7 +62,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     var raidingChannel = await message.guild.channels.cache.find(c => c.id == cloneChannel)
     var statusChannel = await message.guild.channels.cache.find(c => c.id == statusChannel)
     var runLogChannel = await message.guild.channels.cache.find(c => c.id == runLogChannel)
-    if(!raidingChannel || !statusChannel || ! runLogChannel){
+    if (!raidingChannel || !statusChannel || !runLogChannel) {
         return message.channel.send("Cannot start afk due to a config error. Please have a mod look at it.")
     }
     var logChannel = message.guild.channels.cache.find(c => c.id == config.channels.log.raid)
@@ -111,17 +110,20 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 
     //Create the raiding channel
     var lounge;
+    var parentID;
     if (origin == 100) {
         lounge = config.channels.veteran.control.lounge
+        parentID = config.channels.veteran.parent
     } else if (origin == 10) {
         lounge = config.channels.normal.control.lounge
+        parentID = config.channels.normal.parent
     } else if (origin == 1) {
         lounge = config.channels.event.control.lounge
+        parentID = config.channels.event.parent
     }
     lounge = await message.guild.channels.cache.find(c => c.id == lounge)
-    var afkChannel = await message.guild.channels.cache.find(c => c.name == "afk")
-    raidingChannel = await raidingChannel.clone({ name: `${message.member.nickname.replace(/[^a-z|]/gi, "").split("|")[0]}'s ${runName}` })
-    await raidingChannel.edit({ position: (lounge.position + 1) })
+    raidingChannel = await raidingChannel.clone({ name: `${message.member.nickname.replace(/[^a-z|]/gi, "").split("|")[0]}'s ${runName}`, parent: message.channel.parent.id })
+    await raidingChannel.setPosition(lounge.position)
     await message.channel.send(`${raidingChannel.name} has been created. Beginning AFK Check.`)
 
     await raidingChannel.setUserLimit(config.afksettings.maxinraiding)
@@ -399,39 +401,38 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         //Edit the channel
         let newName = ""
         newName = raidingChannel.name.replace(" <-- Join!", "")
-        await raidingChannel.edit({ permissionOverwrites: [{ id: config.roles.general.raider, deny: 'CONNECT' }], position: (afkChannel.position || 0) }).catch(e => console.log(e))
-        await raidingChannel.edit({ name: newName, permissionOverwrites: [{ id: config.roles.general.raider, deny: 'CONNECT' }] }).catch(e => console.log(e))
+        await raidingChannel.edit({ name: newName, permissionOverwrites: [{ id: config.roles.general.raider, deny: 'CONNECT' }], position: raidingChannel.parent.children.filter(c => c.type == "voice").size - 1 }).catch(e => console.log(e))
         let runEmbed = new Discord.MessageEmbed()
-        if(runType == "cult"){
+        if (runType == "cult") {
             runEmbed
-            .setColor("#ff1212")
-            .setAuthor(`Cult by ${message.member.nickname.replace(/[^a-z|]/gi,"").split("|")[0]}`)
-            .setDescription(`Once your run is complete, react with the ❌ to delete your channel.`)
-            .setFooter(`Run started at`)
-            .setTimestamp()
-        }else if(runType == "void"){
+                .setColor("#ff1212")
+                .setAuthor(`Cult by ${message.member.nickname.replace(/[^a-z|]/gi, "").split("|")[0]}`)
+                .setDescription(`Once your run is complete, react with the ❌ to delete your channel.`)
+                .setFooter(`Run started at`)
+                .setTimestamp()
+        } else if (runType == "void") {
             runEmbed
-            .setColor("#000080")
-            .setAuthor(`Void by ${message.member.nickname.replace(/[^a-z|]/gi,"").split("|")[0]}`)
-            .setDescription(`Once your run is complete, react with the ❌ to delete your channel.`)
-            .setFooter(`Run started at`)
-            .setTimestamp()
-        }else if(runType == "fullskipvoid"){
+                .setColor("#000080")
+                .setAuthor(`Void by ${message.member.nickname.replace(/[^a-z|]/gi, "").split("|")[0]}`)
+                .setDescription(`Once your run is complete, react with the ❌ to delete your channel.`)
+                .setFooter(`Run started at`)
+                .setTimestamp()
+        } else if (runType == "fullskipvoid") {
             runEmbed
-            .setColor("#000080")
-            .setAuthor(`Fullskip Void by ${message.member.nickname.replace(/[^a-z|]/gi,"").split("|")[0]}`)
-            .setDescription(`Once your run is complete, react with the ❌ to delete your channel.`)
-            .setFooter(`Run started at`)
-            .setTimestamp()
-        }else if(runType == "oryx3"){
+                .setColor("#000080")
+                .setAuthor(`Fullskip Void by ${message.member.nickname.replace(/[^a-z|]/gi, "").split("|")[0]}`)
+                .setDescription(`Once your run is complete, react with the ❌ to delete your channel.`)
+                .setFooter(`Run started at`)
+                .setTimestamp()
+        } else if (runType == "oryx3") {
             runEmbed
-            .setColor("#ffffff")
-            .setAuthor(`Oryx 3 by ${message.member.nickname.replace(/[^a-z|]/gi,"").split("|")[0]}`)
-            .setDescription(`Once your run is complete, react with the ❌ to delete your channel.`)
-            .setFooter(`Run started at`)
-            .setTimestamp()
+                .setColor("#ffffff")
+                .setAuthor(`Oryx 3 by ${message.member.nickname.replace(/[^a-z|]/gi, "").split("|")[0]}`)
+                .setDescription(`Once your run is complete, react with the ❌ to delete your channel.`)
+                .setFooter(`Run started at`)
+                .setTimestamp()
         }
-        let runMessage = await runLogChannel.send(`<@!${message.author.id}>`,runEmbed)
+        let runMessage = await runLogChannel.send(`<@!${message.author.id}>`, runEmbed)
         await runMessage.react("❌")
         afk.currentRuns[runMessage.id] = raidingChannel.id
         fs.writeFileSync('afk.json', JSON.stringify(afk))
