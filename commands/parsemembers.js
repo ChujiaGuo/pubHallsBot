@@ -87,7 +87,6 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         } else {
             return message.channel.send("Please attach a single image, either as an URL or as a raw image.")
         }
-        return console.log(imageURL)
         var statusEmbed = new Discord.MessageEmbed()
             .setColor("#41f230")
             .setAuthor("Parsing Information")
