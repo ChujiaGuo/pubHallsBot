@@ -13,5 +13,6 @@ commands/oldsetup.js
 commands/mbrtest.js
 commands/russianroulette.js
 commands/oldafk5-7-20.js
+commands/imagetotext.js
 eng.traineddata
 unusedCommands/

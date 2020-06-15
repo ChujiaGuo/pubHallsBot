@@ -15,7 +15,8 @@
     "mysql": "^2.18.1",
     "node-fetch": "^2.6.0",
     "opencollective-postinstall": "^2.0.2",
-    "tesseract.js": "^2.1.1"
+    "tesseract.js": "^2.1.1",
+    "updates": "^10.2.13"
   },
   "devDependencies": {},
   "scripts": {

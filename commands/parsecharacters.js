@@ -50,12 +50,25 @@ exports.run = async (client, message, args, Discord, sudo = false, results = und
             .setAuthor("Parsing Information (Characters)")
             .setDescription(`Parsing done by: <@!${message.member.id}>\nParse status: Retrieving Text`)
         var statusMessage = await message.channel.send(statusEmbed)
+        var google = true;
         if (!results) {
             try {
-                //var result = await parseImage(imageURL)
                 var result = await ocrClient.textDetection(imageURL)
             } catch (e) {
-                return message.channel.send(`There was an error using the image to text service.\`\`\`${e}\`\`\``)
+                console.log(e)
+                statusEmbed
+                    .setColor("#ff1212")
+                    .setDescription(`Parsing done by: <@!${message.member.id}>\nParse status: Error\nAttempting to use Tesseract Text Recognition. This may take a bit longer.\`\`\`${e}\`\`\``)
+                statusMessage.edit(statusEmbed)
+                try {
+                    var result = await parseImage(imageURL)
+                    google = false;
+                } catch (e) {
+                    statusEmbed
+                        .setColor("#ff1212")
+                        .setDescription(`Parsing done by: <@!${message.member.id}>\nParse status: Error Tesseract Failed\`\`\`${e}\`\`\``)
+                    statusMessage.edit(statusEmbed)
+                }
             }
         } else {
             var result = results
@@ -63,8 +76,11 @@ exports.run = async (client, message, args, Discord, sudo = false, results = und
         statusEmbed
             .setDescription(`Parsing done by: <@!${message.member.id}>\nParse status: Text Received`)
         await statusMessage.edit(statusEmbed)
-        var players = result[0].fullTextAnnotation.text.replace(/\n/g, " ").split(' ')
-        //var players = result.replace(/\n/g, " ").split(' ')
+        if(google){
+            var players = result[0].fullTextAnnotation.text.replace(/\n/g, " ").split(' ')
+        }else{
+            var players = result.replace(/\n/g, " ").split(' ')
+        }
         players = players.slice(players.indexOf(players.find(i => i.includes("):"))) + 1)
         for (var i in players) {
             players[i] = players[i].replace(",", "").toLowerCase().trim()

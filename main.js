@@ -102,7 +102,7 @@ client.on("messageReactionAdd", async (r, u) => {
         await r.message.delete().catch(e => console.log(e))
         delete afk.currentRuns[r.message.id]
         fs.writeFileSync('afk.json', JSON.stringify(afk))
-    }else if(currentleaverequests[r.message.id]){
+    } else if (currentleaverequests[r.message.id]) {
         var requestMessage = r.message
         var requestEmbed = requestMessage.embeds[0]
         var requestObject = currentleaverequests[r.message.id]
@@ -271,6 +271,14 @@ client.on("message", async message => {
             await owner.send(errorEmbed)
         }
     }
+})
+client.on("error", async error => {
+    var owner = await client.users.fetch(config.dev)
+    let errorEmbed = new Discord.MessageEmbed()
+        .setColor("#ff1212")
+        .setAuthor("Error")
+        .setDescription(`Error Type: ${error.name}\nError Message: ${error.message}\nFull Error Message: ${error.stack}`)
+    await owner.send(errorEmbed)
 })
 
 client.login(config.auth)
