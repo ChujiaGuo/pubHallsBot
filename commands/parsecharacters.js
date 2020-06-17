@@ -77,7 +77,6 @@ exports.run = async (client, message, args, Discord, sudo = false, results = und
             .setDescription(`Parsing done by: <@!${message.member.id}>\nParse status: Text Received`)
         await statusMessage.edit(statusEmbed)
         if (google) {
-            console.log(result)
             var players = result[0].fullTextAnnotation.text.replace(/\n/g, " ").split(' ')
         } else {
             var players = result.replace(/\n/g, " ").split(' ')
