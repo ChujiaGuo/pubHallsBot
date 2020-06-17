@@ -195,19 +195,19 @@ exports.run = async (client, message, args, Discord, sudo = false, results = und
                     equipmentTier[i] = "None"
                 }
             }
-            if (equipmentTier[0] < requirements.weapon && equipmentTier[0] != "-1") {
+            if (parseInt(equipmentTier[0]) < parseInt(requirements.weapon) && equipmentTier[0] != "-1") {
                 valid = false
                 reasons.push(`Weapon is less than T${requirements.weapon} (${equipmentTier[0]}) `)
             }
-            if (equipmentTier[1] < requirements.weapon && equipmentTier[1] != "-1") {
+            if (parseInt(equipmentTier[1]) < parseInt(requirements.ability) && equipmentTier[1] != "-1") {
                 valid = false
                 reasons.push(`Ability is less than T${requirements.ability} (${equipmentTier[1]}) `)
             }
-            if (equipmentTier[2] < requirements.weapon && equipmentTier[2] != "-1") {
+            if (parseInt(equipmentTier[2]) < parseInt(requirements.armor) && equipmentTier[2] != "-1") {
                 valid = false
                 reasons.push(`Armor is less than T${requirements.armor} (${equipmentTier[2]}) `)
             }
-            if (equipmentTier[3] < requirements.weapon && equipmentTier[3] != "-1") {
+            if (parseInt(equipmentTier[3]) < parseInt(requirements.ring) && equipmentTier[3] != "-1") {
                 valid = false
                 reasons.push(`Ring is less than T${requirements.ring} (${equipmentTier[3]}) `)
             }
