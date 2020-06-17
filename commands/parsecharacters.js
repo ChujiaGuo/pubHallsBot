@@ -76,9 +76,10 @@ exports.run = async (client, message, args, Discord, sudo = false, results = und
         statusEmbed
             .setDescription(`Parsing done by: <@!${message.member.id}>\nParse status: Text Received`)
         await statusMessage.edit(statusEmbed)
-        if(google){
+        if (google) {
+            console.log(result)
             var players = result[0].fullTextAnnotation.text.replace(/\n/g, " ").split(' ')
-        }else{
+        } else {
             var players = result.replace(/\n/g, " ").split(' ')
         }
         players = players.slice(players.indexOf(players.find(i => i.includes("):"))) + 1)
@@ -95,29 +96,38 @@ exports.run = async (client, message, args, Discord, sudo = false, results = und
         var invalidUsers = []
         var validUsers = []
 
+        var baseURL = `https://www.realmeye.com/player/Bluewizadg`
+        var baseRes = await fetch(baseURL)
+        var basehtml = await baseRes.text();
+        var $ = cheerio.load(basehtml)
+        var check = []
+        $('table[class="table table-striped tablesorter"]').find("tr").eq(0).find('th').each(async x => {
+            check.push($('table[class="table table-striped tablesorter"]').find("tr").eq(0).find('th').eq(x).text())
+        })
+
+
         for (var i in players) {
             try {
                 var url = `https://www.realmeye.com/player/${players[i]}`;
-                var res = await limiter.schedule(() => fetch(url))
+                var res = await fetch(url)
                 var html = await res.text();
                 var $ = cheerio.load(html)
-                let check = ['', '', 'Class', 'L', 'CQC', 'Fame', 'Exp', 'Pl.', 'Equipment', 'Stats']
                 let columns = []
-                $('table[id=e]').find("tr").eq(0).find('th').each(async x => {
-                    columns.push($('table[id=e]').find("tr").eq(0).find('th').eq(x).text())
+                $('table[class="table table-striped tablesorter"]').find("tr").eq(0).find('th').each(async x => {
+                    columns.push($('table[class="table table-striped tablesorter"]').find("tr").eq(0).find('th').eq(x).text())
                 })
-                var characterObject = { "Name": players[i] }
                 if (JSON.stringify(columns) != JSON.stringify(check)) {
                     invalidUsers.push(players[i])
                 } else {
+                    var characterObject = { "Name": players[i] }
                     columns.slice(2)
-                    $('table[id=e]').find("tr").eq(1).find('td').each(async x => {
+                    $('table[class="table table-striped tablesorter"]').find("tr").eq(1).find('td').each(async x => {
                         if (x < 8) {
-                            characterObject[columns[x]] = $('table[id=e]').find("tr").eq(1).find('td').eq(x).text()
+                            characterObject[columns[x]] = $('table[class="table table-striped tablesorter"]').find("tr").eq(1).find('td').eq(x).text()
                         } else if (x == 8) {
                             let itemArray = []
-                            $('table[id=e]').find("tr").eq(1).find('td').eq(x).find(".item").each(async item => {
-                                let equip = $('table[id=e]').find("tr").eq(1).find('td').eq(x).find(".item").eq(item).prop("title")
+                            $('table[class="table table-striped tablesorter"]').find("tr").eq(1).find('td').eq(x).find(".item").each(async item => {
+                                let equip = $('table[class="table table-striped tablesorter"]').find("tr").eq(1).find('td').eq(x).find(".item").eq(item).prop("title")
                                 if (item != 4) {
                                     equip = equip.split(" ")
                                     let tier = equip.pop()
@@ -136,20 +146,20 @@ exports.run = async (client, message, args, Discord, sudo = false, results = und
                             })
                             characterObject[columns[x]] = itemArray
                         } else if (x == 9) {
-                            let totalStats = JSON.parse($('table[id=e]').find("tr").eq(1).find('td').eq(x).find(".player-stats").prop("data-stats"))
-                            let statBonuses = JSON.parse($('table[id=e]').find("tr").eq(1).find('td').eq(x).find(".player-stats").prop("data-bonuses"))
+                            let totalStats = JSON.parse($('table[class="table table-striped tablesorter"]').find("tr").eq(1).find('td').eq(x).find(".player-stats").prop("data-stats"))
+                            let statBonuses = JSON.parse($('table[class="table table-striped tablesorter"]').find("tr").eq(1).find('td').eq(x).find(".player-stats").prop("data-bonuses"))
                             let baseStats = []
                             for (var i in totalStats) {
                                 baseStats.push(totalStats[i] - statBonuses[i])
                             }
                             characterObject[columns[x]] = baseStats
-                            characterObject.Maxed = $('table[id=e]').find("tr").eq(1).find('td').eq(x).text()
+                            characterObject.Maxed = $('table[class="table table-striped tablesorter"]').find("tr").eq(1).find('td').eq(x).text()
                         }
                     })
                     validUsers.push(characterObject)
                 }
             } catch (e) {
-                message.channel.send(`There was an error fetch ${players[i]}'s Realmeye page: ${e}`)
+                message.channel.send(`There was an error fetching ${players[i]}'s Realmeye page: ${e}`)
             }
         }
         statusEmbed
@@ -250,11 +260,11 @@ var url = `https://www.realmeye.com/player/${players[i]}`;
         var $ = cheerio.load(html)
         let characterObject = {}
         var types = ['class', 'level', 'cqc', 'fame', 'exp', 'place', 'equip', 'max']
-        $('table[id=e]').find("tr").eq(1).find('td').each(async x => {
+        $('table[class="table table-striped tablesorter"]').find("tr").eq(1).find('td').each(async x => {
             if (x != 6 && x >= 2) {
-                characterObject[types[x - 2]] = $('table[id=e]').find("tr").eq(1).find('td').eq(x).text()
+                characterObject[types[x - 2]] = $('table[class="table table-striped tablesorter"]').find("tr").eq(1).find('td').eq(x).text()
             } else if (x >= 2) {
-                characterObject[types[x - 2]] = $('table[id=e]').find("tr").eq(1).find('td').eq(x).attr('href')
+                characterObject[types[x - 2]] = $('table[class="table table-striped tablesorter"]').find("tr").eq(1).find('td').eq(x).attr('href')
             }
         })
         if (players[i].length > 0 && /^[A-Za-z]+$/.test(characterObject.class)) {
