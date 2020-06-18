@@ -6,7 +6,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         return message.channel.send(`Please use a valid role or it's appropriate abbriviation. Valid role identifiers are:\n${Object.keys(config.roles.staff).join(", ") + Object.keys(config.roles.general).join(", ")}`)
     }
     if (args[0].toLowerCase() == "roles") {
-        let rolesArray = message.guild.roles.cache.map(r => r).sort((a,b) => b-a)
+        let rolesArray = message.guild.roles.cache.map(r => r).sort((a,b) => b.position-a.position)
         let returnEmbed = new Discord.MessageEmbed()
             .setAuthor(`All roles in this gulid:`)
             .setDescription(rolesArray.join(", "))
