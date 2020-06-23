@@ -1,4 +1,5 @@
 const fs = require('fs')
+var sqlHelper = require("../helpers/sqlHelper.js")
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
     var config = JSON.parse(fs.readFileSync("config.json"))
@@ -128,7 +129,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         CONNECT: true,
         VIEW_CHANNEL: true
     })
-    if(origin == 100){
+    if (origin == 100) {
         await raidingChannel.updateOverwrite(config.roles.general.vetraider, {
             CONNECT: true,
             VIEW_CHANNEL: true
@@ -432,6 +433,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 .setFooter(`Run started at`)
                 .setTimestamp()
         } else if (runType == "fullskipvoid") {
+            runType = "void"
             runEmbed
                 .setColor("#000080")
                 .setAuthor(`Fullskip Void by ${message.member.nickname.replace(/[^a-z|]/gi, "").split("|")[0]}`)
@@ -439,6 +441,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 .setFooter(`Run started at`)
                 .setTimestamp()
         } else if (runType == "oryx3") {
+            runType = "event"
             runEmbed
                 .setColor("#ffffff")
                 .setAuthor(`Oryx 3 by ${message.member.nickname.replace(/[^a-z|]/gi, "").split("|")[0]}`)
@@ -450,6 +453,23 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         await runMessage.react("❌")
         afk.currentRuns[runMessage.id] = raidingChannel.id
         fs.writeFileSync('afk.json', JSON.stringify(afk))
+        //Log in database
+        try {
+            //Log Key Pop
+            await sqlHelper.editUser("users", controlEmbed.fields.find(f => f.name.includes("lhkey")).value.substring(controlEmbed.fields.find(f => f.name.includes(key)).value.indexOf(": ")).replace(/[^0-9]/gi, ""), "keypops", 1)
+            //Log Runs
+            if (runType != "void" && runType != "cult") {
+                raidingChannel.members.each(async m => {
+                    await sqlHelper.editUser("users", m.id, `eventruns`, 1)
+                })
+            } else {
+                raidingChannel.members.each(async m => {
+                    await sqlHelper.editUser("users", m.id, `${runType}Runs`, 1)
+                })
+            }
+        } catch (e) {
+            console.log(e)
+        }
     }
     async function abortAfk(r) {
         var reactor = await r.users.cache.map(u => u.id)

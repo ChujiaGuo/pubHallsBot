@@ -1,4 +1,5 @@
 const fs = require('fs')
+var sqlHelper = require("../helpers/sqlHelper.js")
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
     var config = JSON.parse(fs.readFileSync("config.json"))
@@ -303,6 +304,24 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             } catch (e) {
                 console.log(e)
             }
+            //Log in database
+            try {
+                //Log Key Pop
+                await sqlHelper.editUser("users", controlEmbed.fields.find(f => f.name.includes("Key")).value.substring(controlEmbed.fields.find(f => f.name.includes("Key")).value.indexOf(": ")).replace(/[^0-9]/gi, ""), "keypops", 1)
+                //Log Runs
+                if (runType == "fullskipvoid") runType = "void"
+                if (runType != "void" && runType != "cult") {
+                    raidingChannel.members.each(async m => {
+                        await sqlHelper.editUser("users", m.id, `eventruns`, 1)
+                    })
+                } else {
+                    raidingChannel.members.each(async m => {
+                        await sqlHelper.editUser("users", m.id, `${runType}Runs`, 1)
+                    })
+                }
+            } catch (e) {
+                console.log(e)
+            }
         }, config.afksettings.posttime)
 
         postAFK.on('collect', async r => {
@@ -335,6 +354,24 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     await runMessage.edit(runEmbed)
                     try {
                         await message.reply(`Remember to log the key pop! The command is: \`-pop lh ${controlEmbed.fields.find(f => f.name.includes("Key")).value.substring(controlEmbed.fields.find(f => f.name.includes("Key")).value.indexOf(": ")).replace(/[^0-9]/gi, "")}\``)
+                    } catch (e) {
+                        console.log(e)
+                    }
+                    //Log in database
+                    try {
+                        //Log Key Pop
+                        await sqlHelper.editUser("users", controlEmbed.fields.find(f => f.name.includes("Key")).value.substring(controlEmbed.fields.find(f => f.name.includes("Key")).value.indexOf(": ")).replace(/[^0-9]/gi, ""), "keypops", 1)
+                        //Log Runs
+                        if (runType == "fullskipvoid") runType = "void"
+                        if (runType != "void" && runType != "cult") {
+                            raidingChannel.members.each(async m => {
+                                await sqlHelper.editUser("users", m.id, `eventruns`, 1)
+                            })
+                        } else {
+                            raidingChannel.members.each(async m => {
+                                await sqlHelper.editUser("users", m.id, `${runType}Runs`, 1)
+                            })
+                        }
                     } catch (e) {
                         console.log(e)
                     }
@@ -782,6 +819,24 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     } catch (e) {
                         console.log(e)
                     }
+                    //Log in database
+                    try {
+                        //Log Key Pop
+                        await sqlHelper.editUser("users", controlEmbed.fields.find(f => f.name.includes("Key")).value.substring(controlEmbed.fields.find(f => f.name.includes("Key")).value.indexOf(": ")).replace(/[^0-9]/gi, ""), "keypops", 1)
+                        //Log Runs
+                        if (runType == "fullskipvoid") runType = "void"
+                        if (runType != "void" && runType != "cult") {
+                            raidingChannel.members.each(async m => {
+                                await sqlHelper.editUser("users", m.id, `eventruns`, 1)
+                            })
+                        } else {
+                            raidingChannel.members.each(async m => {
+                                await sqlHelper.editUser("users", m.id, `${runType}Runs`, 1)
+                            })
+                        }
+                    } catch (e) {
+                        console.log(e)
+                    }
                 }, config.afksettings.posttime)
 
                 postAFK.on('collect', async r => {
@@ -815,6 +870,24 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                             await runMessage.edit(runEmbed)
                             try {
                                 await message.reply(`Remember to log the key pop! The command is: \`-pop lh ${controlEmbed.fields.find(f => f.name.includes("Key")).value.substring(controlEmbed.fields.find(f => f.name.includes("Key")).value.indexOf(": ")).replace(/[^0-9]/gi, "")}\``)
+                            } catch (e) {
+                                console.log(e)
+                            }
+                            //Log in database
+                            try {
+                                //Log Key Pop
+                                await sqlHelper.editUser("users", controlEmbed.fields.find(f => f.name.includes("Key")).value.substring(controlEmbed.fields.find(f => f.name.includes("Key")).value.indexOf(": ")).replace(/[^0-9]/gi, ""), "keypops", 1)
+                                //Log Runs
+                                if (runType == "fullskipvoid") runType = "void"
+                                if (runType != "void" && runType != "cult") {
+                                    raidingChannel.members.each(async m => {
+                                        await sqlHelper.editUser("users", m.id, `eventruns`, 1)
+                                    })
+                                } else {
+                                    raidingChannel.members.each(async m => {
+                                        await sqlHelper.editUser("users", m.id, `${runType}Runs`, 1)
+                                    })
+                                }
                             } catch (e) {
                                 console.log(e)
                             }
