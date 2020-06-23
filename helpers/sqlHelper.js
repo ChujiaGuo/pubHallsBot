@@ -1,7 +1,7 @@
 const mysql = require("mysql")
 const fs = require("fs")
 const config = JSON.parse(fs.readFileSync("config.json"))
-var db = mysql.createConnection(config.dbInfo)
+var db = mysql.createConnection(config.dbinfo)
 db.connect(err => { if (err) throw err })
 
 module.exports = {
