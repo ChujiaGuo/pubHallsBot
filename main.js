@@ -282,7 +282,7 @@ client.on("error", async error => {
         .setDescription(`Error Type: ${error.name}\nError Message: ${error.message}\nFull Error Message: ${error.stack}`)
     await owner.send(errorEmbed)
 })
-process.on("uncaughtException", (err) => {
+process.on("uncaughtException", async (err) => {
     await owner.send(`An uncaught error occured: \`\`\`${err.stack}\`\`\``)
     process.exit(1)
 })
