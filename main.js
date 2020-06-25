@@ -284,6 +284,7 @@ client.on("error", async error => {
 process.on("uncaughtException", async (err) => {
     var owner = await client.users.fetch(config.dev)
     await owner.send(`An uncaught error occured: \`\`\`${err.stack}\`\`\``)
+    console.log(err)
     process.exit(1)
 })
 client.login(config.auth)
