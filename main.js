@@ -1,9 +1,11 @@
 const fs = require("fs");
 const dist = require("js-levenshtein")
 const Discord = require("discord.js");
+const { Socket } = require("dgram");
 const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'] });
 var config = JSON.parse(fs.readFileSync("config.json"))
 var commands = JSON.parse(fs.readFileSync("commands.json"))
+var owner = await client.users.fetch(config.dev)
 
 client.once("ready", async () => {
     /* var time = Date.now()
@@ -280,7 +282,10 @@ client.on("error", async error => {
         .setDescription(`Error Type: ${error.name}\nError Message: ${error.message}\nFull Error Message: ${error.stack}`)
     await owner.send(errorEmbed)
 })
-
+process.on("uncaughtException", (err) => {
+    await owner.send(`An uncaught error occured: \`\`\`${err.stack}\`\`\``)
+    process.exit(1)
+})
 client.login(config.auth)
 async function toTimeString(time) {
     return `${Math.floor(time / 604800000)} Weeks ${Math.floor(time % 604800000) / 86400000} Days`
