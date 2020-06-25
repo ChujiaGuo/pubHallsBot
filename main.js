@@ -5,7 +5,6 @@ const { Socket } = require("dgram");
 const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'] });
 var config = JSON.parse(fs.readFileSync("config.json"))
 var commands = JSON.parse(fs.readFileSync("commands.json"))
-var owner = await client.users.fetch(config.dev)
 
 client.once("ready", async () => {
     /* var time = Date.now()
@@ -283,6 +282,7 @@ client.on("error", async error => {
     await owner.send(errorEmbed)
 })
 process.on("uncaughtException", async (err) => {
+    var owner = await client.users.fetch(config.dev)
     await owner.send(`An uncaught error occured: \`\`\`${err.stack}\`\`\``)
     process.exit(1)
 })

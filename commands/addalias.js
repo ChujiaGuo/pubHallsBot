@@ -32,7 +32,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     commands.aliases[newAlias] = command
                     fs.writeFileSync("commands.json", JSON.stringify(commands))
                 } else {
-                    await confirmationMessage.edit("Confirmation withheld. The command is now aborted.")
+                    await confirmationMessage.edit("Confirmation withheld. The alias will not be added.")
                 }
             } else {
                 await confirmationMessage.edit("No confirmation given. Alias will not be added.")
