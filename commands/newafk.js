@@ -103,7 +103,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 
     //Check for other afks
     if (afk[origin].afk == true) {
-        return message.channel.send("There is already another AFK check up. If you think this is a mistake, use \`resetafk\` and try again.")
+        return message.channel.send("There is already another AFK check up. For more information, please use `runstatus`.")
     } else {
         afk[origin].afk = true
         fs.writeFileSync('afk.json', JSON.stringify(afk))
