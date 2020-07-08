@@ -68,7 +68,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             return message.channel.send(`Raiding Channel \`${channelNumber}\` has not been configured. Please have an admin add it using setup.`)
         }
         else {
-            return message.channel.send("Events aren't supported yet. Sorry.")
+            return message.channel.send("If you would like to do an event afk, please use the command `eventafk`.")
             channelNumber = config.channels.event.raiding[channelNumber]
             statusChannel = config.channels.event.control.status
         }
@@ -319,6 +319,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                         await sqlHelper.editUser("users", m.id, `${runType}Runs`, 1)
                     })
                 }
+                await sqlHelper.close()
             } catch (e) {
                 console.log(e)
             }
@@ -372,6 +373,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                                 await sqlHelper.editUser("users", m.id, `${runType}Runs`, 1)
                             })
                         }
+                        await sqlHelper.close()
                     } catch (e) {
                         console.log(e)
                     }
@@ -834,6 +836,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                                 await sqlHelper.editUser("users", m.id, `${runType}Runs`, 1)
                             })
                         }
+                        await sqlHelper.close()
                     } catch (e) {
                         console.log(e)
                     }
@@ -888,6 +891,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                                         await sqlHelper.editUser("users", m.id, `${runType}Runs`, 1)
                                     })
                                 }
+                                await sqlHelper.close()
                             } catch (e) {
                                 console.log(e)
                             }

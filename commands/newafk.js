@@ -52,7 +52,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         statusChannel = config.channels.normal.control.status
         runLogChannel = config.channels.normal.channellog
     } else if (origin = 1) {
-        return message.channel.send("Events aren't supported yet. Sorry.")
+        return message.channel.send("If you would like to do an event afk, please use `eventafk`.")
         cloneChannel = config.channels.event.clone
         statusChannel = config.channels.event.control.status
         runLogChannel = config.channels.event.channellog
@@ -467,6 +467,8 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     await sqlHelper.editUser("users", m.id, `${runType}Runs`, 1)
                 })
             }
+            //Close Connection
+            await sqlHelper.close()
         } catch (e) {
             console.log(e)
         }
