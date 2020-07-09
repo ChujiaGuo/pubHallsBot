@@ -242,7 +242,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
         lounge = await runMessage.guild.channels.cache.find(c => c.id == lounge)
         var userIds = await raidingChannel.members.map(u => u.id)
-        var reactIds = (runType == 'cult') ? await runMessage.reactions.cache.map(e => e).find(e => e.emoji.name == 'malus').users.cache.map(u => u.id) : (runType == 'void' || runType == "fullskipvoid") ? await runMessage.reactions.cache.map(e => e).find(e => e.emoji.name == 'void').users.cache.map(u => u.id) : await runMessage.reactions.cache.map(e => e).find(e => e.emoji.name == 'oryx2').users.cache.map(u => u.id)
+        var reactIds = (runType == 'cult') ? await runMessage.reactions.cache.map(e => e).find(e => e.emoji.name == 'malus').users.cache.map(u => u.id) : (runType == 'void') ? await runMessage.reactions.cache.map(e => e).find(e => e.emoji.name == 'void').users.cache.map(u => u.id) : (runType == 'fullskipvoid') ? await runMessage.reactions.cache.map(e => e).find(e => e.emoji.name == 'fastvoid').users.cache.map(u => u.id) : await runMessage.reactions.cache.map(e => e).find(e => e.emoji.name == 'oryx2').users.cache.map(u => u.id)
         let stayIn;
         if (origin >= 10) {
             stayIn = 100
