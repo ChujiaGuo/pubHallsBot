@@ -134,6 +134,10 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             CONNECT: true,
             VIEW_CHANNEL: true
         })
+        await raidingChannel.updateOverwrite(config.roles.general.raider, {
+            CONNECT: false,
+            VIEW_CHANNEL: false
+        })
     }
     await message.channel.send(`${raidingChannel.name} has been created. Beginning AFK Check.`)
 
