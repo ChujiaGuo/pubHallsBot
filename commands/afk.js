@@ -299,11 +299,6 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 .setFooter(`The afk check has ended automatically`)
                 .setTimestamp()
             await runMessage.edit(runEmbed)
-            try {
-                await message.reply(`Remember to log the key pop! The command is: \`-pop lh ${controlEmbed.fields.find(f => f.name.includes("Key")).value.substring(controlEmbed.fields.find(f => f.name.includes("Key")).value.indexOf(": ")).replace(/[^0-9]/gi, "")}\``)
-            } catch (e) {
-                console.log(e)
-            }
             //Log in database
             try {
                 //Log Key Pop
@@ -353,11 +348,6 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                         .setFooter(`The afk check has been ended by ${user.nickname}`)
                         .setTimestamp()
                     await runMessage.edit(runEmbed)
-                    try {
-                        await message.reply(`Remember to log the key pop! The command is: \`-pop lh ${controlEmbed.fields.find(f => f.name.includes("Key")).value.substring(controlEmbed.fields.find(f => f.name.includes("Key")).value.indexOf(": ")).replace(/[^0-9]/gi, "")}\``)
-                    } catch (e) {
-                        console.log(e)
-                    }
                     //Log in database
                     try {
                         //Log Key Pop
@@ -816,11 +806,6 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                         .setFooter(`The afk check has ended automatically`)
                         .setTimestamp()
                     await runMessage.edit(runEmbed)
-                    try {
-                        await message.reply(`Remember to log the key pop! The command is: \`-pop lh ${controlEmbed.fields.find(f => f.name.includes("Key")).value.substring(controlEmbed.fields.find(f => f.name.includes("Key")).value.indexOf(": ")).replace(/[^0-9]/gi, "")}\``)
-                    } catch (e) {
-                        console.log(e)
-                    }
                     //Log in database
                     try {
                         //Log Key Pop
@@ -871,11 +856,6 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                                 .setFooter(`The afk check has been ended by ${user.nickname}`)
                                 .setTimestamp()
                             await runMessage.edit(runEmbed)
-                            try {
-                                await message.reply(`Remember to log the key pop! The command is: \`-pop lh ${controlEmbed.fields.find(f => f.name.includes("Key")).value.substring(controlEmbed.fields.find(f => f.name.includes("Key")).value.indexOf(": ")).replace(/[^0-9]/gi, "")}\``)
-                            } catch (e) {
-                                console.log(e)
-                            }
                             //Log in database
                             try {
                                 //Log Key Pop

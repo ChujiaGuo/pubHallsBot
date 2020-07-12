@@ -409,11 +409,6 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             .setDescription(`The afk check has ended. We are currently running with ${raidingChannel.members.map(u => u.id).length} raiders.\nIf you missed this run, another will be starting shortly.`)
             .setTimestamp()
         await statusMessage.edit("", statusEmbed).catch(e => console.log(e))
-        try {
-            await message.reply(`Remember to log the key pop! The command is: \`-pop lh ${controlEmbed.fields.find(f => f.name.includes("lhkey")).value.substring(controlEmbed.fields.find(f => f.name.includes(key)).value.indexOf(": ")).replace(/[^0-9]/gi, "")}\``)
-        } catch (e) {
-            console.log(e)
-        }
         //Edit the channel
         let newName = ""
         newName = raidingChannel.name.replace(" <-- Join!", "")
@@ -476,6 +471,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         } catch (e) {
             console.log(e)
         }
+        let historyChannel = message.guild.systemChannel
     }
     async function abortAfk(r) {
         var reactor = await r.users.cache.map(u => u.id)
