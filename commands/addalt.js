@@ -36,7 +36,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         if (oldName == undefined) {
             oldName = user.user.username
         }
-        if (oldName.toLowerCase().includes(altName.toLowerCase())) {
+        if (oldName.toLowerCase().replace(/[^a-z|]/gi,"").split("|").includes(altName.toLowerCase())) {
             return message.channel.send("This account has already been added to this user.")
         }
         var newName = `${oldName} | ${altName.charAt(0).toUpperCase() + altName.substring(1)}`
