@@ -11,10 +11,17 @@ module.exports = {
                 if (err) throw err;
                 if (!rows[0]) return
                 else {
-                    db.query(`UPDATE ${tableName} SET ${columnName}=${parseInt(rows[0][columnName]) + parseInt(amount)} WHERE id='${userId}'`, (err) => {
-                        if (err) throw err;
-                        db.end()
-                    })
+                    if (columnName == "lastnitrouse") {
+                        db.query(`UPDATE ${tableName} SET ${columnName}='${parseInt(amount)}' WHERE id='${userId}'`, (err) => {
+                            if (err) throw err;
+                            db.end()
+                        })
+                    } else {
+                        db.query(`UPDATE ${tableName} SET ${columnName}=${parseInt(rows[0][columnName]) + parseInt(amount)} WHERE id='${userId}'`, (err) => {
+                            if (err) throw err;
+                            db.end()
+                        })
+                    }
                 }
             })
         } catch (e) {
