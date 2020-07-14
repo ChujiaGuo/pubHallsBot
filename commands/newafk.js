@@ -466,8 +466,6 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     await sqlHelper.editUser("users", m.id, `${runType}Runs`, 1)
                 })
             }
-            //Close Connection
-            await sqlHelper.close()
         } catch (e) {
             console.log(e)
         }
@@ -571,18 +569,15 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     }
 
                 } else if (config.afksettings.nitrosettings.nitrostyle.toLowerCase() == "delay") {
-                    let nitrodelay = JSON.parse(fs.readFileSync("nitrodelay.json"))
-                    if (nitrodelay[reactor.id] == undefined || nitrodelay[reactor.id].endTime <= Date.now()) {
+                    let user = await sqlHelper.retrieveUser(reactor.id)
+                    user.endTime = parseInt(user.lastnitrouse) + parseInt(config.afksettings.nitrosettings.nitrodelay)
+                    if (user.endTime <= Date.now()) {
                         if (config.afksettings.nitrosettings.whattodo.toLowerCase() == "location") {
                             if (nitroCounter < config.afksettings.nitrosettings.amount && !afk[origin].earlyLocationIds.includes(reactor.id)) {
                                 await reactor.send(`The location of the run in \`${raidingChannel.name}\` has been set to: \n\`${afk[origin].location}\``)
                                 nitroCounter += 1
                                 nitroArray.push(`<@!${reactor.id}>`)
-                                nitrodelay[reactor.id] = {
-                                    'startTime': Date.now(),
-                                    'endTime': Date.now() + parseInt(config.afksettings.nitrosettings.nitrodelay)
-                                }
-                                fs.writeFileSync('nitrodelay.json', JSON.stringify(nitrodelay))
+                                await sqlHelper.editUser("users", reactor.id, "lastnitrouse", `${Date.now()}`)
                                 afk[origin].earlyLocationIds.push(reactor.id)
                                 fs.writeFileSync('afk.json', JSON.stringify(afk))
                                 controlEmbed = commandMessage.embeds[0]
@@ -596,15 +591,11 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                             }
                         } else if (config.afksettings.nitrosettings.whattodo.toLowerCase() == "spot") {
                             if (!nitroArray.includes(`<@!${reactor.id}>`) && nitroCounter < config.afksettings.nitrosettings.amount) {
-                                await moveIn(reactor).then((bool) => {
+                                await moveIn(reactor).then(async (bool) => {
                                     if (!bool) {
                                         nitroCounter += 1
                                         nitroArray.push(`<@!${reactor.id}>`)
-                                        nitrodelay[reactor.id] = {
-                                            'startTime': Date.now(),
-                                            'endTime': Date.now() + parseInt(config.afksettings.nitrosettings.nitrodelay)
-                                        }
-                                        fs.writeFileSync('nitrodelay.json', JSON.stringify(nitrodelay))
+                                        await sqlHelper.editUser("users", reactor.id, "lastnitrouse", `${Date.now()}`)
                                     }
                                 })
                             } else {
@@ -613,7 +604,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                             }
                         }
                     } else {
-                        reactor.send(`You have already used your nitro. It will be available again in ${await toTimeString(nitrodelay[reactor.id].endTime - Date.now())}`)
+                        reactor.send(`You have already used your nitro. It will be available again in ${await toTimeString(user.endTime - Date.now())}`)
                     }
                 }
             } catch (e) {

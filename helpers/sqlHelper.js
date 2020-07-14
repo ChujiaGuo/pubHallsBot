@@ -21,7 +21,19 @@ module.exports = {
             return e
         }
     },
-    close: async () => {
-
+    retrieveUser: async (userId) => {
+        return new Promise((resolve, reject) => {
+            var db = mysql.createConnection(config.dbinfo)
+            db.connect(err => { if (err) throw err })
+            try {
+                db.query(`SELECT * FROM users WHERE id='${userId}'`, (err, rows) => {
+                    if (err) throw err;
+                    if (rows.length != 0) resolve(rows[0])
+                    else { reject(false) }
+                })
+            } catch (e) {
+                console.log(e)
+            }
+        })
     }
 }
