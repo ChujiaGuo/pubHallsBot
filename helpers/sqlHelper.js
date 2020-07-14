@@ -35,9 +35,14 @@ module.exports = {
             try {
                 db.query(`SELECT * FROM users WHERE id='${userId}'`, (err, rows) => {
                     if (err) throw err;
-                    if (rows.length != 0) resolve(rows[0])
-                    else { reject(false) }
-                    db.end()
+                    if (rows.length != 0) {
+                        db.end()
+                        resolve(rows[0])
+                    }
+                    else {
+                        db.end()
+                        reject(false)
+                    }
                 })
             } catch (e) {
                 console.log(e)
