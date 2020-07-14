@@ -103,6 +103,9 @@ client.on("messageReactionAdd", async (r, u) => {
         await r.message.delete().catch(e => console.log(e))
         delete afk.currentRuns[r.message.id]
         fs.writeFileSync('afk.json', JSON.stringify(afk))
+        let currentAfks = JSON.parse(fs.readFileSync('currentAfks.json'))
+        delete currentAfks[raidChannel.id]
+        fs.writeFileSync('currentAfks.json', JSON.stringify(currentAfks))
     } else if (currentleaverequests[r.message.id]) {
         var requestMessage = r.message
         var requestEmbed = requestMessage.embeds[0]
