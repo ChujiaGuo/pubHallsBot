@@ -383,6 +383,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             controlCollector.stop()
         } catch (e) { console.log(e) }
         //Edit AFK status
+        let backupAfk = afk[origin]
         afk[origin] = {
             "afk": false,
             "location": "",
@@ -469,7 +470,19 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         } catch (e) {
             console.log(e)
         }
-        let historyChannel = message.guild.systemChannel
+        let channelJSON = {
+            "channelId": raidingChannel.id,
+            "raidLeader": message.member.id,
+            "earlyUsers": backupAfk.earlyLocationIds,
+            "allRaiders": raidingChannel.members.map(m => m.id)
+        }
+        let historyChannel = config.channels.log.history
+        historyChannel = await message.guild.channels.resolve(historyChannel)
+        runEmbed.setDescription(`Channel: <#${channelJSON.channelId}> \`${channelJSON.channelId}\`\nRun Started By: ${message.member}\nEarly Location: ${channelJSON.earlyUsers.map(id => `<@!${id}>`).join(', ')}\nAll Raiders: ${channelJSON.allRaiders.map(id => `<@!${id}>`).join(', ')}`)
+        await historyChannel.send(runEmbed)
+        let currentAfks = JSON.parse(fs.readFileSync("currentAfks.json"))
+        currentAfks[raidingChannel.id] = channelJSON
+        fs.writeFileSync("currentAfks.json", JSON.stringify(currentAfks))
     }
     async function abortAfk(r) {
         var reactor = await r.users.cache.map(u => u.id)
