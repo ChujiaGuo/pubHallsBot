@@ -37,6 +37,7 @@ module.exports = {
                     if (err) throw err;
                     if (rows.length != 0) resolve(rows[0])
                     else { reject(false) }
+                    db.end()
                 })
             } catch (e) {
                 console.log(e)
