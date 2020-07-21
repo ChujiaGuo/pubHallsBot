@@ -416,6 +416,9 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         await raidingChannel.updateOverwrite(config.roles.general.raider, {
             CONNECT: false
         })
+        await raidingChannel.updateOverwrite(config.roles.general.vetraider, {
+            CONNECT: false
+        })
         await raidingChannel.edit({ name: newName, position: raidingChannel.parent.children.filter(c => c.type == "voice").size - 1 }).catch(e => console.log(e))
         let runEmbed = new Discord.MessageEmbed()
         if (runType == "cult") {
@@ -546,7 +549,10 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             if (auth) {
                 endAfk(reactor)
             }
-        } else if ((name == "nitro" || name == "shinynitro") && reactor.roles.cache.has(config.roles.general.nitro) && ["true", "on", "enabled"].includes(config.afksettings.nitrosettings.enabled.toLowerCase())) {
+        } else if ((name == "nitro" || name == "shinynitro")) {
+            if (!reactor.roles.cache.has(config.roles.general.nitro) || !["true", "on", "enabled"].includes(config.afksettings.nitrosettings.enabled.toLowerCase())) {
+                return
+            }
             //Nitro
             try {
                 if (config.afksettings.nitrosettings.nitrostyle.toLowerCase() == "normal") {
