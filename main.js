@@ -219,34 +219,8 @@ client.on("message", async message => {
             commandFile.run(client, message, args, Discord);
         } catch (e) {
             await message.channel.send(`There was an error updating the cache: \`\`\`${e}\`\`\``)
-            let errorUpdate = await message.channel.send("Would you like to run the command with a previous cache?")
-            await errorUpdate.react("✅")
-            await errorUpdate.react("❌")
-            const confirmationFilter = (r, u) => !u.bot && (r.emoji.name == "✅" || r.emoji.name == "❌") && u.id == message.author.id
-            await errorUpdate.awaitReactions(confirmationFilter, { max: 1, time: 15000 })
-                .then(async (r, u) => {
-                    if (r.size > 0) {
-                        r = r.map(e => e)[0]
-                        console.log(r)
-                        if (r.emoji.name == "✅") {
-                            errorUpdate.edit("Confirmation given. The command will now run.")
-                            commandFile.run(client, message, args, Discord)
-                            try {
-                                errorUpdate.reactions.removeAll()
-                            } catch (e) { }
-                        } else {
-                            errorUpdate.edit("Confirmation withheld. The command is now aborted.")
-                            try {
-                                errorUpdate.reactions.removeAll()
-                            } catch (e) { }
-                        }
-                    } else {
-                        errorUpdate.edit("No confirmation was given. The command is now aborted.")
-                        try {
-                            errorUpdate.reactions.removeAll()
-                        } catch (e) { }
-                    }
-                })
+            await message.channel.send(`Restarting the bot...`)
+            process.exit(1)
         }
 
 
