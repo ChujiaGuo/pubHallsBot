@@ -669,6 +669,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     }
     async function confirmReaction(reaction, reactor) {
         try {
+            if(reaction.emoji.name == "planewalker" && !reactor.roles.cache.has(config.roles.general.rusher)){return}
             controlEmbed = commandMessage.embeds[0]
             let confirmationMessage = await reactor.send(`You have reacted with ${reaction.emoji} (${reaction.emoji.name}). If you actually plan on bringing and using a ${reaction.emoji}, react with the ✅. If this was an accident, or you don't want to bring and use the ${reaction.emoji}, react with the ❌.`)
             const confirmationFilter = (r, u) => !u.bot && (r.emoji.name == "✅" || r.emoji.name == "❌")
