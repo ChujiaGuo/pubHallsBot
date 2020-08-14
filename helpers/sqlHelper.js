@@ -48,5 +48,44 @@ module.exports = {
                 console.log(e)
             }
         })
+    },
+    checkModMailBlacklist: async (userId) => {
+        return new Promise((resolve, reject) => {
+            var db = mysql.createConnection(config.dbinfo)
+            db.connect(err => { if (err) throw err })
+            try {
+                db.query(`SELECT * FROM modmailblacklist WHERE id='${userId}'`, (err, rows) => {
+                    if (err) throw err;
+                    if (rows.length != 0) {
+                        db.end()
+                        reject(false)
+                    }
+                    else {
+                        db.end()
+                        resolve(true)
+                    }
+                })
+            } catch (e) {
+                console.log(e)
+            }
+        })
+    },
+    modmailBlacklist: async (userId) => {
+        return new Promise((resolve, reject) => {
+            var db = mysql.createConnection(config.dbinfo)
+            db.connect(err => { if (err) throw err })
+            try {
+                db.query(`INSERT INTO modmailblacklist VALUES (${userId})`, (err, result) => {
+                    if (err) throw err;
+                    if (result.affectedRows > 0){
+                        resolve(true)
+                    }else{
+                        reject(false)
+                    }
+                })
+            } catch (e) {
+                console.log(e)
+            }
+        })
     }
 }
