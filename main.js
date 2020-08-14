@@ -379,7 +379,7 @@ client.on("message", async message => {
                         .setDescription(`${message.author} sent the bot: "${message.content}"`)
                         .setFooter(`User ID: ${message.author.id} | Message ID: ${message.id}`)
                         .setTimestamp()
-                    let modmailMessage = await modmailChannel.send(modmailEmbed)
+                    let modmailMessage = await modmailChannel.send(modmailEmbed).catch(e => console.log(e))
                     await modmailMessage.react("🔑")
                 } else {
                     activeDMs.splice(activeDMs.indexOf(message.author.id), 1)

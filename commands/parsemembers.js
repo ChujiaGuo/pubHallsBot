@@ -251,6 +251,8 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 .setTimestamp()
             await statusMessage.edit(statusEmbed)
         } catch (e) { }
+        let parsecharacters = require("./parsecharacters.js")
+        await parsecharacters.run(client, message, [imageURL], Discord)
     }
     catch (e) {
         console.log(e)
