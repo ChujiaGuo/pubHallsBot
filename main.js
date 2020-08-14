@@ -345,7 +345,7 @@ client.on("message", async message => {
                                             promptGuildMessage.edit(promptGuildEmbed)
                                             reject(undefined)
                                         } else {
-                                            guild = guildList.split("\n").find(v => v.split(" ")[0] == r.emoji.name).split(" ")[1]
+                                            guild = guildList.split("\n").find(v => v.split(" ")[0] == r.emoji.name).split(" ").slice(1).join(" ")
                                             guild = mutualGuilds.find(g => g.name == guild)
                                             resolve(guild)
                                             promptGuildEmbed
