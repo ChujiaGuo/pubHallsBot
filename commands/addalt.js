@@ -19,7 +19,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
 
         var altName = args.shift()
-        var checkUsers = await message.guild.members.cache.find(m => m.displayName.toLowerCase().replace(/[^a-z|]/gi, '').split('|').includes(altName.toLowerCase()))
+        var checkUsers = await message.guild.members.cache.find(m => m.nickname && m.nickname.toLowerCase().replace(/[^a-z|]/gi, '').split('|').includes(altName.toLowerCase()))
         if(checkUsers){
             return message.channel.send(`There is already a user with the name: \`${altName}\` <@!${checkUsers.id}>`)
         }
