@@ -267,7 +267,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             statusEmbed
                 .setColor("#ff1212")
                 .setAuthor(`Cult started by ${message.member.nickname} in ${raidingChannel.name}`, message.author.avatarURL())
-                .setDescription(`To join, **connect to the raiding channel** and then react with ${mainEmoji}\nIf you have a key, react with ${key}\nIf you are bringing one of the following classes, please with react that class respectively ${warrior}${pally}${knight}\nIf you are bringing one of the following items (and plan on using it), please react with that item respectively ${mseal}${puri}\nIf you plan on rushing and have the <@&${config.roles.general.rusher}> role, you may react with ${rusher}\nIf you have the <@&${config.roles.general.nitro}> role, you may react with ${shinynitro} for early location\n(10 max, randomly chosen)\nTo end this AFK Check, the raid leader can react with ❌`)
+                .setDescription(`To join, **connect to the raiding channel** and then react with ${mainEmoji}\nIf you have a key, react with ${key}\nIf you are bringing one of the following classes, please with react that class respectively ${warrior}${pally}${knight}\nIf you are bringing one of the following items (and plan on using it), please react with that item respectively ${mseal}${puri}\nIf you plan on rushing and have the <@&${config.roles.general.rusher}> role, you may react with ${rusher}\nIf you have the <@&${config.roles.general.nitro}> role, you may react with ${shinynitro} for a guaranteed spot in the voice channel\n(10 max, randomly chosen)\nTo end this AFK Check, the raid leader can react with ❌`)
                 .setFooter(`Time Remaining: ${Math.floor(config.afksettings.afktime / 60000)} Minutes ${(config.afksettings.afktime % 60000) / 1000} Seconds`)
             await statusMessage.edit(`@here \`Cult\` (${cult}) started by <@${message.author.id}> in \`${raidingChannel.name}\``, statusEmbed)
             await raidingChannel.updateOverwrite(config.roles.general.raider, {
@@ -293,7 +293,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             statusEmbed
                 .setColor("#000080")
                 .setAuthor(`Void started by ${message.member.nickname} in ${raidingChannel.name}`, message.author.avatarURL())
-                .setDescription(`To join, **connect to the raiding channel** and then react with ${mainEmoji}\nIf you have a key or a vial, react with ${key} or ${vial} respectively\nIf you are bringing one of the following classes, please react with that class respectively ${warrior}${pally}${knight}\nIf you are bringing one of the following items (and plan on using it), please react with that item respectively ${mseal}${puri}\nIf you plan on rushing and have the <@&${config.roles.general.rusher}> role, you may react with ${rusher}\nIf you have the <@&${config.roles.general.nitro}> role, you may react with the ${shinynitro} for early location\n(10 max, randomly chosen)\nTo end this AFK Check, the raid leader can react with the ❌`)
+                .setDescription(`To join, **connect to the raiding channel** and then react with ${mainEmoji}\nIf you have a key or a vial, react with ${key} or ${vial} respectively\nIf you are bringing one of the following classes, please react with that class respectively ${warrior}${pally}${knight}\nIf you are bringing one of the following items (and plan on using it), please react with that item respectively ${mseal}${puri}\nIf you have the <@&${config.roles.general.nitro}> role, you may react with the ${shinynitro} for a guaranteed spot in the voice channel\n(10 max, randomly chosen)\nTo end this AFK Check, the raid leader can react with the ❌`)
                 .setFooter(`Time Remaining: ${Math.floor(config.afksettings.afktime / 60000)} Minutes ${(config.afksettings.afktime % 60000) / 1000} Seconds`)
             await statusMessage.edit(`@here \`Void\` (${entity}) started by <@${message.author.id}> in \`${raidingChannel.name}\``, statusEmbed)
             await raidingChannel.updateOverwrite(config.roles.general.raider, {
@@ -319,7 +319,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             statusEmbed
                 .setColor("#000080")
                 .setAuthor(`Fullskip Void started by ${message.member.nickname} in ${raidingChannel.name}`, message.author.avatarURL())
-                .setDescription(`To join, **connect to the raiding channel** and then react with ${mainEmoji}\nIf you have a key or a vial, react with ${key} or ${vial} respectively\nIf you are bringing one of the following classes, please react that with class respectively ${warrior}${pally}${knight}\nIf you are bringing one of the following items (and plan on using it), please react with that item respectively ${mseal}${puri}\nIf have a mystic or a brain trickster and plan on bringing it, react with the one you are bringing ${mystic}${brain}\nIf you have the <@&${config.roles.general.nitro}> role, you may react with the ${shinynitro} for early location (10 max, randomly chosen)\nTo end this AFK Check, the raid leader can react with the ❌`)
+                .setDescription(`To join, **connect to the raiding channel** and then react with ${mainEmoji}\nIf you have a key or a vial, react with ${key} or ${vial} respectively\nIf you are bringing one of the following classes, please react that with class respectively ${warrior}${pally}${knight}\nIf you are bringing one of the following items (and plan on using it), please react with that item respectively ${mseal}${puri}\nIf have a mystic or a brain trickster and plan on bringing it, react with the one you are bringing ${mystic}${brain}\nIf you have the <@&${config.roles.general.nitro}> role, you may react with the ${shinynitro} for a guaranteed spot in the voice channel (10 max, randomly chosen)\nTo end this AFK Check, the raid leader can react with the ❌`)
                 .setFooter(`Time Remaining: ${Math.floor(config.afksettings.afktime / 60000)} Minutes ${(config.afksettings.afktime % 60000) / 1000} Seconds`)
             await statusMessage.edit(`@here \`Fullskip Void\` (${entity}) started by <@${message.author.id}> in \`${raidingChannel.name}\``, statusEmbed)
             await raidingChannel.updateOverwrite(config.roles.general.raider, {
@@ -347,7 +347,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             statusEmbed
                 .setColor("#ffffff")
                 .setAuthor(`Oryx 3 started by ${message.member.nickname} in ${raidingChannel.name}`, message.author.avatarURL())
-                .setDescription(`To join, **connect to the raiding channel** and then react with ${oryx}\nIf you have a rune, please react with your respective rune. ${helmetRune}${swordRune}${shieldRune}\nIf you are bringing one of the following classes, please react that with class respectively ${warrior}${pally}${knight}\nIf you are bringing one of the following items (and plan on using it), please react with that item respectively ${mseal}${puri}\nIf you have the <@&${config.roles.general.nitro}> role, you may react with the ${shinynitro} for early location (10 max)\nTo end this AFK Check, the raid leader can react with the ❌`)
+                .setDescription(`To join, **connect to the raiding channel** and then react with ${oryx}\nIf you have a rune, please react with your respective rune. ${helmetRune}${swordRune}${shieldRune}\nIf you are bringing one of the following classes, please react that with class respectively ${warrior}${pally}${knight}\nIf you are bringing one of the following items (and plan on using it), please react with that item respectively ${mseal}${puri}\nIf you have the <@&${config.roles.general.nitro}> role, you may react with the ${shinynitro} for a guaranteed spot in the voice channel (10 max)\nTo end this AFK Check, the raid leader can react with the ❌`)
                 .setFooter(`Time Remaining: ${Math.floor(config.afksettings.afktime / 60000)} Minutes ${(config.afksettings.afktime % 60000) / 1000} Seconds`)
             await statusMessage.edit(`@here \`Oryx 3\` (${oryx}) started by <@${message.author.id}> in \`${raidingChannel.name}\``, statusEmbed)
             await raidingChannel.updateOverwrite(config.roles.general.raider, {
@@ -421,6 +421,51 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         })
         await raidingChannel.edit({ name: newName, position: raidingChannel.parent.children.filter(c => c.type == "voice").size - 1 }).catch(e => console.log(e))
         let runEmbed = new Discord.MessageEmbed()
+        //Log in database
+        try {
+            //Log Key Pop/Points
+            let keyId = controlEmbed.fields.find(f => f.name.includes("lhkey")).value.substring(controlEmbed.fields.find(f => f.name.includes(key)).value.indexOf(": ")).replace(/[^0-9]/gi, "")
+            if (keyId.length > 0) {
+                await sqlHelper.editUser("users", keyId, "keypops", 1)
+                await sqlHelper.managePoints(keyId, 5, 'add')
+            }
+            //Log Runs
+            if (runType != "void" && runType != "cult") {
+                raidingChannel.members.each(async m => {
+                    await sqlHelper.editUser("users", m.id, `eventruns`, 1)
+                })
+            } else {
+                raidingChannel.members.each(async m => {
+                    await sqlHelper.editUser("users", m.id, `${runType}Runs`, 1)
+                })
+            }
+            //Log Points
+            //Vial
+            if (runType == "fullskipvoid" || runType == "void") {
+                let vialIds = controlEmbed.fields.find(f => f.name.includes("vial")).value.match(/!\d+>|@\d+>/gi).map(r => r.slice(1, -1))
+                for (var i in vialIds) {
+                    await sqlHelper.managePoints(vialIds[i], 3, 'add').catch(e => console.log(e))
+                }
+                if (runType == "fullskipvoid") {
+                    let brainIds = controlEmbed.fields.find(f => f.name.includes("fsvbrain")).value.match(/!\d+>|@\d+>/gi).map(r => r.slice(1, -1))
+                    let mysticIds = controlEmbed.fields.find(f => f.name.includes("mystic")).value.match(/!\d+>|@\d+>/gi).map(r => r.slice(1, -1))
+                    for (var i in brainIds) {
+                        await sqlHelper.managePoints(mysticIds[i], 2, 'add').catch(e => console.log(e))
+                    }
+                    for (var i in brainIds) {
+                        await sqlHelper.managePoints(mysticIds[i], 2, 'add').catch(e => console.log(e))
+                    }
+                }
+            } else if (runType == "cult") {
+                let rusherIds = controlEmbed.fields.find(f => f.name.includes("planewalker")).value.match(/!\d+>|@\d+>/gi).map(r => r.slice(1, -1))
+                for (var i in rusherIds) {
+                    await sqlHelper.managePoints(rusherIds[i], 2, 'add').catch(e => console.log(e))
+                }
+            }
+
+        } catch (e) {
+            console.log(e)
+        }
         if (runType == "cult") {
             runEmbed
                 .setColor("#ff1212")
@@ -456,23 +501,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         await runMessage.react("❌")
         afk.currentRuns[runMessage.id] = raidingChannel.id
         fs.writeFileSync('afk.json', JSON.stringify(afk))
-        //Log in database
-        try {
-            //Log Key Pop
-            await sqlHelper.editUser("users", controlEmbed.fields.find(f => f.name.includes("lhkey")).value.substring(controlEmbed.fields.find(f => f.name.includes(key)).value.indexOf(": ")).replace(/[^0-9]/gi, ""), "keypops", 1)
-            //Log Runs
-            if (runType != "void" && runType != "cult") {
-                raidingChannel.members.each(async m => {
-                    await sqlHelper.editUser("users", m.id, `eventruns`, 1)
-                })
-            } else {
-                raidingChannel.members.each(async m => {
-                    await sqlHelper.editUser("users", m.id, `${runType}Runs`, 1)
-                })
-            }
-        } catch (e) {
-            console.log(e)
-        }
+        
         let channelJSON = {
             "channelId": raidingChannel.id,
             "raidLeader": message.member.id,
@@ -669,7 +698,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     }
     async function confirmReaction(reaction, reactor) {
         try {
-            if(reaction.emoji.name == "planewalker" && !reactor.roles.cache.has(config.roles.general.rusher)){return}
+            if (reaction.emoji.name == "planewalker" && !reactor.roles.cache.has(config.roles.general.rusher)) { return }
             controlEmbed = commandMessage.embeds[0]
             let confirmationMessage = await reactor.send(`You have reacted with ${reaction.emoji} (${reaction.emoji.name}). If you actually plan on bringing and using a ${reaction.emoji}, react with the ✅. If this was an accident, or you don't want to bring and use the ${reaction.emoji}, react with the ❌.`)
             const confirmationFilter = (r, u) => !u.bot && (r.emoji.name == "✅" || r.emoji.name == "❌")

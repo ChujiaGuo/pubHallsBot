@@ -28,6 +28,21 @@ module.exports = {
             return e
         }
     },
+    managePoints: async (userId, points, type = 'add') => {
+        return new Promise((resolve, reject) => {
+            var db = mysql.createConnection(config.dbinfo)
+            db.connect(err => { if (err) reject(err) })
+            try {
+                db.query(`UPDATE users SET points ${type=="add"?'= points +':type=="subtract"?'= points -':type=="raw"?"=":"= points +"} ${parseInt(points)} WHERE id=${userId}`, (err, result) => {
+                    if (err) reject(err)
+                    db.end()
+                    resolve(result)
+                })
+            } catch{
+                return e
+            }
+        })
+    },
     retrieveUser: async (userId) => {
         return new Promise((resolve, reject) => {
             var db = mysql.createConnection(config.dbinfo)
@@ -77,9 +92,9 @@ module.exports = {
             try {
                 db.query(`INSERT INTO modmailblacklist VALUES (${userId})`, (err, result) => {
                     if (err) throw err;
-                    if (result.affectedRows > 0){
+                    if (result.affectedRows > 0) {
                         resolve(true)
-                    }else{
+                    } else {
                         reject(false)
                     }
                 })
