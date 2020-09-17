@@ -445,7 +445,11 @@ client.on("message", async message => {
         }
         try {
             await message.guild.members.fetch()
-            commandFile.run(client, message, args, Discord);
+            if(cmd=="report"){
+                activeDMs.push(message.author.id)
+            }
+            await commandFile.run(client, message, args, Discord);
+            activeDMs.splice(activeDMs.indexOf(message.author.id), 1)
         } catch (e) {
             await message.channel.send(`There was an error updating the cache: \`\`\`${e}\`\`\``)
             await message.channel.send(`Restarting the bot...`)

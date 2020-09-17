@@ -20,7 +20,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         "attachments": "Do you have any other attachments? These are things like images."
     }
     var cancelled = false
-    const filter = m => m == m
+    const filter = m => m == m && m.author.bot == false
     message.author.send("Beginning error report. You can reply with `cancel` to cancel at any time or with `none` if you have no answer.")
     for (var i in reportObject) {
         if (reportObject[i] == 'None' && !cancelled) {
@@ -43,7 +43,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     if (cancelled) {
         return message.author.send("The complaint has been cancelled.")
     }
-    let descriptionString = `From User: ${reportObject.messageAuthor}\nIn guild: ${reportObject.messageGuild}\nCommand: \`${reportObject.messageCommand}\`\nOriginal Link: ${reportObject.originalLink}\nComplaint: \`\`\`${reportObject.messageComplaint}\`\`\`\nProcess:\`\`\`${reportObject.messageProcess}\`\`\`\nImage:`
+    let descriptionString = `From User: ${reportObject.messageAuthor}\nIn guild: ${reportObject.messageGuild}\nCommand: \`${reportObject.messageCommand}\`\nOriginal Link: ${reportObject.originalLink}\nComplaint: \`\`\`${reportObject.messageComplaint}\`\`\`\nProcess:\`\`\`${reportObject.messageProcess}\`\`\`\nImage/Attachments:`
     if (descriptionString.length >= 2048) {
         return message.author.send("Sorry, but your complaint was too long. There is a limit of 2000 characters.")
     }
@@ -51,7 +51,6 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         .setColor("#ff1212")
         .setAuthor(`Error Report by ${message.member.displayName}`, message.author.avatarURL(), reportObject.messageLink)
         .setDescription(descriptionString)
-    console.log(reportObject)
     if (reportObject.attachments != "None") {
         try {
             returnEmbed.setImage(reportObject.attachments)
@@ -62,4 +61,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     }
     var owner = await client.users.fetch(config.dev)
     owner.send(returnEmbed)
+    var reportChannel = message.guild.channels.cache.find(c => c.id == config.channels.command.bugreport)
+    await reportChannel.send(returnEmbed)
+    return true
 }
