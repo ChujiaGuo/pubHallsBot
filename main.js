@@ -471,7 +471,7 @@ client.on("message", async message => {
             }
             suggestionString = [...new Set(suggestionString)]
             suggestionString = suggestionString.join(', ')
-            errorEmbed.setDescription(`There was a problem processing \`$${cmd}\` for the following reason: \n\n\`$${cmd}\` is not a command.\nPerhaps you mean one of these or their aliases?\n${suggestionString}`)
+            errorEmbed.setDescription(`There was a problem processing \`$${cmd}\` for the following reason: \n\nMissing File: \`${e.message.match(/'(.*)'/)[1]}\`.`)
             message.channel.send(errorEmbed)
         } else {
             console.log(e)

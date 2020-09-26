@@ -100,7 +100,11 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 var auth;
                 auth = await commandFile.run(client, user, config.roles.staff.arl);
                 if (!auth) {
-                    user.voice.setChannel(lounge)
+                    try {
+                        user.voice.setChannel(lounge)
+                    }
+                    catch (e) {
+                    }
                 }
             }
         }
