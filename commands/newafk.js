@@ -141,7 +141,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     }
     await message.channel.send(`${raidingChannel.name} has been created. Beginning AFK Check.`)
 
-    await raidingChannel.setUserLimit(config.afksettings.maxinraiding)
+    //await raidingChannel.setUserLimit(config.afksettings.maxinraiding)
 
     //Define Messages and Embeds
     var statusMessage, logMessage, commandMessage
