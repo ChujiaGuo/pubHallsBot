@@ -409,7 +409,7 @@ client.on("message", async message => {
 
     //Check channel
     //Not a command channel
-    let restrictedCommands = ['addalt', 'afk', 'bazaarparse', 'changename', 'clean', 'find', 'kick', 'location', 'lock', 'manualverify', 'manualvetverifiy', 'parsecharacters', 'parsemembers', 'resetafk', 'restart', 'setup', 'suspend', 'unlock', 'unsuspend', 'vetsuspend', 'vetunsuspend']
+    let restrictedCommands = ['addalt', 'afk', 'bazaarparse', 'changename', 'clean', 'kick', 'location', 'lock', 'manualverify', 'manualvetverifiy', 'parsecharacters', 'parsemembers', 'resetafk', 'restart', 'setup', 'suspend', 'unlock', 'unsuspend', 'vetsuspend', 'vetunsuspend']
     let commandArray = Object.values(config.channels.command)
     commandArray.push(config.channels.veteran.control.command)
     commandArray.push(config.channels.normal.control.command)
