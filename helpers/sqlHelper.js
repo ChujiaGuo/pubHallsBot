@@ -51,12 +51,12 @@ module.exports = {
                 db.query(`SELECT * FROM users WHERE id='${userId}'`, (err, rows) => {
                     if (err) throw err;
                     if (rows.length != 0) {
-                        db.end()
                         resolve(rows[0])
+                        db.end()
                     }
                     else {
-                        db.end()
                         reject(false)
+                        db.end()
                     }
                 })
             } catch (e) {
@@ -72,13 +72,14 @@ module.exports = {
                 db.query(`SELECT * FROM modmailblacklist WHERE id='${userId}'`, (err, rows) => {
                     if (err) throw err;
                     if (rows.length != 0) {
-                        db.end()
                         reject(false)
+                        db.end()
                     }
                     else {
-                        db.end()
                         resolve(true)
+                        db.end()
                     }
+                    db.end()
                 })
             } catch (e) {
                 console.log(e)
@@ -94,6 +95,27 @@ module.exports = {
                     if (err) throw err;
                     if (result.affectedRows > 0) {
                         resolve(true)
+                        db.end()
+                    } else {
+                        reject(false)
+                        db.end()
+                    }
+                })
+            } catch (e) {
+                console.log(e)
+            }
+        })
+    },
+    suspendUser: async (suspensionJSON) => {
+        return new Promise((resolve, reject) => {
+            var db = mysql.createConnection(config.dbinfo)
+            db.connect(err => { if (err) throw err })
+            try {
+                db.query(`SELECT * FROM suspensions UNION SELECT * FROM JSON_TABLE('[${JSON.stringify(suspensionJSON)}]', '$[*]' COLUMNS())`, (err, result) => {
+                    console.log(err)
+                    if (err) throw err;
+                    if (result.affectedRows > 0) {
+                        resolve(true)
                     } else {
                         reject(false)
                     }
@@ -102,5 +124,8 @@ module.exports = {
                 console.log(e)
             }
         })
+    },
+    mergeJsonTable: async (json, tableName) => {
+        
     }
 }
