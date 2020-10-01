@@ -11,7 +11,7 @@ exports.run = async (client, message, args, Discord) => {
         let cmd = args.shift().toLowerCase()
         cmd = commands.aliases[cmd] || cmd
         let commandFile = require(`./${cmd}.js`);
-        commandFile.run(client, message, args, Discord, true);
+        return commandFile.run(client, message, args, Discord, true);
     }catch(e){
         
     }

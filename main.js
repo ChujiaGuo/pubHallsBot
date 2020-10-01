@@ -6,10 +6,18 @@ const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION']
 var config = JSON.parse(fs.readFileSync("config.json"))
 var commands = JSON.parse(fs.readFileSync("commands.json"))
 var sqlHelper = require("./helpers/sqlHelper.js");
+var processManager = require("./helpers/processManager.js")
 var confirmationHelper = require("./helpers/confirmationHelper.js")
 var activeDMs = []
 
 client.once("ready", async () => {
+    let processes = JSON.parse(fs.readFileSync('processes.json'))
+    processes.botStatus = "#16c60c"
+    processes.pendingRestart = false
+    processes.activeProcesses = []
+    processes.additionalInfo = ""
+    fs.writeFileSync('processes.json',JSON.stringify(processes))
+    await processManager.updateStatusMessage(client)
     /* var time = Date.now()
     var reset = 86400000 - (time % 86400000)
     setTimeout(async () => {
@@ -264,6 +272,7 @@ client.on("messageReactionAdd", async (r, u) => {
 client.on("message", async message => {
     config = JSON.parse(fs.readFileSync("config.json"))
     commands = JSON.parse(fs.readFileSync("commands.json"))
+    processes = JSON.parse(fs.readFileSync('processes.json'))
 
     //Filters
     //Bot
@@ -272,6 +281,7 @@ client.on("message", async message => {
 
     //Modmail
     if (message.channel.type == "dm" && !activeDMs.includes(message.author.id)) {
+        if(processes.pendingRestart) return message.channel.send("Bot is pending a restart. Please try again later.")
         let allow = await sqlHelper.checkModMailBlacklist(message.author.id).catch(e => e)
         if (allow) {
             activeDMs.push(message.author.id)
@@ -448,9 +458,25 @@ client.on("message", async message => {
             if(cmd=="report"){
                 activeDMs.push(message.author.id)
             }
-            await commandFile.run(client, message, args, Discord);
+            if(processes.pendingRestart) return message.channel.send("Bot is pending a restart. Please try again later.")
+
+            //Log into active processes
+            var processes = JSON.parse(fs.readFileSync('processes.json'))
+            var hidden = args.includes("-hidden") || args.includes("-h") ? true:false
+            processes.activeProcesses.push([message.author.id, cmd, message.url, hidden])
+            fs.writeFileSync('processes.json', JSON.stringify(processes))
+            await processManager.updateStatusMessage(client)
+            //Run Command
+            await commandFile.run(client, message, args, Discord).catch(e => e);
+            //Remove from active processes
+            processes = JSON.parse(fs.readFileSync('processes.json'))
+            processes.activeProcesses.splice(processes.activeProcesses.indexOf([message.author.id, cmd, message.url, hidden]), 1)
+            fs.writeFileSync('processes.json', JSON.stringify(processes))
+            await processManager.updateStatusMessage(client)
+
             activeDMs.splice(activeDMs.indexOf(message.author.id), 1)
         } catch (e) {
+            console.log(e)
             await message.channel.send(`There was an error updating the cache: \`\`\`${e}\`\`\``)
             await message.channel.send(`Restarting the bot...`)
             process.exit(1)
@@ -483,20 +509,29 @@ client.on("message", async message => {
         }
     }
 })
-client.on("error", async error => {
-    var owner = await client.users.fetch(config.dev)
-    let errorEmbed = new Discord.MessageEmbed()
-        .setColor("#ff1212")
-        .setAuthor("Error")
-        .setDescription(`Error Type: ${error.name}\nError Message: ${error.message}\nFull Error Message: ${error.stack}`)
-    await owner.send(errorEmbed)
-})
+
+process.stdin.resume()
 process.on("uncaughtException", async (err) => {
     var owner = await client.users.fetch(config.dev)
     await owner.send(`An uncaught error occured: \`\`\`${err.stack}\`\`\``)
     console.log(err)
-    process.exit(1)
+
+    let processes = JSON.parse(fs.readFileSync('processes.json'))
+    processes.pendingRestart = true;
+    processes.botStatus = "#ff1212"
+    processes.additionalInfo = "Unexpected Restart"
+    fs.writeFileSync("processes.json", JSON.stringify(processes))
+    await processManager.updateStatusMessage(client)
+    restart()
 })
+async function restart() {
+    let processes = JSON.parse(fs.readFileSync('processes.json'))
+    if(processes.activeProcesses.length > 0){
+        let timeout = setTimeout(restart, 5000)
+    }else{
+        process.exit(1)
+    }
+}
 client.login(config.auth)
 async function toTimeString(time) {
     return `${Math.floor(time / 604800000)} Weeks ${Math.floor(time % 604800000) / 86400000} Days`

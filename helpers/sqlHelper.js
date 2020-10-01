@@ -79,7 +79,6 @@ module.exports = {
                         resolve(true)
                         db.end()
                     }
-                    db.end()
                 })
             } catch (e) {
                 console.log(e)
@@ -127,5 +126,23 @@ module.exports = {
     },
     mergeJsonTable: async (json, tableName) => {
         
+    },
+    testConnection: async () => {
+        return new Promise((resolve, reject) => {
+            var db = mysql.createConnection(config.dbinfo)
+            db.connect(err => { if (err) reject('Not Connected')})
+            db.end()
+            resolve('Connected')
+        })
+    },
+    makeError: async () => {
+        return new Promise((resolve, reject) => {
+            let userId = 'asdjfhaskdf'
+            var db = mysql.createConnection(config.dbinfo)
+            db.connect(err => { if (err) reject('Not Connected')})
+            resolve(true)
+            db.end()
+            db.end()
+        })
     }
 }
