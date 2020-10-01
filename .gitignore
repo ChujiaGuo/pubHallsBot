@@ -5,6 +5,7 @@ node_modules/
 /afk.json
 /commands.json
 /currentAfks.json
+/processes.json
 /acceptedleaverequests.json
 /currentleaverequests.json
 oldStuff/
