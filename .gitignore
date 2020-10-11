@@ -8,6 +8,7 @@ node_modules/
 /processes.json
 /acceptedleaverequests.json
 /currentleaverequests.json
+/runTemplates.json
 oldStuff/
 commands/test.js
 commands/oldafk.js

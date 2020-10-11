@@ -28,17 +28,17 @@ module.exports = {
             return e
         }
     },
-    managePoints: async (userId, points, type = 'add') => {
+    managePoints: async (userId, points, type = 'add', multiplier = 1) => {
         return new Promise((resolve, reject) => {
             var db = mysql.createConnection(config.dbinfo)
             db.connect(err => { if (err) reject(err) })
             try {
-                db.query(`UPDATE users SET points ${type=="add"?'= points +':type=="subtract"?'= points -':type=="raw"?"=":"= points +"} ${parseInt(points)} WHERE id=${userId}`, (err, result) => {
+                db.query(`UPDATE users SET points ${type == "add" ? '= points +' : type == "subtract" ? '= points -' : type == "raw" ? "=" : "= points +"} ${parseInt(points) * multiplier} WHERE id=${userId}`, (err, result) => {
                     if (err) reject(err)
                     db.end()
                     resolve(result)
                 })
-            } catch{
+            } catch {
                 return e
             }
         })
@@ -49,7 +49,7 @@ module.exports = {
             db.connect(err => { if (err) throw err })
             try {
                 db.query(`SELECT * FROM users WHERE id='${userId}'`, (err, rows) => {
-                    if (err) throw err;
+                    if (err) throw (err);
                     if (rows.length != 0) {
                         resolve(rows[0])
                         db.end()
@@ -125,12 +125,12 @@ module.exports = {
         })
     },
     mergeJsonTable: async (json, tableName) => {
-        
+
     },
     testConnection: async () => {
         return new Promise((resolve, reject) => {
             var db = mysql.createConnection(config.dbinfo)
-            db.connect(err => { if (err) reject('Not Connected')})
+            db.connect(err => { if (err) reject('Not Connected') })
             db.end()
             resolve('Connected')
         })
@@ -139,7 +139,7 @@ module.exports = {
         return new Promise((resolve, reject) => {
             let userId = 'asdjfhaskdf'
             var db = mysql.createConnection(config.dbinfo)
-            db.connect(err => { if (err) reject('Not Connected')})
+            db.connect(err => { if (err) reject('Not Connected') })
             resolve(true)
             db.end()
             db.end()

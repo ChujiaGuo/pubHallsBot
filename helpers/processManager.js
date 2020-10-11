@@ -66,8 +66,6 @@ module.exports = {
             .addField("Additional Information:", processes.additionalInfo.length > 0 ? processes.additionalInfo : "None")
             .setColor(processes.botStatus)
             .setTimestamp()
-        console.log(processes)
-        console.log(new Date(Date.now()) + ' ' + Date.now())
         return statusEmbed
     },
     clearActiveProcesses: async (client) => {
