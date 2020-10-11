@@ -141,13 +141,13 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         async function manageReactions(r, u) {
             let member = await message.guild.members.resolve(u)
             //❌ React
-            if (r.emoji.name == "❌") {
+            if (r.emoji.id == "764652567296606258") {
                 let permcheck = require(`./permcheck.js`)
                 var auth = await permcheck.run(client, member, commands.settings.afk.permsint)
                 if (auth) endAfk(member)
             }
             //Nitro React
-            else if (r.emoji.name == "shinynitro" || r.emoji.name == "nitro") {
+            else if (r.emoji.id == "shinynitro" || r.emoji.name == "nitro") {
                 //Check Enabled
                 if (!member.roles.cache.has(config.roles.general.nitro) || !["true", "on", "enabled"].includes(config.afksettings.nitrosettings.enabled.toLowerCase())) {
                     return
