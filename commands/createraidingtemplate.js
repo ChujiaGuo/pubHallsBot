@@ -65,7 +65,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             newCollector.on('collect', async m => {
                 await m.delete().catch(e => e)
                 if (m.content.toLowerCase() != 'done') {
-                    if (option == 'color' && !m.content.match(/^#?[a-f1-6]{6}$/gi)) m.content = `Invalid Color Code: ${m.content}`
+                    if (option == 'color' && !m.content.match(/^#?[a-f0-9]{6}$/gi)) m.content = `Invalid Color Code: ${m.content}`
                     else if (option == 'color' && m.content.charAt(0) != "#") m.content = "#" + m.content
                     else if ((option == "max" || option == "earlyLocPrice") && isNaN(m.content)) m.content = `Invalid ${value}: ${m.content} is not a number.`
                     editingEmbed.fields[1].value = m.content
