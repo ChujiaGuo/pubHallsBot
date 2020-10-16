@@ -181,6 +181,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 .setColor(templateBase.color)
                 .setDescription("The template has been closed.")
             await displayMessage.edit(closingEmbed)
+            resolve(true)
         }
         async function save() {
             runTemplates[message.author.id] = templateBase
