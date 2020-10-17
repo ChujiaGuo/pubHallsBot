@@ -5,6 +5,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     return new Promise(async (resolve, reject) => {
         var runTemplates = JSON.parse(fs.readFileSync('runTemplates.json'))
         let templateBase = { "specialReacts": [], "generalReacts": [], "description": "", "name": "", "color": "", "max": "", "emoji": "", "earlyLocPrice": "" }
+        let clear = templateBase
         templateBase = runTemplates[message.author.id] || templateBase
         var optionCollector
         var displayMessage = await displayEmbed()
@@ -15,7 +16,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             let displayEmbed = new Discord.MessageEmbed()
                 .setAuthor("These are your current settings")
                 .setColor(templateBase.color)
-                .setDescription("Respond with `close` to save and exit.\nRespond with `cancel` to exit without saving.\n\nTo edit a field, repond with it's corresponding number.")
+                .setDescription("Respond with `close` to save and exit.\nRespond with `cancel` to exit without saving.\nRespond with `clear` to clear your template.\n\nTo edit a field, respond with it's corresponding number.")
                 .addField("1. Name", templateBase.name || "None")
                 .addField("2. Description", templateBase.description || "None")
                 .addField("3. Special Reacts", await displayEmojis(templateBase.specialReacts, true) || "None")
@@ -38,13 +39,14 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             optionCollector.on('collect', async m => { await m.delete().catch(e => e); await selectOption(m.content) })
         }
         async function selectOption(option) {
-            if ((parseInt(option) >= 1 && parseInt(option) <= 8) || ['close', 'cancel'].includes(option)) {
+            if ((parseInt(option) >= 1 && parseInt(option) <= 8) || ['close', 'cancel', 'clear'].includes(option)) {
                 let options = ['name', 'description', 'specialReacts', 'generalReacts', 'emoji', 'color', 'max', 'earlyLocPrice']
                 let displayValues = ['Name', 'Description', 'Special Reacts', 'Normal Reacts', 'Primary Emoji', 'Color', 'Max Raiders', 'Early Location Price']
                 let index = !isNaN(option) ? (parseInt(option) - 1) : option
 
                 if (index == 'close') { await save(); await close(); }
                 else if (index == 'cancel') { await close() }
+                else if (index == 'clear') { templateBase = clear; displayEmbed(displayMessage) }
                 else if (index >= 2 && index <= 4) { await editEmojis(options[index], displayValues[index]) }
                 else { await editString(options[index], displayValues[index]) }
             } else { displayEmbed(displayMessage) }
@@ -176,7 +178,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 
         }
         async function close() {
-            if(editingMessage) await editingMessage.delete().catch(e => e)
+            if (editingMessage) await editingMessage.delete().catch(e => e)
             let closingEmbed = new Discord.MessageEmbed()
                 .setColor(templateBase.color)
                 .setDescription("The template has been closed.")
