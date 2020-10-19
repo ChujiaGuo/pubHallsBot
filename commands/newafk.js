@@ -12,6 +12,7 @@ var runTypes = {
 }
 var reactions = JSON.parse(fs.readFileSync('runTemplates.json'))
 exports.run = async (client, message, args, Discord, sudo = false) => {
+    if(args.length < 2){return message.channel.send("You are missing some arguments!")}
     var config = JSON.parse(fs.readFileSync('config.json'))
     var commands = JSON.parse(fs.readFileSync('commands.json'))
     var afk = JSON.parse(fs.readFileSync("afk.json"))
