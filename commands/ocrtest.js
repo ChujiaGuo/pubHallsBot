@@ -4,15 +4,6 @@ const ocrClient = new vision.ImageAnnotatorClient()
 
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
-    //Permissions
-    if (!sudo) {
-        let commandFile = require(`./permcheck.js`);
-        var auth = await commandFile.run(client, message.member, 100)
-        if (!auth) {
-            return message.channel.send("You do not have permission to use this command.")
-        }
-    }
-
     var imageURL = args.shift();
     if (imageURL == undefined) {
         if (message.attachments.size == 1) {
@@ -25,5 +16,5 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     var result = await ocrClient.textDetection(imageURL)
     var players = result[0].fullTextAnnotation.text.split(' ').slice(3)
     console.log(result)
-    return message.channel.send(players.join(" "))
+        return message.channel.send(players.join(" "))
 }
