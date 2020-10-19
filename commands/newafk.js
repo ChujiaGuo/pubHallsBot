@@ -2,14 +2,6 @@ const fs = require('fs')
 var sqlHelper = require("../helpers/sqlHelper.js")
 var confirmationHelper = require("../helpers/confirmationHelper.js")
 
-var runTypes = {
-    fsv: 'fullskipvoid',
-    fullskipvoid: 'fullskipvoid',
-    c: 'cult',
-    cult: 'cult',
-    v: 'void',
-    void: 'void'
-}
 var reactions = JSON.parse(fs.readFileSync('runTemplates.json'))
 exports.run = async (client, message, args, Discord, sudo = false) => {
     if(args.length < 2){return message.channel.send("You are missing some arguments!")}
@@ -51,7 +43,8 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         else { afk[origin].afk = true; fs.writeFileSync('afk.json', JSON.stringify(afk)) }
         //Parse Arguments
         var typeArg = args.shift()
-        var runType = runTypes[typeArg] || message.member.id
+        var runType = typeof reactions[typeArg] == 'object' ? typeArg:reactions[typeArg]
+        runType = runType ? runType : message.member.id
         var runLocation = args.join(" ")
 
         if (!runType && !reactions[runType]) { await message.channel.send("Invalid run type"); return reject(false); }
