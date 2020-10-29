@@ -89,7 +89,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
         async function createEmbeds() {
             //Status Embed
-            statusEmbed.setAuthor(`${reactions[runType].name} starting soon in ${raidingChannel.name}`, message.author.avatarURL()).setDescription(`Cult starting soon in ${raidingChannel.name}! Be prepared to join.`)
+            statusEmbed.setAuthor(`${reactions[runType].name} starting soon in ${raidingChannel.name}`, message.author.avatarURL()).setDescription(`${reactions[runType].name} starting soon in ${raidingChannel.name}! Be prepared to join.`)
             statusMessage = await statusChannel.send(`@here ${reactions[runType].name} (${await client.emojis.resolve(reactions[runType].emoji)}) starting in \`${raidingChannel.name}\` in \`${config.afksettings.afkdelay / 1000}\` seconds.`, statusEmbed)
             //Control Embed
             controlEmbed.setDescription(`**[AFK Check](${statusMessage.url}) control panel for \`${raidingChannel.name}\`\nRun Type: \`${reactions[runType].name}\`**`).addField("Location:", runLocation)
