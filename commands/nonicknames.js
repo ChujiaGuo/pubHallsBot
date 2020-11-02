@@ -33,13 +33,13 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     }else{
         await message.channel.send(`The temporary suspended role is undefined.`)
     }
-    if(permaSuspendedRole){
-        var noNicknamePermaSuspended = permaSuspendedRole.members.map(m => m).filter(m => m.nickname == undefined)
-        let permaSuspendedEmbed = new Discord.MessageEmbed()
-            .setColor(permaSuspendedRole.hexColor)
-            .setDescription(`The following people have ${permaSuspendedRole} but no nickname:\n${noNicknamePermaSuspended.join(", ")}`)
-        await message.channel.send(permaSuspendedEmbed)
-    }else{
-        await message.channel.send(`The permanent suspended role is undefined.`)
-    }
+    // if(permaSuspendedRole){
+    //     var noNicknamePermaSuspended = permaSuspendedRole.members.map(m => m).filter(m => m.nickname == undefined)
+    //     let permaSuspendedEmbed = new Discord.MessageEmbed()
+    //         .setColor(permaSuspendedRole.hexColor)
+    //         .setDescription(`The following people have ${permaSuspendedRole} but no nickname:\n${noNicknamePermaSuspended.join(", ")}`)
+    //     await message.channel.send(permaSuspendedEmbed)
+    // }else{
+    //     await message.channel.send(`The permanent suspended role is undefined.`)
+    // }
 }
