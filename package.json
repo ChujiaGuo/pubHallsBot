@@ -11,9 +11,10 @@
     "dependencies": "0.0.1",
     "discord.js": "^12.2.0",
     "file-system": "^2.2.2",
+    "google-spreadsheet": "^3.0.13",
     "js-levenshtein": "^1.1.6",
     "mysql": "^2.18.1",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "opencollective-postinstall": "^2.0.2",
     "tesseract.js": "^2.1.1",
     "updates": "^10.2.13"
