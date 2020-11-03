@@ -9,6 +9,7 @@ var sqlHelper = require("./helpers/sqlHelper.js");
 var processManager = require("./helpers/processManager.js")
 var confirmationHelper = require("./helpers/confirmationHelper.js")
 var activeDMs = []
+var errorHelper = require('./helpers/errorHelper.js')
 
 client.once("ready", async () => {
     let processes = JSON.parse(fs.readFileSync('processes.json'))
@@ -191,7 +192,7 @@ client.on("messageReactionAdd", async (r, u) => {
         } else if (r.emoji.name == "📧") {
             async function response() {
                 return new Promise(async (resolve, reject) => {
-                    let sender = await r.message.guild.members.fetch(r.message.embeds[0].footer.text.split(" ")[2]).catch(e => e)
+                    let sender = await r.message.guild.members.fetch(r.message.embeds[0].footer.text.split(" ")[2]).catch(e => errorHelper.report(message, client, e))
                     let responsePromptEmbed = new Discord.MessageEmbed()
                         .setColor("#30ffea")
                         .setDescription(`__How would you like to respond to ${sender}'s [message](${r.message.url})?__\n${r.message.embeds[0].description.split(" ").slice(4).join(" ").slice(1, -1)}`)
@@ -202,23 +203,23 @@ client.on("messageReactionAdd", async (r, u) => {
                         await m.delete()
                         responsePromptEmbed.setDescription(`__Are you sure you want to respond with the following?__\n${m.content}`)
                         await response.edit(responsePromptEmbed)
-                        let confirmed = await confirmationHelper.confirmMessage(response).catch(e => e)
+                        let confirmed = await confirmationHelper.confirmMessage(response).catch(e => errorHelper.report(message, client, e))
                         if (confirmed) {
                             let responseEmbed = new Discord.MessageEmbed()
                                 .setColor("#30ffea")
                                 .setDescription(`Question: ${r.message.embeds[0].description.split(" ").slice(4).join(" ").slice(1, -1)}\nResponse: ${m.content}`)
                             await sender.send(responseEmbed)
-                            await response.delete().catch(e => e)
+                            await response.delete().catch(e => errorHelper.report(message, client, e))
                             await r.message.edit(r.message.embeds[0].addField(`Response by ${r.message.guild.members.cache.find(m => m.id == u.id).nickname}:`, m.content))
                             resolve(true)
                         } else {
-                            await response.delete().catch(e => e)
+                            await response.delete().catch(e => errorHelper.report(message, client, e))
                             reject(false)
                         }
                     })
                 })
             }
-            let responded = await response().catch(e => e)
+            let responded = await response().catch(e => errorHelper.report(message, client, e))
 
             if (responded) {
                 let embed = r.message.embeds[0]
@@ -231,7 +232,7 @@ client.on("messageReactionAdd", async (r, u) => {
                 await r.message.react("🔑")
             }
         } else if (r.emoji.name == "👀") {
-            let sender = await r.message.guild.members.fetch(r.message.embeds[0].footer.text.split(" ")[2]).catch(e => e)
+            let sender = await r.message.guild.members.fetch(r.message.embeds[0].footer.text.split(" ")[2]).catch(e => errorHelper.report(message, client, e))
             await sender.user.createDM()
             let messageURL = await sender.user.dmChannel.messages.fetch(r.message.embeds[0].footer.text.split(" ")[6])
             let receivedEmbed = new Discord.MessageEmbed()
@@ -252,7 +253,7 @@ client.on("messageReactionAdd", async (r, u) => {
         } else if (r.emoji.name == "❌") {
             await r.message.delete()
         } else if (r.emoji.name == "🔨") {
-            let success = await sqlHelper.modmailBlacklist(r.message.embeds[0].footer.text.split(" ")[2]).catch(e => e)
+            let success = await sqlHelper.modmailBlacklist(r.message.embeds[0].footer.text.split(" ")[2]).catch(e => errorHelper.report(message, client, e))
             if (success != true) {
                 await r.message.channel.send(`<@!${r.message.embeds[0].footer.text.split(" ")[2]}> was not able to be blacklisted.`)
             } else {
@@ -282,7 +283,7 @@ client.on("message", async message => {
     //Modmail
     if (message.channel.type == "dm" && !activeDMs.includes(message.author.id)) {
         if(processes.pendingRestart) return message.channel.send("Bot is pending a restart. Please try again later.")
-        let allow = await sqlHelper.checkModMailBlacklist(message.author.id).catch(e => e)
+        let allow = await sqlHelper.checkModMailBlacklist(message.author.id).catch(e => errorHelper.report(message, client, e))
         if (allow) {
             activeDMs.push(message.author.id)
             let confirmModMailEmbed = new Discord.MessageEmbed()
@@ -373,7 +374,7 @@ client.on("message", async message => {
                             }
                         })
                     }
-                    let guild = await selectGuild().catch(e => e)
+                    let guild = await selectGuild().catch(e => errorHelper.report(message, client, e))
                     activeDMs.splice(activeDMs.indexOf(message.author.id), 1)
                     if (!guild) {
                         return message.channel.send("There was some problem selecting a guild.")
@@ -467,7 +468,7 @@ client.on("message", async message => {
             fs.writeFileSync('processes.json', JSON.stringify(processes))
             await processManager.updateStatusMessage(client)
             //Run Command
-            await commandFile.run(client, message, args, Discord).catch(e => e);
+            await commandFile.run(client, message, args, Discord).catch(e => errorHelper.report(message, client, e));
             //Remove from active processes
             processes = JSON.parse(fs.readFileSync('processes.json'))
             processes.activeProcesses.splice(processes.activeProcesses.indexOf([message.author.id, cmd, message.url, hidden]), 1)

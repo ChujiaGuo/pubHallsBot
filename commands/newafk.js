@@ -1,10 +1,11 @@
 const fs = require('fs')
 var sqlHelper = require("../helpers/sqlHelper.js")
 var confirmationHelper = require("../helpers/confirmationHelper.js")
+var errorHelper = require("../helpers/errorHelper.js")
 
 var reactions = JSON.parse(fs.readFileSync('runTemplates.json'))
 exports.run = async (client, message, args, Discord, sudo = false) => {
-    if(args.length < 2){return message.channel.send("You are missing some arguments!")}
+    if (args.length < 2) { return message.channel.send("You are missing some arguments!") }
     var config = JSON.parse(fs.readFileSync('config.json'))
     var commands = JSON.parse(fs.readFileSync('commands.json'))
     var afk = JSON.parse(fs.readFileSync("afk.json"))
@@ -43,7 +44,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         else { afk[origin].afk = true; fs.writeFileSync('afk.json', JSON.stringify(afk)) }
         //Parse Arguments
         var typeArg = args.shift()
-        var runType = typeof reactions[typeArg] == 'object' ? typeArg:reactions[typeArg]
+        var runType = typeof reactions[typeArg] == 'object' ? typeArg : reactions[typeArg]
         runType = runType ? runType : message.member.id
         var runLocation = args.join(" ")
 
@@ -52,7 +53,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         //Retrieve Channels and Validity
         var [baseChannel, statusChannel, runLogChannel, logChannel, lounge] = await fetchChannels(origin)
         if ([baseChannel, statusChannel, runLogChannel, logChannel, lounge].some(e => !e)) { await message.channel.send("Cannot start afk check due to a config error. Please have a moderator check the following in setup:\nclone, control.status, channellog"); return reject(false) }
-        var raidingChannel = await createRaidingChannel(baseChannel, lounge, origin).catch(e => console.log(e))
+        var raidingChannel = await createRaidingChannel(baseChannel, lounge, origin).catch(e => errorHelper.report(message, client, e))
         await message.channel.send(`${raidingChannel} has been created. Beginning AFK check in ${config.afksettings.afkdelay / 1000} seconds.`)
         var statusMessage, logMessage, commandMessage
         var statusEmbed = new Discord.MessageEmbed().setColor(reactions[runType].color), controlEmbed = new Discord.MessageEmbed().setColor(reactions[runType].color)
@@ -81,7 +82,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             var raidingChannel = await base.clone({ name: `${message.member.nickname.replace(/[^a-z|]/gi, "").split("|")[0]}'s ${reactions[runType].name}`, parent: message.channel.parent.id })
             await raidingChannel.setPosition(lounge.position)
             if (reactions[runType].max.length > 0) {
-                try { await raidingChannel.setUserLimit(parseInt(reactions[runType].max)) } catch (e) { console.log(e) }
+                try { await raidingChannel.setUserLimit(parseInt(reactions[runType].max)) } catch (e) { errorHelper.report(message, client, e) }
             }
             //Permissions
             if (origin == 100) { await raidingChannel.updateOverwrite(config.roles.general.vetraider, { VIEW_CHANNEL: true, CONNECT: null }) } else if (origin == 10) { await raidingChannel.updateOverwrite(config.roles.general.raider, { VIEW_CHANNEL: true }) }
@@ -119,17 +120,17 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             for (var r in reactions[runType].specialReacts) {
                 try {
                     await statusMessage.react(reactions[runType].specialReacts[r])
-                } catch (e) { console.log(e) }
+                } catch (e) { errorHelper.report(message, client, e) }
             }
             for (var r in reactions[runType].generalReacts) {
                 try {
                     await statusMessage.react(reactions[runType].generalReacts[r])
-                } catch (e) { console.log(e) }
+                } catch (e) { errorHelper.report(message, client, e) }
             }
             for (var r in reactions.general.reacts) {
                 try {
                     await statusMessage.react(reactions.general.reacts[r])
-                } catch (e) { console.log(e) }
+                } catch (e) { errorHelper.report(message, client, e) }
             }
         }
         async function manageReactions(r, u) {
@@ -168,7 +169,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             if (reactions.general.reacts.includes(r.emoji.id) || reactions.general.reacts.includes(r.emoji.name)) {
                 if (afk[origin].earlyLocationIds.includes(member.id)) { return member.send("You have already obtained early location from this or another means.") }
                 let user = await sqlHelper.retrieveUser(member.id)
-                if(user.points < reactions[runType].earlyLocPrice){return member.send("You do not have enough points to use this feature.")}
+                if (user.points < reactions[runType].earlyLocPrice) { return member.send("You do not have enough points to use this feature.") }
                 let confirmationMessage = await member.send(`You currently have ${user.points} points. Would you like to use ${reactions[runType].earlyLocPrice} points for early location?`)
                 let result = await confirmationHelper.confirmMessage(confirmationMessage).catch(e => e)
                 if (result) {
@@ -214,7 +215,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
         async function moveIn(user, channel, nitro) {
             if (user.voice.channel && user.voice.channelID != channel.id) {
-                try { await user.voice.setChannel(channel); await user.send(`You have been moved into \`${channel.name}\``); if (nitro) { nitroCounter += 1; nitroArray.push(user.id); await sqlHelper.editUser("users", user.id, "lastnitrouse", `${Date.now()}`).catch(e => console.log(e)) } } catch (e) { message.channel.send(`${user} reacted with nitro, but they could not be moved in.`) }
+                try { await user.voice.setChannel(channel); await user.send(`You have been moved into \`${channel.name}\``); if (nitro) { nitroCounter += 1; nitroArray.push(user.id); await sqlHelper.editUser("users", user.id, "lastnitrouse", `${Date.now()}`).catch(e => errorHelper.report(message, client, e)) } } catch (e) { message.channel.send(`${user} reacted with nitro, but they could not be moved in.`) }
             } else if (!user.voice.channel) {
                 let dragMessage = await user.send("You are not currently in a Voice Channel. Once you have joined any voice channel, react to the ✅ to get moved in to the voice channel. You can cancel at any time by reacting to the ❌.")
                 await dragMessage.react("✅")
@@ -226,10 +227,10 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                         try {
                             await user.voice.setChannel(channel)
                             await dragMessage.edit("You have successfully been dragged in to the voice channel.")
-                            if (nitro) { nitroCounter += 1; nitroArray.push(user.id); await sqlHelper.editUser("users", user.id, "lastnitrouse", `${Date.now()}`).catch(e => console.log(e)) }
+                            if (nitro) { nitroCounter += 1; nitroArray.push(user.id); await sqlHelper.editUser("users", user.id, "lastnitrouse", `${Date.now()}`).catch(e => errorHelper.report(message, client, e)) }
                             dragCollector.stop()
                         } catch (e) {
-                            console.log(e)
+                            errorHelper.report(message, client, e)
                             await dragMessage.edit("The attempt to drag you in was unsuccessful. Please unreact and try again.")
                         }
                     } else if (r.emoji.name == "❌") {
@@ -263,12 +264,11 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             await raidingChannel.updateOverwrite(config.roles.general.vetraider, {
                 CONNECT: false
             })
-            await raidingChannel.edit({ position: raidingChannel.parent.children.filter(c => c.type == "voice").size - 1 }).catch(e => console.log(e))
+            await raidingChannel.edit({ position: raidingChannel.parent.children.filter(c => c.type == "voice").size - 1 }).catch(e => errorHelper.report(message, client, e))
             //Log Key Pop/Points
-            let keyId = controlEmbed.fields.find(f => f.name.includes("lhkey")).value.substring(controlEmbed.fields.find(f => f.name.includes('key')).value.indexOf(": ")).replace(/[^0-9]/gi, "")
-            if (keyId.length > 0) { await sqlHelper.editUser("users", keyId, "keypops", 1); await sqlHelper.managePoints(keyId, 5, 'add', message.guild.members.cache.find(m => m.id == keyId).roles.cache.has(config.roles.general.nitro) ? 2 : 1) }
+            try { let keyId = controlEmbed.fields.find(f => f.name.includes("lhkey")).value.substring(controlEmbed.fields.find(f => f.name.includes('key')).value.indexOf(": ")).replace(/[^0-9]/gi, ""); if (keyId.length > 0) { await sqlHelper.editUser("users", keyId, "keypops", 1); await sqlHelper.managePoints(keyId, 5, 'add', message.guild.members.cache.find(m => m.id == keyId).roles.cache.has(config.roles.general.nitro) ? 2 : 1) } } catch (e) { errorHelper.report(message, client, e) }
             //Log Runs
-            raidingChannel.members.each(async m => { await sqlHelper.editUser("users", m.id, (runType != "void" && runType != "cult") ? `eventruns` : `${runType}Runs`, 1) })
+            try { raidingChannel.members.each(async m => { await sqlHelper.editUser("users", m.id, (runType != "void" && runType != "cult") ? `eventruns` : `${runType}Runs`, 1) }) } catch (e) { errorHelper.report(message, client, e) }
             //Delete Message
             let runEmbed = new Discord.MessageEmbed().setColor(reactions[runType].color).setAuthor(`${reactions[runType].name} by ${message.member.displayName.replace(/[^a-z|]/gi, "").split("|")[0]}`).setDescription(`Once your run is complete, react with the ❌ to delete your channel.`).setFooter("Run started at ").setTimestamp()
             let runMessage = await runLogChannel.send(`${message.member}`, runEmbed)
