@@ -21,6 +21,7 @@ exports.run = async (client, message, args, Discord) => {
                     return text;
             }
             let code = clean(args.join(" "))
+            await message.channel.send(`Running: \`${code}\``)
             try{
                 return eval(code)
             }catch(e){
