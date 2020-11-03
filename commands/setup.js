@@ -27,7 +27,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 if (typeof currentLocation[i] == "object") {
                     descriptionString += `\`${i}\` = \`{Object}\`\n\n`
                 } else if (typeof currentLocation[i] == "string" || typeof currentLocation[i] == "number") {
-                    if (i != 'auth' && i != 'dev') {
+                    if (i != 'auth' && i != 'dev' && i != 'errorLog') {
                         descriptionString += `\`${i}\` = \`${currentLocation[i]}\`\n\n`
                     }
                 }
