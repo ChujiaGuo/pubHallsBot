@@ -106,7 +106,7 @@ client.on("messageReactionAdd", async (r, u) => {
     if (u.bot) return;
     if (r.partial) await r.fetch().catch(e => console.log(e))
     let messageReactionAdd = require('./events/messageReactionAdd.js')
-    await messageReactionAdd.run(r.message, client, r, u).catch(e => e.toString().includes('Error') ? errorHelper.report(r.message, client, e) : e)
+    await messageReactionAdd.run(client, r.message, Discord, r, u).catch(e => e.toString().includes('Error') ? errorHelper.report(r.message, client, e) : e)
 })
 client.on("message", async message => {
     config = JSON.parse(fs.readFileSync("config.json"))

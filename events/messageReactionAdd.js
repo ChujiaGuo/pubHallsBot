@@ -1,7 +1,8 @@
 const fs = require('fs')
 const errorHelper = require('../helpers/errorHelper.js')
+const confirmationHelper = require("../helpers/confirmationHelper.js")
 
-exports.run = async (message, client, reaction, user) => {
+exports.run = async (client, message, Discord, reaction, user) => {
     const config = require('../config.json')
     return new Promise(async (resolve, reject) => {
         //Retriving related JSONs
