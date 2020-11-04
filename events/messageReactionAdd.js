@@ -1,6 +1,7 @@
 const fs = require('fs')
 const errorHelper = require('../helpers/errorHelper.js')
 const confirmationHelper = require("../helpers/confirmationHelper.js")
+const sqlHelper = require("../helpers/sqlHelper.js")
 
 exports.run = async (client, message, Discord, reaction, user) => {
     const config = require('../config.json')
@@ -158,7 +159,7 @@ exports.run = async (client, message, Discord, reaction, user) => {
                 await reaction.message.reactions.removeAll()
                 await reaction.message.react("🗑️")
             } else if (reaction.emoji.name == "❌") {
-                await reaction.message.delete()
+                await reaction.message.delete().catch(e => errorHelper.report(message, client, e))
             } else if (reaction.emoji.name == "🔨") {
                 let success = await sqlHelper.modmailBlacklist(reaction.message.embeds[0].footer.text.split(" ")[2]).catch(e => errorHelper.report(message, client, e))
                 if (success != true) {
