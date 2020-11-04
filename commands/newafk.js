@@ -253,7 +253,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             //Edit Messages
             controlEmbed = commandMessage.embeds[0]
             controlEmbed.setFooter(member ? `This AFK Check has been ended by ${member.displayName}` : `This AFK Check has ended automatically.`)
-            statusEmbed.setDescription(`This afk check has ended. We are currently running with ${raidingChannel.members.map(u => u.id).length} raiders.\nIf you missed this run, another will be starting shortly.\nIf you get disconnected from the voice channel, send \`&join\` in any commands channel.`).setFooter(member ? `This AFK Check has been ended by ${member.displayName}` : `This AFK Check has ended automatically.`).setTimestamp()
+            statusEmbed.setDescription(`This afk check has ended. We are currently running with ${raidingChannel.members.map(u => u.id).length} raiders.\nIf you missed this run, another will be starting shortly.\nIf you get disconnected from the voice channel, send \`${config.prefix}join\` in any commands channel.`).setFooter(member ? `This AFK Check has been ended by ${member.displayName}` : `This AFK Check has ended automatically.`).setTimestamp()
             await commandMessage.edit(controlEmbed).then(m => m.reactions.removeAll())
             await logMessage.edit(controlEmbed)
             await statusMessage.edit("", statusEmbed)
