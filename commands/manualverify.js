@@ -50,8 +50,21 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             return message.channel.send(`Missing Permissions: \`Set Nickname\``)
         }
 
-        let logChannel = message.guild.channels.cache.find(c => c.id == config.channels.log.mod)
-        await logChannel.send(`<@!${user.id}> has been verified by <@!${message.author.id}>`)
+        try {
+            let logChannel = message.guild.channels.cache.find(c => c.id == config.channels.log.mod)
+            var logEmbed = new Discord.MessageEmbed()
+                .setColor("#41f230")
+                .setTitle("Manual Verification")
+                .setDescription(`Manually Verified: \n\`${user.nickname}\` <@!${user.id}>`)
+                .addField(`User's Server Name: \`${user.nickname}\``, `<@!${user.id}> (Username: ${user.user.username})`, true)
+                .addField(`Mod's Server Name: \`${message.member.nickname}\``, `<@!${message.member.id}> (Username: ${message.member.user.username})`, true)
+                .setTimestamp()
+            await logChannel.send(logEmbed)
+            await message.channel.send(`Name Changed for: <@!${user.id}>`)
+            await user.setNickname(newName)
+        } catch (e) {
+            return message.channel.send(`For the following reason, I do not have permission to manually verify this user: \`\`\`${e}\`\`\``)
+        }
         message.channel.send("Manual Verification Success")
     }
     catch (e) {
