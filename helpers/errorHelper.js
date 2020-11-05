@@ -37,6 +37,7 @@ module.exports = {
         let errorFormat = `Command: ${message.content.split(' ')[0].substring(1)} | Error: ${error.toString()} | Time: ${Date.now()}\n`
         errorLog += errorFormat
         console.log(errorFormat)
+        console.log(error)
         fs.writeFileSync(config.errorLog, errorLog)
     }
 }
