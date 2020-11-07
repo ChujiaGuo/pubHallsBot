@@ -193,7 +193,7 @@ client.on("message", async message => {
             await processManager.updateStatusMessage(client)
 
             //Run Command
-            await commandFile.run(client, message, args, Discord).catch(e => errorHelper.report(message, client, e));
+            await commandFile.run(client, message, args, Discord).catch(e => e && errorHelper.report(message, client, e));
 
             //Remove from active processes
             processes = JSON.parse(fs.readFileSync('processes.json'))

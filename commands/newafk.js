@@ -97,8 +97,8 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             for (var r in reactions[runType].specialReacts) {
                 controlEmbed.addField(`People who reacted with ${await client.emojis.resolve(reactions[runType].specialReacts[r])}:`, "None")
             }
-            for (var r in reactions.general.reacts.slice(5, -1)) {
-                controlEmbed.addField(`People who reacted with ${await client.emojis.resolve(reactions.general.reacts.slice(5, -1)[r]) || reactions.general.reacts.slice(5, -1)[r]}:`, "None")
+            for (var r in reactions.global.special) {
+                controlEmbed.addField(`People who reacted with ${await client.emojis.resolve(reactions.global.special[r]) || reactions.global.special[r]}:`, "None")
             }
             commandMessage = await message.channel.send(controlEmbed.setFooter("React with ❌ to abort this AFK check."))
             await commandMessage.react("❌")
@@ -109,7 +109,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         async function createCollectors() {
             controlCollector = commandMessage.createReactionCollector((r, u) => !u.bot && r.emoji.name == "❌", { max: 1 })
             controlCollector.on('collect', async (r, u) => { await abortAfk(u); })
-            afkCollector = statusMessage.createReactionCollector((r, u) => !u.bot && reactions[runType].specialReacts.concat(reactions.general.reacts.slice(4)).includes(r.emoji.id || r.emoji.name))
+            afkCollector = statusMessage.createReactionCollector((r, u) => !u.bot && reactions[runType].specialReacts.concat(reactions.global.special).includes(r.emoji.id || r.emoji.name))
             afkCollector.on('collect', async (r, u) => { await manageReactions(r, u) })
         }
         async function addReactions() {
@@ -117,20 +117,17 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             await raidingChannel.updateOverwrite(config.roles.general.raider, { CONNECT: true })
             statusEmbed.setAuthor(`${reactions[runType].name} started in ${raidingChannel.name}`, message.author.avatarURL()).setDescription(reactions[runType].description).setFooter(`Time Remaining: ${Math.floor(config.afksettings.afktime / 60000)} Minute(s) ${(config.afksettings.afktime % 60000) / 1000} Seconds`)
             await statusMessage.edit(`@here ${reactions[runType].name} (${await client.emojis.resolve(reactions[runType].emoji)}) started by ${message.author} in \`${raidingChannel.name}\`.`, statusEmbed)
-            for (var r in reactions[runType].specialReacts) {
-                try {
-                    await statusMessage.react(reactions[runType].specialReacts[r])
-                } catch (e) { errorHelper.report(message, client, e) }
+            for (var r in reactions[runType].specialReacts) { //Custom Special
+                try { await statusMessage.react(reactions[runType].specialReacts[r]) } catch (e) { errorHelper.report(message, client, e) }
             }
-            for (var r in reactions[runType].generalReacts) {
-                try {
-                    await statusMessage.react(reactions[runType].generalReacts[r])
-                } catch (e) { errorHelper.report(message, client, e) }
+            for (var r in reactions[runType].generalReacts) { //Custom Normal
+                try { await statusMessage.react(reactions[runType].generalReacts[r]) } catch (e) { errorHelper.report(message, client, e) }
             }
-            for (var r in reactions.general.reacts) {
-                try {
-                    await statusMessage.react(reactions.general.reacts[r])
-                } catch (e) { errorHelper.report(message, client, e) }
+            for (var r in reactions.global.general) { //Global Normal
+                try { await statusMessage.react(reactions.global.general[r]) } catch (e) { errorHelper.report(message, client, e) }
+            }
+            for (var r in reactions.global.special) { //Global Special
+                try { await statusMessage.react(reactions.global.special[r]) } catch (e) { errorHelper.report(message, client, e) }
             }
         }
         async function manageReactions(r, u) {
@@ -142,7 +139,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 if (auth) endAfk(member)
             }
             //Nitro React
-            else if (r.emoji.id == "shinynitro" || r.emoji.name == "nitro") {
+            else if (r.emoji.id == "703409258129129482") {
                 //Check Enabled
                 if (!member.roles.cache.has(config.roles.general.nitro) || !["true", "on", "enabled"].includes(config.afksettings.nitrosettings.enabled.toLowerCase())) {
                     return
@@ -164,26 +161,28 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
         async function confirmReaction(r, member) {
             afk = JSON.parse(fs.readFileSync("afk.json"))
-            if (r.emoji.name.toLowerCase() == "utcloakoftheplanewalker" && !member.roles.cache.has(config.roles.general.rusher)) { return }
-            //General Reacts (Ticket)
-            if (reactions.general.reacts.includes(r.emoji.id) || reactions.general.reacts.includes(r.emoji.name)) {
-                if (afk[origin].earlyLocationIds.includes(member.id)) { return member.send("You have already obtained early location from this or another means.") }
-                let user = await sqlHelper.retrieveUser(member.id)
-                if (user.points < reactions[runType].earlyLocPrice) { return member.send("You do not have enough points to use this feature.") }
-                let confirmationMessage = await member.send(`You currently have ${user.points} points. Would you like to use ${reactions[runType].earlyLocPrice} points for early location?`)
-                let result = await confirmationHelper.confirmMessage(confirmationMessage).catch(e => e)
-                if (result) {
-                    controlEmbed = commandMessage.embeds[0]
-                    await sqlHelper.managePoints(member.id, reactions[runType].earlyLocPrice, "subtract")
-                    controlEmbed.fields.find(f => f.name.includes(r.emoji)).value = controlEmbed.fields.find(f => f.name.includes(r.emoji)).value.split(", ").filter(n => n != 'None').concat(`<@!${member.id}>`).join(", ")
-                    await commandMessage.edit(controlEmbed)
-                    await logMessage.edit(controlEmbed)
-                    await giveLocation(member)
-                } else {
-                    await confirmationMessage.edit("The process has been cancelled.")
+            if (r.emoji.name.toLowerCase().includes("planewalker") && !member.roles.cache.has(config.roles.general.rusher)) { return }
+            //Global Special Reacts
+            if (reactions.global.special.includes(r.emoji.id) || reactions.global.special.includes(r.emoji.name)) {
+                if (r.emoji.id == '764652567103275028') { //Ticket
+                    if (afk[origin].earlyLocationIds.includes(member.id)) { return member.send("You have already obtained early location from this or another means.") }
+                    let user = await sqlHelper.retrieveUser(member.id)
+                    if (user.points < reactions[runType].earlyLocPrice) { return member.send("You do not have enough points to use this feature.") }
+                    let confirmationMessage = await member.send(`You currently have ${user.points} points. Would you like to use ${reactions[runType].earlyLocPrice} points for early location?`)
+                    let result = await confirmationHelper.confirmMessage(confirmationMessage).catch(e => e)
+                    if (result) {
+                        controlEmbed = commandMessage.embeds[0]
+                        await sqlHelper.managePoints(member.id, reactions[runType].earlyLocPrice, "subtract")
+                        controlEmbed.fields.find(f => f.name.includes(r.emoji)).value = controlEmbed.fields.find(f => f.name.includes(r.emoji)).value.split(", ").filter(n => n != 'None').concat(`<@!${member.id}>`).join(", ")
+                        await commandMessage.edit(controlEmbed)
+                        await logMessage.edit(controlEmbed)
+                        await giveLocation(member)
+                    } else {
+                        await confirmationMessage.edit("The process has been cancelled.")
+                    }
                 }
             }
-            //Specialized Reacts
+            //Custom Special Reacts
             else {
                 controlEmbed = commandMessage.embeds[0]
                 let confirmationMessage = await member.send(`You have reacted with ${r.emoji} (${r.emoji.name}). If you actually plan on bringing and using a ${r.emoji}, react with the ✅. If this was an accident, or you don't want to bring and use the ${r.emoji}, react with the ❌.`)
