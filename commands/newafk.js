@@ -162,24 +162,22 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         async function confirmReaction(r, member) {
             afk = JSON.parse(fs.readFileSync("afk.json"))
             if (r.emoji.name.toLowerCase().includes("planewalker") && !member.roles.cache.has(config.roles.general.rusher)) { return }
-            //Global Special Reacts
-            if (reactions.global.special.includes(r.emoji.id) || reactions.global.special.includes(r.emoji.name)) {
-                if (r.emoji.id == '764652567103275028') { //Ticket
-                    if (afk[origin].earlyLocationIds.includes(member.id)) { return member.send("You have already obtained early location from this or another means.") }
-                    let user = await sqlHelper.retrieveUser(member.id)
-                    if (user.points < reactions[runType].earlyLocPrice) { return member.send("You do not have enough points to use this feature.") }
-                    let confirmationMessage = await member.send(`You currently have ${user.points} points. Would you like to use ${reactions[runType].earlyLocPrice} points for early location?`)
-                    let result = await confirmationHelper.confirmMessage(confirmationMessage).catch(e => e)
-                    if (result) {
-                        controlEmbed = commandMessage.embeds[0]
-                        await sqlHelper.managePoints(member.id, reactions[runType].earlyLocPrice, "subtract")
-                        controlEmbed.fields.find(f => f.name.includes(r.emoji)).value = controlEmbed.fields.find(f => f.name.includes(r.emoji)).value.split(", ").filter(n => n != 'None').concat(`<@!${member.id}>`).join(", ")
-                        await commandMessage.edit(controlEmbed)
-                        await logMessage.edit(controlEmbed)
-                        await giveLocation(member)
-                    } else {
-                        await confirmationMessage.edit("The process has been cancelled.")
-                    }
+            //Ticket React
+            if (r.emoji.id == '764652567103275028') { //Ticket
+                if (afk[origin].earlyLocationIds.includes(member.id)) { return member.send("You have already obtained early location from this or another means.") }
+                let user = await sqlHelper.retrieveUser(member.id)
+                if (user.points < reactions[runType].earlyLocPrice) { return member.send("You do not have enough points to use this feature.") }
+                let confirmationMessage = await member.send(`You currently have ${user.points} points. Would you like to use ${reactions[runType].earlyLocPrice} points for early location?`)
+                let result = await confirmationHelper.confirmMessage(confirmationMessage).catch(e => e)
+                if (result) {
+                    controlEmbed = commandMessage.embeds[0]
+                    await sqlHelper.managePoints(member.id, reactions[runType].earlyLocPrice, "subtract")
+                    controlEmbed.fields.find(f => f.name.includes(r.emoji)).value = controlEmbed.fields.find(f => f.name.includes(r.emoji)).value.split(", ").filter(n => n != 'None').concat(`<@!${member.id}>`).join(", ")
+                    await commandMessage.edit(controlEmbed)
+                    await logMessage.edit(controlEmbed)
+                    await giveLocation(member)
+                } else {
+                    await confirmationMessage.edit("The process has been cancelled.")
                 }
             }
             //Custom Special Reacts
