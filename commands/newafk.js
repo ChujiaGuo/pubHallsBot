@@ -60,13 +60,14 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         var controlCollector, afkCollector
         await createEmbeds()
         await createCollectors()
+        await addReactions()
         //Begins AFK
         //Timing Events
         var timeleft = config.afksettings.afktime
         //Edit AFK every 5 seconds
         var afkEdit = setTimeout(async () => { afkEdit = setInterval(async () => { timeleft -= 5000; statusEmbed.setFooter(`Time Remaining: ${Math.floor(timeleft / 60000)} Minutes ${(timeleft % 60000) / 1000} Seconds`); await statusMessage.edit(statusEmbed) }, 5000) }, config.afksettings.afkdelay)
         var endAfkTimeout = setTimeout(endAfk, config.afksettings.afkdelay + config.afksettings.afktime)
-        setTimeout(addReactions, parseInt(config.afksettings.afkdelay))
+        var opened = false;
         //Define Functions
         async function fetchChannels(origin) {
             //Retrieve IDs
@@ -89,44 +90,52 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             return raidingChannel
         }
         async function createEmbeds() {
+            let specialReacts = reactions[runType].specialReacts.concat(reactions.global.special)
+            let specialReactsResolved = specialReacts.map(id => client.emojis.cache.find(e => e.id == id))
             //Status Embed
-            statusEmbed.setAuthor(`${reactions[runType].name} starting soon in ${raidingChannel.name}`, message.author.avatarURL()).setDescription(`${reactions[runType].name} starting soon in ${raidingChannel.name}! Be prepared to join.`)
-            statusMessage = await statusChannel.send(`@here ${reactions[runType].name} (${await client.emojis.resolve(reactions[runType].emoji)}) starting in \`${raidingChannel.name}\` in \`${config.afksettings.afkdelay / 1000}\` seconds.`, statusEmbed)
+            statusEmbed.setAuthor(`${reactions[runType].name} starting soon in ${raidingChannel.name}`, message.author.avatarURL()).setDescription(`${reactions[runType].name} starting soon in ${raidingChannel.name}!\nIf you have any of the following, please react now to get moved in. You will not be able to react once the afk has started.\n\n${specialReactsResolved.join("")}`)
+            statusMessage = await statusChannel.send(`@here <@&${runType=='cult'?'787198010748567562':runType.includes('void')?'787198246111805440':''}> ${reactions[runType].name} (${await client.emojis.resolve(reactions[runType].emoji)}) starting in \`${raidingChannel.name}\` in \`${config.afksettings.afkdelay / 1000}\` seconds.`, statusEmbed)
             //Control Embed
             controlEmbed.setDescription(`**[AFK Check](${statusMessage.url}) control panel for \`${raidingChannel.name}\`\nRun Type: \`${reactions[runType].name}\`**`).addField("Location:", runLocation)
-            for (var r in reactions[runType].specialReacts) {
-                controlEmbed.addField(`People who reacted with ${await client.emojis.resolve(reactions[runType].specialReacts[r])}:`, "None")
+            for (var r in specialReactsResolved) {
+                controlEmbed.addField(`People who reacted with ${specialReactsResolved[r]}:`, "None")
             }
-            for (var r in reactions.global.special) {
-                controlEmbed.addField(`People who reacted with ${await client.emojis.resolve(reactions.global.special[r]) || reactions.global.special[r]}:`, "None")
-            }
-            commandMessage = await message.channel.send(controlEmbed.setFooter("React with ❌ to abort this AFK check."))
+
+            commandMessage = await message.channel.send(controlEmbed.setFooter("React with 🔓 to open the channel. React with ❌ to abort this AFK check."))
+            await commandMessage.react("🔓")
             await commandMessage.react("❌")
             logMessage = await logChannel.send(controlEmbed)
             afk[origin] = { afk: true, location: runLocation, statusMessageId: statusMessage.id, infoMessageId: logMessage.id, commandMessageId: commandMessage.id, earlyLocationIds: [] }
             fs.writeFileSync('afk.json', JSON.stringify(afk))
         }
         async function createCollectors() {
-            controlCollector = commandMessage.createReactionCollector((r, u) => !u.bot && r.emoji.name == "❌", { max: 1 })
-            controlCollector.on('collect', async (r, u) => { await abortAfk(u); })
+            controlCollector = commandMessage.createReactionCollector((r, u) => !u.bot && (r.emoji.name == "❌" || r.emoji.name == "🔓"), { max: 2 })
+            controlCollector.on('collect', async (r, u) => { if (r.emoji.name == "🔓") { await openChannel(); } else { await abortAfk(u); } })
             afkCollector = statusMessage.createReactionCollector((r, u) => !u.bot && reactions[runType].specialReacts.concat(reactions.global.special).includes(r.emoji.id || r.emoji.name))
             afkCollector.on('collect', async (r, u) => { await manageReactions(r, u) })
         }
-        async function addReactions() {
-            if (statusEmbed.description == "This afk check has been aborted.") return;
+        async function openChannel() {
+            opened = true;
+            await statusChannel.send(`The run in ${raidingChannel} is now open!`)
             await raidingChannel.updateOverwrite(config.roles.general.raider, { CONNECT: true })
-            statusEmbed.setAuthor(`${reactions[runType].name} started in ${raidingChannel.name}`, message.author.avatarURL()).setDescription(reactions[runType].description).setFooter(`Time Remaining: ${Math.floor(config.afksettings.afktime / 60000)} Minute(s) ${(config.afksettings.afktime % 60000) / 1000} Seconds`)
-            await statusMessage.edit(`@here ${reactions[runType].name} (${await client.emojis.resolve(reactions[runType].emoji)}) started by ${message.author} in \`${raidingChannel.name}\`.`, statusEmbed)
-            for (var r in reactions[runType].specialReacts) { //Custom Special
-                try { await statusMessage.react(reactions[runType].specialReacts[r]) } catch (e) { errorHelper.report(message, client, e) }
-            }
+            statusEmbed.setDescription(reactions[runType].description)
+            await statusMessage.edit(statusEmbed)
             for (var r in reactions[runType].generalReacts) { //Custom Normal
                 try { await statusMessage.react(reactions[runType].generalReacts[r]) } catch (e) { errorHelper.report(message, client, e) }
             }
             for (var r in reactions.global.general) { //Global Normal
                 try { await statusMessage.react(reactions.global.general[r]) } catch (e) { errorHelper.report(message, client, e) }
             }
-            for (var r in reactions.global.special) { //Global Special
+            await statusMessage.react(reactions.global.special[reactions.global.special.length-1])
+        }
+        async function addReactions() {
+            if (statusEmbed.description == "This afk check has been aborted.") return;
+            statusEmbed.setAuthor(`${reactions[runType].name} started in ${raidingChannel.name}`, message.author.avatarURL()).setFooter(`Time Remaining: ${Math.floor(config.afksettings.afktime / 60000)} Minute(s) ${(config.afksettings.afktime % 60000) / 1000} Seconds`)
+            await statusMessage.edit(`@here <@&${runType=='cult'?'787198010748567562':runType.includes('void')?'787198246111805440':''}> ${reactions[runType].name} (${await client.emojis.resolve(reactions[runType].emoji)}) started by ${message.author} in \`${raidingChannel.name}\`.`, statusEmbed)
+            for (var r in reactions[runType].specialReacts) { //Custom Special
+                try { await statusMessage.react(reactions[runType].specialReacts[r]) } catch (e) { errorHelper.report(message, client, e) }
+            }
+            for (var r in reactions.global.special.slice(0,-1)) { //Global Special
                 try { await statusMessage.react(reactions.global.special[r]) } catch (e) { errorHelper.report(message, client, e) }
             }
         }
@@ -139,7 +148,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 if (auth) endAfk(member)
             }
             //Nitro React
-            else if (r.emoji.id == "703409258129129482") {
+            else if (r.emoji.id == "703409258129129482" && !opened) {
                 //Check Enabled
                 if (!member.roles.cache.has(config.roles.general.nitro) || !["true", "on", "enabled"].includes(config.afksettings.nitrosettings.enabled.toLowerCase())) {
                     return
@@ -157,7 +166,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 
             }
             //Other Reacts + Ticket
-            else { confirmReaction(r, member) }
+            else if(!opened){ confirmReaction(r, member) }
         }
         async function confirmReaction(r, member) {
             afk = JSON.parse(fs.readFileSync("afk.json"))
@@ -195,6 +204,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     await commandMessage.edit(controlEmbed)
                     await logMessage.edit(controlEmbed)
                     await giveLocation(member)
+                    await moveIn(member, raidingChannel)
                 } else {
                     await confirmationMessage.edit("The process has been cancelled.")
                 }
@@ -227,7 +237,6 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                             if (nitro) { nitroCounter += 1; nitroArray.push(user.id); await sqlHelper.editUser("users", user.id, "lastnitrouse", `${Date.now()}`).catch(e => errorHelper.report(message, client, e)) }
                             dragCollector.stop()
                         } catch (e) {
-                            errorHelper.report(message, client, e)
                             await dragMessage.edit("The attempt to drag you in was unsuccessful. Please unreact and try again.")
                         }
                     } else if (r.emoji.name == "❌") {
@@ -284,6 +293,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
         async function abortAfk(u) {
             //Stop Collectors
+            controlCollector.stop()
             afkCollector.stop()
             //Stop Timers
             clearInterval(afkEdit)
