@@ -225,7 +225,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             if (user.voice.channel && user.voice.channelID != channel.id) {
                 try { await user.voice.setChannel(channel); await user.send(`You have been moved into \`${channel.name}\``); if (nitro) { nitroCounter += 1; nitroArray.push(user.id); await sqlHelper.editUser("users", user.id, "lastnitrouse", `${Date.now()}`).catch(e => errorHelper.report(message, client, e)) } } catch (e) { message.channel.send(`${user} reacted with nitro, but they could not be moved in.`) }
             } else if (!user.voice.channel) {
-                let dragMessage = await user.send("You are not currently in a Voice Channel. Once you have joined any voice channel, react to the ✅ to get moved in to the voice channel. You can cancel at any time by reacting to the ❌.")
+                let dragMessage = await user.send("You are not currently in a Voice Channel. Once you have joined any voice channel (Prefereably #lounge ASAP), react to the ✅ to get moved in to the voice channel. You can cancel at any time by reacting to the ❌.")
                 await dragMessage.react("✅")
                 await dragMessage.react("❌")
                 let dragCollector = dragMessage.createReactionCollector((r, u) => !u.bot && (r.emoji.name == "✅" || r.emoji.name == "❌"), { time: 30000 })
