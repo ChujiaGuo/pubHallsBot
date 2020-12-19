@@ -185,6 +185,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     await commandMessage.edit(controlEmbed)
                     await logMessage.edit(controlEmbed)
                     await giveLocation(member)
+                    await moveIn(member, raidingChannel)
                 } else {
                     await confirmationMessage.edit("The process has been cancelled.")
                 }
