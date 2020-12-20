@@ -31,7 +31,7 @@ exports.run = async (client, message, args, Discord) => {
         } else {
             exec(args.join(' '), (err, stdout, stderr) => {
                 if (err) {
-                    message.author.send(`Error: ${error.message}`)
+                    message.author.send(`Error: ${err.message}`)
                     return;
                 }
                 if (stderr) {
