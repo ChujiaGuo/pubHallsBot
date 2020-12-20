@@ -94,7 +94,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             let specialReactsResolved = specialReacts.map(id => client.emojis.cache.find(e => e.id == id))
             //Status Embed
             statusEmbed.setAuthor(`${reactions[runType].name} starting soon in ${raidingChannel.name}`, message.author.avatarURL()).setDescription(`${reactions[runType].name} starting soon in ${raidingChannel.name}!\nIf you have any of the following, please react now to get moved in. You will not be able to react once the afk has started.\n\n${specialReactsResolved.join("")}`)
-            statusMessage = await statusChannel.send(`@here <@&${runType=='cult'?'787198010748567562':runType.includes('void')?'787198246111805440':''}> ${reactions[runType].name} (${await client.emojis.resolve(reactions[runType].emoji)}) starting in \`${raidingChannel.name}\` in \`${config.afksettings.afkdelay / 1000}\` seconds.`, statusEmbed)
+            statusMessage = await statusChannel.send(`@here <@&${runType == 'cult' ? '787198010748567562' : runType.includes('void') ? '787198246111805440' : ''}> ${reactions[runType].name} (${await client.emojis.resolve(reactions[runType].emoji)}) starting in \`${raidingChannel.name}\` in \`${config.afksettings.afkdelay / 1000}\` seconds.`, statusEmbed)
             //Control Embed
             controlEmbed.setDescription(`**[AFK Check](${statusMessage.url}) control panel for \`${raidingChannel.name}\`\nRun Type: \`${reactions[runType].name}\`**`).addField("Location:", runLocation)
             for (var r in specialReactsResolved) {
@@ -110,13 +110,13 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
         async function createCollectors() {
             controlCollector = commandMessage.createReactionCollector((r, u) => !u.bot && (r.emoji.name == "❌" || r.emoji.name == "🔓"), { max: 2 })
-            controlCollector.on('collect', async (r, u) => { if (r.emoji.name == "🔓") { await statusChannel.send(`${raidingChannel} opening in 5 seconds!`).then(m => m.delete({timeout:5000}));setTimeout(openChannel, 5000); } else { await abortAfk(u); } })
+            controlCollector.on('collect', async (r, u) => { if (r.emoji.name == "🔓") { await statusChannel.send(`${raidingChannel} opening in 5 seconds!`).then(m => m.delete({ timeout: 5000 })); setTimeout(openChannel, 5000); } else { await abortAfk(u); } })
             afkCollector = statusMessage.createReactionCollector((r, u) => !u.bot && reactions[runType].specialReacts.concat(reactions.global.special).includes(r.emoji.id || r.emoji.name))
             afkCollector.on('collect', async (r, u) => { await manageReactions(r, u) })
         }
         async function openChannel() {
             opened = true;
-            await statusChannel.send(`The run in ${raidingChannel} is now open!`).then(m => m.delete({timeout: 5000}))
+            await statusChannel.send(`The run in ${raidingChannel} is now open!`).then(m => m.delete({ timeout: 5000 }))
             await raidingChannel.updateOverwrite(config.roles.general.raider, { CONNECT: true })
             statusEmbed.setDescription(reactions[runType].description)
             await statusMessage.edit(statusEmbed)
@@ -126,16 +126,16 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             for (var r in reactions.global.general) { //Global Normal
                 try { await statusMessage.react(reactions.global.general[r]) } catch (e) { errorHelper.report(message, client, e) }
             }
-            await statusMessage.react(reactions.global.special[reactions.global.special.length-1])
+            await statusMessage.react(reactions.global.special[reactions.global.special.length - 1])
         }
         async function addReactions() {
             if (statusEmbed.description == "This afk check has been aborted.") return;
             statusEmbed.setAuthor(`${reactions[runType].name} started in ${raidingChannel.name}`, message.author.avatarURL()).setFooter(`Time Remaining: ${Math.floor(config.afksettings.afktime / 60000)} Minute(s) ${(config.afksettings.afktime % 60000) / 1000} Seconds`)
-            await statusMessage.edit(`@here <@&${runType=='cult'?'787198010748567562':runType.includes('void')?'787198246111805440':''}> ${reactions[runType].name} (${await client.emojis.resolve(reactions[runType].emoji)}) started by ${message.author} in \`${raidingChannel.name}\`.`, statusEmbed)
+            await statusMessage.edit(`@here <@&${runType == 'cult' ? '787198010748567562' : runType.includes('void') ? '787198246111805440' : ''}> ${reactions[runType].name} (${await client.emojis.resolve(reactions[runType].emoji)}) started by ${message.author} in \`${raidingChannel.name}\`.`, statusEmbed)
             for (var r in reactions[runType].specialReacts) { //Custom Special
                 try { await statusMessage.react(reactions[runType].specialReacts[r]) } catch (e) { errorHelper.report(message, client, e) }
             }
-            for (var r in reactions.global.special.slice(0,-1)) { //Global Special
+            for (var r in reactions.global.special.slice(0, -1)) { //Global Special
                 try { await statusMessage.react(reactions.global.special[r]) } catch (e) { errorHelper.report(message, client, e) }
             }
         }
@@ -166,7 +166,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 
             }
             //Other Reacts + Ticket
-            else if(!opened){ confirmReaction(r, member) }
+            else if (!opened) { confirmReaction(r, member) }
         }
         async function confirmReaction(r, member) {
             afk = JSON.parse(fs.readFileSync("afk.json"))

@@ -1,4 +1,5 @@
 const fs = require('fs')
+const { exec } = require('child_process')
 
 exports.run = async (client, message, args, Discord) => {
     try {
@@ -9,11 +10,11 @@ exports.run = async (client, message, args, Discord) => {
             return owner.send(`<@${message.author.id}> just attempted to use sudo.`)
         }
         let cmd = args.shift().toLowerCase()
-        if (cmd != "run") {
+        if (cmd != "run" && cmd != "exec") {
             cmd = commands.aliases[cmd] || cmd
             let commandFile = require(`./${cmd}.js`);
             return commandFile.run(client, message, args, Discord, true);
-        } else {
+        } else if (cmd == "run") {
             const clean = text => {
                 if (typeof (text) === "string")
                     return text.replace(/`/g, "`" + String.fromCharCode(8203)).replace(/@/g, "@" + String.fromCharCode(8203));
@@ -22,11 +23,23 @@ exports.run = async (client, message, args, Discord) => {
             }
             let code = clean(args.join(" "))
             await message.channel.send(`Running: \`${code}\``)
-            try{
+            try {
                 return eval(code)
-            }catch(e){
+            } catch (e) {
                 return message.channel.send(e)
             }
+        } else {
+            exec(args.join(' '), (err, stdout, stderr) => {
+                if (err) {
+                    message.author.send(`Error: ${error.message}`)
+                    return;
+                }
+                if (stderr) {
+                    message.author.send(`stderr: ${stderr}`)
+                    return;
+                }
+                message.author.send(`stdout: ${stdout}`)
+            })
         }
     } catch (e) {
 
