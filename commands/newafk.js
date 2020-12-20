@@ -110,13 +110,13 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
         async function createCollectors() {
             controlCollector = commandMessage.createReactionCollector((r, u) => !u.bot && (r.emoji.name == "❌" || r.emoji.name == "🔓"), { max: 2 })
-            controlCollector.on('collect', async (r, u) => { if (r.emoji.name == "🔓") { await openChannel(); } else { await abortAfk(u); } })
+            controlCollector.on('collect', async (r, u) => { if (r.emoji.name == "🔓") { await statusChannel.send(`${raidingChannel} opening in 5 seconds!`).then(m => m.delete({timeout:5000}));setTimeout(openChannel, 5000); } else { await abortAfk(u); } })
             afkCollector = statusMessage.createReactionCollector((r, u) => !u.bot && reactions[runType].specialReacts.concat(reactions.global.special).includes(r.emoji.id || r.emoji.name))
             afkCollector.on('collect', async (r, u) => { await manageReactions(r, u) })
         }
         async function openChannel() {
             opened = true;
-            await statusChannel.send(`The run in ${raidingChannel} is now open!`)
+            await statusChannel.send(`The run in ${raidingChannel} is now open!`).then(m => m.delete({timeout: 5000}))
             await raidingChannel.updateOverwrite(config.roles.general.raider, { CONNECT: true })
             statusEmbed.setDescription(reactions[runType].description)
             await statusMessage.edit(statusEmbed)
