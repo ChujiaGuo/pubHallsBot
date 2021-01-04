@@ -28,7 +28,7 @@ module.exports = {
                     db.connect(e => { if (e) throw e })
                     db.query(`SELECT * FROM ${table} where ${column}=${rowIdentifier};`, (e, rows) => {
                         if (e) console.log(e)
-                        else { resolve(rows[0] ? rows[0] : false) }
+                        else { resolve(rows[0] ? rows : false) }
                     })
                     db.end()
                 }else{
@@ -56,7 +56,7 @@ module.exports = {
                 db.connect(e => { if (e) throw e })
                 db.query(`UPDATE ${table} SET ${column}=${newValue} WHERE ${row}=${rowIdentifier};`, (e, rows) => {
                     if (e) throw e
-                    else { resolve(rows[0] ? rows[0] : false) }
+                    else { resolve(rows[0] ? rows : false) }
                 })
                 db.end()
             } catch (e) {
