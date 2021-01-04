@@ -32,12 +32,12 @@ exports.run = async (client, message, args, Discord) => {
         for (i in args) {
             var user = await getUser(args[i])
             if (user) {
-                let status = await displayStats(await sqlHelper.get('users', 'id', user.id), user.member);
+                let status = await displayStats(await sqlHelper.get('users', 'id', user.id), user.user);
                 if (status) invalidDatabaseUsers.push(status);
             } else { invalidUsers.push(args[i]) }
         }
     } else {
-        let status = displayStats(await sqlHelper.get('users', 'id', message.author.id), message.author);
+        let status = await displayStats(await sqlHelper.get('users', 'id', message.author.id), message.author);
         if (status) invalidDatabaseUsers.push(status);
     }
     if (invalidUsers.length > 0) {
