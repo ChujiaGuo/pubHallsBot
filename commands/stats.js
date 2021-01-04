@@ -26,8 +26,8 @@ exports.run = async (client, message, args, Discord) => {
             .setThumbnail(user.avatarURL())
         message.member.send(displayEmbed)
     }
-    var invalidUsers = []
-    var invalidDatabaseUsers = []
+    var invalidUsers = [] //Array of user resolvables
+    var invalidDatabaseUsers = [] // Array of users
     if (args.length >= 1) {
         for (i in args) {
             var user = await getUser(args[i])
@@ -40,4 +40,19 @@ exports.run = async (client, message, args, Discord) => {
         let status = displayStats(await sqlHelper.get('users', 'id', message.author.id), message.author);
         if (status) invalidDatabaseUsers.push(status);
     }
+    if (invalidUsers.length > 0) {
+        let invalidUsersEmbed = new Discord.MessageEmbed()
+        .setColor("#ff1212")
+        .setAuthor("The following users could not be found:")
+        .setDescription(invalidUsers.join(", "))
+        message.channel.send(invalidUsersEmbed)
+    }
+    if (invalidDatabaseUsers.length > 0) {
+        let invalidUsersEmbed = new Discord.MessageEmbed()
+        .setColor("#ff1212")
+        .setAuthor("The following users are not in the database:")
+        .setDescription(invalidDatabaseUsers.join(", "))
+        message.channel.send(invalidUsersEmbed)
+    }
+    
 }
