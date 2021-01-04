@@ -4,6 +4,13 @@ const { resolve } = require("path")
 const e = require("cors")
 const config = JSON.parse(fs.readFileSync("config.json"))
 
+// db.on('error', err => {
+//     if(err.code == "PROTOCOL_CONNECTION_LOST") db = mysql.createConnection(config.dbinfo)
+//     else{
+//         process.emit('uncaughtException', err)
+//     }
+// })
+
 module.exports = {
     /**
      * Retrieves a row or rows from a given table and column.
@@ -16,13 +23,17 @@ module.exports = {
     get: async (table, column, rowIdentifier) => {
         return new Promise(async (resolve, reject) => {
             try {
-                var db = mysql.createConnection(config.dbinfo)
-                db.connect(e => { if (e) throw e })
-                db.query(`SELECT * FROM ${table} where ${column}=${rowIdentifier};`, (e, rows) => {
-                    if (e) throw e
-                    else { resolve(rows[0] ? false : rows) }
-                })
-                db.end()
+                if (table && column && rowIdentifier) {
+                    var db = mysql.createConnection(config.dbinfo)
+                    db.connect(e => { if (e) throw e })
+                    db.query(`SELECT * FROM ${table} where ${column}=${rowIdentifier};`, (e, rows) => {
+                        if (e) console.log(e)
+                        else { resolve(rows[0] ? rows[0] : false) }
+                    })
+                    db.end()
+                }else{
+                    reject('Invalid Fields')
+                }
             } catch (e) {
                 reject(e)
             }
@@ -45,7 +56,7 @@ module.exports = {
                 db.connect(e => { if (e) throw e })
                 db.query(`UPDATE ${table} SET ${column}=${newValue} WHERE ${row}=${rowIdentifier};`, (e, rows) => {
                     if (e) throw e
-                    else { resolve(rows[0] ? false : rows) }
+                    else { resolve(rows[0] ? rows[0] : false) }
                 })
                 db.end()
             } catch (e) {
@@ -148,6 +159,84 @@ module.exports = {
                     } else {
                         reject(false)
                         db.end()
+                    }
+                })
+            } catch (e) {
+                console.log(e)
+            }
+        })
+    },
+    addToQueue: async (userId, queueType) => {
+        return new Promise((resolve, reject) => {
+            var db = mysql.createConnection(config.dbinfo)
+            db.connect(err => { if (err) throw err })
+            try {
+                db.query(`INSERT INTO afk_queue (userid, jointime, queuetype) VALUES (${userId}, ${Date.now()}, '${queueType}') ON DUPLICATE KEY UPDATE jointime = '${Date.now()}', queuetype = '${queueType}';`, (err, result) => {
+                    if (err) console.log(err);
+                    if (result.affectedRows > 0) {
+                        resolve(true)
+                        db.end()
+                    } else {
+                        reject(false)
+                        db.end()
+                    }
+                })
+            } catch (e) {
+                console.log(e)
+            }
+        })
+    },
+    nextInQueue: async (queueType) => {
+        return new Promise((resolve, reject) => {
+            var db = mysql.createConnection(config.dbinfo)
+            db.connect(err => { if (err) throw err })
+            try {
+                db.query(`SELECT userid FROM afk_queue WHERE queuetype = '${queueType}' AND admittime < ${Date.now()} ORDER BY jointime LIMIT ${config.afksettings.queueamount}`, (err, result) => {
+                    if (err) throw err;
+                    if (result) {
+                        resolve(result)
+                    } else {
+                        reject(false)
+                    }
+                })
+            } catch (e) {
+                console.log(e)
+            }
+        })
+    },
+    removeFromQueue: async (ids) => {
+        return new Promise((resolve, reject) => {
+            var db = mysql.createConnection(config.dbinfo)
+            db.connect(err => { if (err) throw err })
+            ids.push("END")
+            for (i in ids) {
+                let id = ids[i]
+                if (id == 'END') {
+                    resolve(true)
+                    db.end()
+                } else {
+                    try {
+                        db.query(`DELETE FROM afk_queue WHERE userid=${id}`, (err, result) => { })
+                    } catch (e) {
+                        console.log(e)
+                    }
+                }
+            }
+
+        })
+
+    },
+    queuePosition: async (id, queueType) => {
+        return new Promise((resolve, reject) => {
+            var db = mysql.createConnection(config.dbinfo)
+            db.connect(err => { if (err) throw err })
+            try {
+                db.query(`SELECT count(*) FROM afk_queue WHERE queuetype = '${queueType}' AND jointime < ${Date.now()}`, (err, result) => {
+                    if (err) throw err;
+                    if (result) {
+                        resolve(result[0]['count(*)'] - 1)
+                    } else {
+                        reject(false)
                     }
                 })
             } catch (e) {
