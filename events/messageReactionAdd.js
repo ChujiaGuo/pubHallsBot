@@ -4,13 +4,14 @@ const confirmationHelper = require("../helpers/confirmationHelper.js")
 const sqlHelper = require("../helpers/sqlHelper.js")
 
 exports.run = async (client, message, Discord, reaction, user) => {
-    const config = require('../config.json')
+    const config = JSON.parse(fs.readFileSync('config.json'))
     return new Promise(async (resolve, reject) => {
         //Retriving related JSONs
         var afk = JSON.parse(fs.readFileSync('afk.json'))
         var currentleaverequests = JSON.parse(fs.readFileSync('currentleaverequests.json'))
+        var queueMessage = config.afksettings.queueMessage;
 
-        if (!afk.currentRuns[reaction.message.id] && !currentleaverequests[reaction.message.id] && reaction.message.channel.id != config.channels.log.modmail) {
+        if (!afk.currentRuns[reaction.message.id] && !currentleaverequests[reaction.message.id] && reaction.message.channel.id != config.channels.log.modmail && reaction.message.id != queueMessage) {
             //Filtering Unimportant Reactions
             reject("Filtered")
         } else if (afk.currentRuns[reaction.message.id]) {
@@ -176,6 +177,37 @@ exports.run = async (client, message, Discord, reaction, user) => {
                 await reaction.message.reactions.removeAll()
                 await reaction.message.react("🔑")
             }
+        } else if (reaction.message.id == queueMessage) {
+            if(config.afksettings.queue == 'false'){return user.send("The queue system is currently disabled. Please try again later.")}
+            let queuetypes = {
+                "702140045997375558": "void",
+                "721756760448434278": "fullskipvoid",
+                "702140045833928964": "cult"
+            }
+            if (reaction.emoji.name == "❌") {
+                await sqlHelper.removeFromQueue([user.id])
+                await user.send(`You have been removed from the queue.`)
+            } else {
+                //Adding user to queue
+                await sqlHelper.addToQueue(user.id, queuetypes[reaction.emoji.id])
+                await user.send(`You have successfully been added to the ${reaction.emoji} queue. Please do not re-react or your position will be lost. If you want to leave queue, please head back and react with ❌.\nThere are currently ${await sqlHelper.queuePosition(user.id, queuetypes[reaction.emoji.id])} person(s) ahead of you.`)
+            }
+
+            //Updating queue message (if applicable)
+            let embed = reaction.message.embeds[0]
+            var next;
+            //Normal voids
+            next = await sqlHelper.nextInQueue('void')
+            embed.fields.find(f => f.name.includes("702140045997375558")).value = (next.map(r => `<@!${r.userid}>`).join('\n') || "None")
+            //Fullskip voids
+            next = await sqlHelper.nextInQueue('fullskipvoid')
+            embed.fields.find(f => f.name.includes("721756760448434278")).value = (next.map(r => `<@!${r.userid}>`).join('\n') || "None")
+            //Cult
+            next = await sqlHelper.nextInQueue('cult')
+            embed.fields.find(f => f.name.includes("702140045833928964")).value = (next.map(r => `<@!${r.userid}>`).join('\n') || "None")
+            reaction.message.edit(embed)
+            //Notify user
+            await reaction.users.remove(user)
         }
     })
 }

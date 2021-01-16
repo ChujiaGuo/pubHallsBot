@@ -251,6 +251,9 @@ process.on("uncaughtException", async (err) => {
     await processManager.updateStatusMessage(client)
     restart()
 })
+process.on("unhandledRejection", async (err) => {
+    console.log(err)
+})
 async function restart() {
     let processes = JSON.parse(fs.readFileSync('processes.json'))
     if (processes.activeProcesses.length > 0) {

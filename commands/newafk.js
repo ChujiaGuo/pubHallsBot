@@ -5,11 +5,14 @@ var errorHelper = require("../helpers/errorHelper.js")
 
 var reactions = JSON.parse(fs.readFileSync('runTemplates.json'))
 exports.run = async (client, message, args, Discord, sudo = false) => {
-    if (args.length < 2) { return message.channel.send("You are missing some arguments!") }
+    if (args.length < 2) {
+        return message.channel.send("You are missing some arguments!")
+    }
     var config = JSON.parse(fs.readFileSync('config.json'))
     var commands = JSON.parse(fs.readFileSync('commands.json'))
     var afk = JSON.parse(fs.readFileSync("afk.json"))
-    var nitroCounter = 0, nitroArray = []
+    var nitroCounter = 0,
+        nitroArray = []
     //Clean up config
     for (var i in config.afksettings) {
         if (!isNaN(config.afksettings[i])) {
@@ -23,7 +26,6 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
     }
     return new Promise(async (resolve, reject) => {
-        //Check validity
         //Channel type
         if (message.channel.type != "text") {
             await message.channel.send("You cannot use this command here.")
@@ -40,23 +42,40 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             return reject(false)
         }
         //Other AFKs
-        if (afk[origin].afk == true) { await message.channel.send("There is already another AFK check up. For more information, please use `runstatus`"); return reject(false) }
-        else { afk[origin].afk = true; fs.writeFileSync('afk.json', JSON.stringify(afk)) }
+        if (afk[origin].afk == true) {
+            await message.channel.send("There is already another AFK check up. For more information, please use `runstatus`");
+            return reject(false)
+        } else {
+            afk[origin].afk = true;
+            fs.writeFileSync('afk.json', JSON.stringify(afk))
+        }
         //Parse Arguments
         var typeArg = args.shift()
         var runType = typeof reactions[typeArg] == 'object' ? typeArg : reactions[typeArg]
         runType = runType ? runType : message.member.id
         var runLocation = args.join(" ")
 
-        if (!runType && !reactions[runType]) { await message.channel.send("Invalid run type"); return reject(false); }
-        if (runLocation.length > 1024) { await message.channel.send(`Location too long: ${runLocation.length}/1024 characters`); return reject(false) }
+        if (!runType && !reactions[runType]) {
+            await message.channel.send("Invalid run type");
+            return reject(false);
+        }
+        if (runLocation.length > 1024) {
+            await message.channel.send(`Location too long: ${runLocation.length}/1024 characters`);
+            return reject(false)
+        }
         //Retrieve Channels and Validity
         var [baseChannel, statusChannel, runLogChannel, logChannel, lounge] = await fetchChannels(origin)
-        if ([baseChannel, statusChannel, runLogChannel, logChannel, lounge].some(e => !e)) { await message.channel.send("Cannot start afk check due to a config error. Please have a moderator check the following in setup:\nclone, control.status, channellog"); return reject(false) }
+        if ([baseChannel, statusChannel, runLogChannel, logChannel, lounge].some(e => !e)) {
+            await message.channel.send("Cannot start afk check due to a config error. Please have a moderator check the following in setup:\nclone, control.status, channellog");
+            return reject(false)
+        }
+        var queueChannel = message.guild.channels.cache.find(c => c.id == config.channels.command.queuechannel) // Retrive Queue Sign-up channel
+        var next
         var raidingChannel = await createRaidingChannel(baseChannel, lounge, origin).catch(e => errorHelper.report(message, client, e))
         await message.channel.send(`${raidingChannel} has been created. Beginning AFK check in ${config.afksettings.afkdelay / 1000} seconds.`)
         var statusMessage, logMessage, commandMessage
-        var statusEmbed = new Discord.MessageEmbed().setColor(reactions[runType].color), controlEmbed = new Discord.MessageEmbed().setColor(reactions[runType].color)
+        var statusEmbed = new Discord.MessageEmbed().setColor(reactions[runType].color),
+            controlEmbed = new Discord.MessageEmbed().setColor(reactions[runType].color)
         var controlCollector, afkCollector
         await createEmbeds()
         await createCollectors()
@@ -65,7 +84,13 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         //Timing Events
         var timeleft = config.afksettings.afktime
         //Edit AFK every 5 seconds
-        var afkEdit = setTimeout(async () => { afkEdit = setInterval(async () => { timeleft -= 5000; statusEmbed.setFooter(`Time Remaining: ${Math.floor(timeleft / 60000)} Minutes ${(timeleft % 60000) / 1000} Seconds`); await statusMessage.edit(statusEmbed) }, 5000) }, config.afksettings.afkdelay)
+        var afkEdit = setTimeout(async () => {
+            afkEdit = setInterval(async () => {
+                timeleft -= 5000;
+                statusEmbed.setFooter(`Time Remaining: ${Math.floor(timeleft / 60000)} Minutes ${(timeleft % 60000) / 1000} Seconds`);
+                await statusMessage.edit(statusEmbed)
+            }, 5000)
+        }, config.afksettings.afkdelay)
         var endAfkTimeout = setTimeout(endAfk, config.afksettings.afkdelay + config.afksettings.afktime)
         var opened = false;
         //Define Functions
@@ -80,14 +105,72 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
         async function createRaidingChannel(base, lounge, origin) {
             //Create Channel
-            var raidingChannel = await base.clone({ name: `${message.member.nickname.replace(/[^a-z|]/gi, "").split("|")[0]}'s ${reactions[runType].name}`, parent: message.channel.parent.id })
-            await raidingChannel.setPosition(lounge.position)
+            var raidingChannel = await base.clone({
+                name: `${message.member.nickname.replace(/[^a-z|]/gi, "").split("|")[0]}'s ${reactions[runType].name}`,
+                parent: message.channel.parent.id
+            })
+            await raidingChannel.setPosition(lounge.position) //Set to top of list
             if (reactions[runType].max.length > 0) {
-                try { await raidingChannel.setUserLimit(parseInt(reactions[runType].max)) } catch (e) { errorHelper.report(message, client, e) }
-            }
+                try {
+                    await raidingChannel.setUserLimit(parseInt(reactions[runType].max))
+                } catch (e) {
+                    errorHelper.report(message, client, e)
+                }
+            } //Change channel cap if needed
             //Permissions
-            if (origin == 100) { await raidingChannel.updateOverwrite(config.roles.general.vetraider, { VIEW_CHANNEL: true, CONNECT: null }) } else if (origin == 10) { await raidingChannel.updateOverwrite(config.roles.general.raider, { VIEW_CHANNEL: true }) }
+            let channelPermissions = raidingChannel.permissionOverwrites
+            if (origin == 100) {
+                channelPermissions.set(config.roles.general.vetraider, {
+                    id: config.roles.general.vetraider,
+                    allow: "VIEW_CHANNEL"
+                })
+            } else if (origin == 10) {
+                channelPermissions.set(config.roles.general.raider, {
+                    id: config.roles.general.raider,
+                    allow: "VIEW_CHANNEL"
+                })
+            } //Allow raider/vetraider to see the channel based on location
+            channelPermissions.set(message.guild.id, {
+                id: message.guild.id,
+                deny: "CONNECT"
+            })
+            //Next in Queue (normal runs only)
+            if (origin == 10 && queueChannel != undefined && config.afksettings.queue == 'true') {
+                next = await sqlHelper.nextInQueue(runType);
+                next = next.map(r => r.userid)
+                for (i in next) {
+                    let id = next[i]
+                    channelPermissions.set(id, {
+                        id: id,
+                        type: 'member',
+                        allow: 'CONNECT'
+                    })
+                }
+                if (next.length > 0) {
+                    queueChannel.send(`${next.map(id => `<@!${id}>`).join(", ")} Please now join the run in ${raidingChannel}! You will no longer be able to join once the channel fills up.`).then(m => m.delete({
+                        timeout: 10000
+                    }));
+                    await sqlHelper.removeFromQueue(next);
+                }
+            }
+            await raidingChannel.overwritePermissions(channelPermissions)
             return raidingChannel
+        }
+        async function editQueue(queueChannel) {
+            //Updating queue message (if applicable)
+            let queueMessage = await queueChannel.messages.cache.find(m => m.id == config.afksettings.queueMessage)
+            console.log(queueMessage)
+            let queueEmbed = queueMessage.embeds[0]
+            //Normal voids
+            next = await sqlHelper.nextInQueue('void')
+            queueEmbed.fields.find(f => f.name.includes("702140045997375558")).value = (next.map(r => `<@!${r.userid}>`).join('\n') || "None")
+            //Fullskip voids
+            next = await sqlHelper.nextInQueue('fullskipvoid')
+            queueEmbed.fields.find(f => f.name.includes("721756760448434278")).value = (next.map(r => `<@!${r.userid}>`).join('\n') || "None")
+            //Cult
+            next = await sqlHelper.nextInQueue('cult')
+            queueEmbed.fields.find(f => f.name.includes("702140045833928964")).value = (next.map(r => `<@!${r.userid}>`).join('\n') || "None")
+            queueMessage.edit(queueEmbed)
         }
         async function createEmbeds() {
             let specialReacts = reactions[runType].specialReacts.concat(reactions.global.special)
@@ -100,31 +183,63 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             for (var r in specialReactsResolved) {
                 controlEmbed.addField(`People who reacted with ${specialReactsResolved[r]}:`, "None")
             }
-
+            if(config.afksettings.queue == "true" && next != undefined){controlEmbed.addField("Queue:", next.map(r => `<@!${r}>`).slice(0, -1).join(", "))}
             commandMessage = await message.channel.send(controlEmbed.setFooter("React with 🔓 to open the channel. React with ❌ to abort this AFK check."))
             await commandMessage.react("🔓")
             await commandMessage.react("❌")
             logMessage = await logChannel.send(controlEmbed)
-            afk[origin] = { afk: true, location: runLocation, statusMessageId: statusMessage.id, infoMessageId: logMessage.id, commandMessageId: commandMessage.id, earlyLocationIds: [] }
+            afk[origin] = {
+                afk: true,
+                location: runLocation,
+                statusMessageId: statusMessage.id,
+                infoMessageId: logMessage.id,
+                commandMessageId: commandMessage.id,
+                earlyLocationIds: []
+            }
             fs.writeFileSync('afk.json', JSON.stringify(afk))
         }
         async function createCollectors() {
-            controlCollector = commandMessage.createReactionCollector((r, u) => !u.bot && (r.emoji.name == "❌" || r.emoji.name == "🔓"), { max: 2 })
-            controlCollector.on('collect', async (r, u) => { if (r.emoji.name == "🔓") { await statusChannel.send(`${raidingChannel} opening in 5 seconds!`).then(m => m.delete({ timeout: 5000 })); setTimeout(openChannel, 5000); } else { await abortAfk(u); } })
+            controlCollector = commandMessage.createReactionCollector((r, u) => !u.bot && (r.emoji.name == "❌" || r.emoji.name == "🔓"), {
+                max: 2
+            })
+            controlCollector.on('collect', async (r, u) => {
+                if (r.emoji.name == "🔓") {
+                    await message.channel.send("The channel will be opening in 5 seconds.");
+                    await statusChannel.send(`${raidingChannel} opening in 5 seconds!`).then(m => m.delete({
+                        timeout: 5000
+                    }));
+                    setTimeout(openChannel, 5000);
+                } else {
+                    await abortAfk(u);
+                }
+            })
             afkCollector = statusMessage.createReactionCollector((r, u) => !u.bot && reactions[runType].specialReacts.concat(reactions.global.special).includes(r.emoji.id || r.emoji.name))
-            afkCollector.on('collect', async (r, u) => { await manageReactions(r, u) })
+            afkCollector.on('collect', async (r, u) => {
+                await manageReactions(r, u)
+            })
         }
         async function openChannel() {
             opened = true;
-            await statusChannel.send(`The run in ${raidingChannel} is now open!`).then(m => m.delete({ timeout: 5000 }))
-            await raidingChannel.updateOverwrite(config.roles.general.raider, { CONNECT: true })
+            let m = await statusChannel.send(`The run in ${raidingChannel} is now open!`)
+            await raidingChannel.updateOverwrite(config.roles.general.raider, {
+                CONNECT: true
+            })
+            m.delete({timeout:2000})
             statusEmbed.setDescription(reactions[runType].description)
             await statusMessage.edit(statusEmbed)
             for (var r in reactions[runType].generalReacts) { //Custom Normal
-                try { await statusMessage.react(reactions[runType].generalReacts[r]) } catch (e) { errorHelper.report(message, client, e) }
+                try {
+                    await statusMessage.react(reactions[runType].generalReacts[r])
+                } catch (e) {
+                    errorHelper.report(message, client, e)
+                }
             }
             for (var r in reactions.global.general) { //Global Normal
-                try { await statusMessage.react(reactions.global.general[r]) } catch (e) { errorHelper.report(message, client, e) }
+                try {
+                    await statusMessage.react(reactions.global.general[r])
+                } catch (e) {
+                    errorHelper.report(message, client, e)
+                }
             }
             await statusMessage.react(reactions.global.special[reactions.global.special.length - 1])
         }
@@ -133,10 +248,18 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             statusEmbed.setAuthor(`${reactions[runType].name} started in ${raidingChannel.name}`, message.author.avatarURL()).setFooter(`Time Remaining: ${Math.floor(config.afksettings.afktime / 60000)} Minute(s) ${(config.afksettings.afktime % 60000) / 1000} Seconds`)
             await statusMessage.edit(`@here <@&${runType == 'cult' ? '787198010748567562' : runType.includes('void') ? '787198246111805440' : ''}> ${reactions[runType].name} (${await client.emojis.resolve(reactions[runType].emoji)}) started by ${message.author} in \`${raidingChannel.name}\`.`, statusEmbed)
             for (var r in reactions[runType].specialReacts) { //Custom Special
-                try { await statusMessage.react(reactions[runType].specialReacts[r]) } catch (e) { errorHelper.report(message, client, e) }
+                try {
+                    await statusMessage.react(reactions[runType].specialReacts[r])
+                } catch (e) {
+                    errorHelper.report(message, client, e)
+                }
             }
             for (var r in reactions.global.special.slice(0, -1)) { //Global Special
-                try { await statusMessage.react(reactions.global.special[r]) } catch (e) { errorHelper.report(message, client, e) }
+                try {
+                    await statusMessage.react(reactions.global.special[r])
+                } catch (e) {
+                    errorHelper.report(message, client, e)
+                }
             }
         }
         async function manageReactions(r, u) {
@@ -166,17 +289,26 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 
             }
             //Other Reacts + Ticket
-            else if (!opened) { confirmReaction(r, member) }
+            else if (!opened) {
+                confirmReaction(r, member)
+            }
         }
         async function confirmReaction(r, member) {
             afk = JSON.parse(fs.readFileSync("afk.json"))
-            if (r.emoji.name.toLowerCase().includes("planewalker") && !member.roles.cache.has(config.roles.general.rusher)) { return }
+            if (r.emoji.name.toLowerCase().includes("planewalker") && !member.roles.cache.has(config.roles.general.rusher)) {
+                return
+            }
             //Ticket React
             if (r.emoji.id == '764652567103275028') { //Ticket
-                if (afk[origin].earlyLocationIds.includes(member.id)) { return member.send("You have already obtained early location from this or another means.") }
-                let user = await sqlHelper.retrieveUser(member.id)
-                if (user.points < reactions[runType].earlyLocPrice) { return member.send("You do not have enough points to use this feature.") }
-                let confirmationMessage = await member.send(`You currently have ${user.points} points. Would you like to use ${reactions[runType].earlyLocPrice} points for early location?`)
+                if (afk[origin].earlyLocationIds.includes(member.id)) {
+                    return member.send("You have already obtained early location from this or another means.")
+                } // Pointless Reacts
+                let user = await sqlHelper.retrieveUser(member.id) // Get User
+                if (user.points < reactions[runType].earlyLocPrice) {
+                    return member.send("You do not have enough points to use this feature.")
+                } // Check Points
+                if (await manageLimits(controlEmbed, r, config.afksettings.ticketamount)) return member.send("There are too many people who have used this. Please try again during the next afk.") // Check Limits
+                let confirmationMessage = await member.send(`You currently have ${user.points} points. Would you like to use ${reactions[runType].earlyLocPrice} points for early location?`) // Confirm Use
                 let result = await confirmationHelper.confirmMessage(confirmationMessage).catch(e => e)
                 if (result) {
                     controlEmbed = commandMessage.embeds[0]
@@ -198,7 +330,11 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 if (result) {
                     controlEmbed = commandMessage.embeds[0]
                     //Deal with reaction limits
-                    if (r.emoji.name.includes('key')) { if (await manageLimits(controlEmbed, r, config.afksettings.keyamount)) return member.send("There are too many people who have reacted with this. Please try again during the next afk.") } else { if (await manageLimits(controlEmbed, r, config.afksettings.reactionamount)) return member.send("There are too many people who have reacted with this. Please try again during the next afk.") }
+                    if (r.emoji.name.includes('key')) {
+                        if (await manageLimits(controlEmbed, r, config.afksettings.keyamount)) return member.send("There are too many people who have reacted with this. Please try again during the next afk.")
+                    } else {
+                        if (await manageLimits(controlEmbed, r, config.afksettings.reactionamount)) return member.send("There are too many people who have reacted with this. Please try again during the next afk.")
+                    }
                     //Deal with duplicate reacts
                     if (controlEmbed.fields.find(f => f.name.includes(r.emoji)).value.includes(member.id)) return member.send(`You have already reacted with ${r.emoji}.`)
                     controlEmbed.fields.find(f => f.name.includes(r.emoji)).value = controlEmbed.fields.find(f => f.name.includes(r.emoji)).value.split(", ").filter(n => n != 'None').concat(`<@!${member.id}>`).join(", ")
@@ -218,24 +354,42 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             afk = JSON.parse(fs.readFileSync("afk.json"))
             await user.send(`The location of this run has been set to: \`${afk[origin].location}\``)
             afk[origin].earlyLocationIds.push(user.id)
-            afk[origin].earlyLocationIds = [... new Set(afk[origin].earlyLocationIds)]
+            afk[origin].earlyLocationIds = [...new Set(afk[origin].earlyLocationIds)]
             fs.writeFileSync('afk.json', JSON.stringify(afk))
         }
         async function moveIn(user, channel, nitro) {
             if (user.voice.channel && user.voice.channelID != channel.id) {
-                try { await user.voice.setChannel(channel); await user.send(`You have been moved into \`${channel.name}\``); if (nitro) { nitroCounter += 1; nitroArray.push(user.id); await sqlHelper.editUser("users", user.id, "lastnitrouse", `${Date.now()}`).catch(e => errorHelper.report(message, client, e)) } } catch (e) { message.channel.send(`${user} reacted with nitro, but they could not be moved in.`) }
+                try {
+                    await user.voice.setChannel(channel);
+                    await user.send(`You have been moved into \`${channel.name}\``);
+                    if (nitro) {
+                        nitroCounter += 1;
+                        nitroArray.push(user.id);
+                        await sqlHelper.editUser("users", user.id, "lastnitrouse", `${Date.now()}`).catch(e => errorHelper.report(message, client, e))
+                    }
+                } catch (e) {
+                    message.channel.send(`${user} reacted with nitro, but they could not be moved in.`)
+                }
             } else if (!user.voice.channel) {
                 let dragMessage = await user.send("You are not currently in a Voice Channel. Once you have joined any voice channel (Prefereably #lounge ASAP), react to the ✅ to get moved in to the voice channel. You can cancel at any time by reacting to the ❌.")
+                let dragCollector = dragMessage.createReactionCollector((r, u) => !u.bot && (r.emoji.name == "✅" || r.emoji.name == "❌"), {
+                    time: 30000
+                })
                 await dragMessage.react("✅")
                 await dragMessage.react("❌")
-                let dragCollector = dragMessage.createReactionCollector((r, u) => !u.bot && (r.emoji.name == "✅" || r.emoji.name == "❌"), { time: 30000 })
-                dragCollector.on('end', async (r) => { if (r == "time") await dragMessage.edit("The dragging process has automatically ended.") })
+                dragCollector.on('end', async (r) => {
+                    if (r == "time") await dragMessage.edit("The dragging process has automatically ended.")
+                })
                 dragCollector.on('collect', async (r, u) => {
                     if (r.emoji.name == "✅") {
                         try {
                             await user.voice.setChannel(channel)
                             await dragMessage.edit("You have successfully been dragged in to the voice channel.")
-                            if (nitro) { nitroCounter += 1; nitroArray.push(user.id); await sqlHelper.editUser("users", user.id, "lastnitrouse", `${Date.now()}`).catch(e => errorHelper.report(message, client, e)) }
+                            if (nitro) {
+                                nitroCounter += 1;
+                                nitroArray.push(user.id);
+                                await sqlHelper.editUser("users", user.id, "lastnitrouse", `${Date.now()}`).catch(e => errorHelper.report(message, client, e))
+                            }
                             dragCollector.stop()
                         } catch (e) {
                             await dragMessage.edit("The attempt to drag you in was unsuccessful. Please unreact and try again.")
@@ -251,6 +405,8 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             }
         }
         async function endAfk(member) {
+            //Remove users from queue
+            sqlHelper.removeFromQueue(raidingChannel.members.map(m => m.id))
             //Stop Collectors
             afkCollector.stop()
             controlCollector.stop()
@@ -271,11 +427,29 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             await raidingChannel.updateOverwrite(config.roles.general.vetraider, {
                 CONNECT: false
             })
-            await raidingChannel.edit({ position: raidingChannel.parent.children.filter(c => c.type == "voice").size - 1 }).catch(e => errorHelper.report(message, client, e))
+            await raidingChannel.edit({
+                position: raidingChannel.parent.children.filter(c => c.type == "voice").size - 1
+            }).catch(e => errorHelper.report(message, client, e))
             //Log Key Pop/Points
-            try { let keyId = controlEmbed.fields.find(f => f.name.includes("lhkey")).value.substring(controlEmbed.fields.find(f => f.name.includes('key')).value.indexOf(": ")).replace(/[^0-9]/gi, ""); if (keyId.length > 0) { await sqlHelper.editUser("users", keyId, "keypops", 1); await sqlHelper.managePoints(keyId, 5, 'add', message.guild.members.cache.find(m => m.id == keyId).roles.cache.has(config.roles.general.nitro) ? 2 : 1) } } catch (e) { errorHelper.report(message, client, e) }
+            try {
+                let keyId = controlEmbed.fields.find(f => f.name.includes("lhkey")).value.substring(controlEmbed.fields.find(f => f.name.includes('key')).value.indexOf(": ")).replace(/[^0-9]/gi, "");
+                if (keyId.length > 0) {
+                    await sqlHelper.editUser("users", keyId, "keypops", 1);
+                    await sqlHelper.managePoints(keyId, 5, 'add', message.guild.members.cache.find(m => m.id == keyId).roles.cache.has(config.roles.general.nitro) ? 2 : 1)
+                }
+            } catch (e) {
+                errorHelper.report(message, client, e)
+            }
             //Log Runs
-            try { raidingChannel.members.each(async m => { await sqlHelper.editUser("users", m.id, (runType != "void" && runType != "cult") ? `eventruns` : `${runType}Runs`, 1) }) } catch (e) { errorHelper.report(message, client, e) }
+            try {
+                raidingChannel.members.each(async m => {
+                    await sqlHelper.editUser("users", m.id, (runType != "void" && runType != "cult") ? `eventruns` : `${runType}Runs`, 1)
+                })
+            } catch (e) {
+                errorHelper.report(message, client, e)
+            }
+            //Edit Queue Message
+            editQueue(queueChannel)
             //Delete Message
             let runEmbed = new Discord.MessageEmbed().setColor(reactions[runType].color).setAuthor(`${reactions[runType].name} by ${message.member.displayName.replace(/[^a-z|]/gi, "").split("|")[0]}`).setDescription(`Once your run is complete, react with the ❌ to delete your channel.`).setFooter("Run started at ").setTimestamp()
             let runMessage = await runLogChannel.send(`${message.member}`, runEmbed)
@@ -285,10 +459,22 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             afk.currentRuns[runMessage.id] = raidingChannel.id
             fs.writeFileSync('afk.json', JSON.stringify(afk))
             let currentAfks = JSON.parse(fs.readFileSync("currentAfks.json"))
-            currentAfks[raidingChannel.id] = { "channelId": raidingChannel.id, "raidLeader": message.member.id, "earlyUsers": afk.earlyLocationIds, "allRaiders": raidingChannel.members.map(m => m.id) }
+            currentAfks[raidingChannel.id] = {
+                "channelId": raidingChannel.id,
+                "raidLeader": message.member.id,
+                "earlyUsers": afk.earlyLocationIds,
+                "allRaiders": raidingChannel.members.map(m => m.id)
+            }
             fs.writeFileSync("currentAfks.json", JSON.stringify(currentAfks))
             //Clear AFK 
-            afk[origin] = { "afk": false, "location": "", "statusMessageId": "", "infoMessageId": "", "commandMessageId": "", "earlyLocationIds": [] }
+            afk[origin] = {
+                "afk": false,
+                "location": "",
+                "statusMessageId": "",
+                "infoMessageId": "",
+                "commandMessageId": "",
+                "earlyLocationIds": []
+            }
             fs.writeFileSync('afk.json', JSON.stringify(afk))
             return resolve(true)
         }
