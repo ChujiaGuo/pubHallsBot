@@ -449,7 +449,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 errorHelper.report(message, client, e)
             }
             //Edit Queue Message
-            editQueue(queueChannel)
+            if(config.afksettings.queue == 'true') editQueue(queueChannel)
             //Delete Message
             let runEmbed = new Discord.MessageEmbed().setColor(reactions[runType].color).setAuthor(`${reactions[runType].name} by ${message.member.displayName.replace(/[^a-z|]/gi, "").split("|")[0]}`).setDescription(`Once your run is complete, react with the ❌ to delete your channel.`).setFooter("Run started at ").setTimestamp()
             let runMessage = await runLogChannel.send(`${message.member}`, runEmbed)

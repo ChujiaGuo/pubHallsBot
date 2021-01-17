@@ -122,7 +122,7 @@ client.on("message", async message => {
     if (message.channel.type == "dm" && !activeDMs.includes(message.author.id)) {
         if (processes.pendingRestart) return message.channel.send("Bot is pending a restart. Please try again later.")
         //Commands in DMs
-        let allowedCommands = ['joinruns', 'stats']
+        let allowedCommands = ['joinruns']
         let [cmd, args] = [...message.content.split(' ')]
         cmd = cmd.replace(/[^a-z]/gi, "")
         cmd = commands.aliases[cmd] || cmd
