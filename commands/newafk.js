@@ -217,7 +217,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     await abortAfk(u);
                 }
             })
-            afkCollector = statusMessage.createReactionCollector((r, u) => !u.bot && Object.keys(reactions[runType].specialReacts).concat(Object.keys(reactions.global.special)).includes(r.emoji.id || r.emoji.name))
+            afkCollector = statusMessage.createReactionCollector((r, u) => !u.bot && Object.keys(reactions[runType].specialReacts).concat(Object.keys(reactions.global.special)).concat("764652567296606258").includes(r.emoji.id || r.emoji.name))
             afkCollector.on('collect', async (r, u) => {
                 await manageReactions(r, u)
             })
