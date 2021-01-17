@@ -5,7 +5,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     let availableChannels = []
     for (var i in currentAfks) {
         let channel = currentAfks[i]
-        if (channel.allRaiders.includes(message.member.id)) {
+        if (channel.allRaiders.includes(message.author.id)) {
             availableChannels.push(channel.channelId)
         }
     }
@@ -22,21 +22,22 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         .setColor("#30ffea")
         .setAuthor("You have the option to join the following channels:")
         .setDescription(descriptionString)
-    let moveMessage = await message.member.send(moveEmbed)
+    let moveMessage = await message.author.send(moveEmbed)
     var raidingChannel;
     let filter = (r, u) => !u.bot && (emojis.includes(r.emoji.name) || r.emoji.name == "❌")
     let reactions = moveMessage.createReactionCollector(filter, { max: 1 })
     reactions.on("collect", async (r, u) => {
         if (r.emoji.name != "❌") {
             raidingChannel = availableChannels[emojis.indexOf(r.emoji.name)]
-            raidingChannel = await message.guild.channels.resolve(raidingChannel)
+            let guild = client.guilds.cache.find(g => g.id == currentAfks[raidingChannel].guildId)
+            raidingChannel = await guild.channels.resolve(raidingChannel)
             moveEmbed.setDescription(`Selected ${raidingChannel}.`)
             await moveMessage.edit(moveEmbed)
             if (!raidingChannel) {
                 moveEmbed.setDescription("Channel does not exist.")
                 return moveMessage.edit(moveEmbed)
             }else{
-                moveIn(message.member)
+                moveIn(await guild.members.resolve(message.author.id))
             }
         } else {
             moveEmbed.setDescription("Cancelled")

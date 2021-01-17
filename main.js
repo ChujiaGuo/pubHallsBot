@@ -118,15 +118,29 @@ client.on("message", async message => {
     if (message.author.bot) return;
     if (message.content.includes(`<@!${client.user.id}> prefix`)) return message.channel.send(config.prefix)
 
-    //Modmail
+    //DM Channel
     if (message.channel.type == "dm" && !activeDMs.includes(message.author.id)) {
         if (processes.pendingRestart) return message.channel.send("Bot is pending a restart. Please try again later.")
-        let allow = await sqlHelper.checkModMailBlacklist(message.author.id).catch(e => errorHelper.report(message, client, e))
-        if (allow) {
-            let modmailCommand = require('./commands/modmail.js')
-            activeDMs.push(message.author.id)
-            await modmailCommand.run(client, message, Discord).catch(e => e)
-            activeDMs.splice(activeDMs.indexOf(message.author.id), 1)
+        //Commands in DMs
+        let allowedCommands = ['joinruns', 'stats']
+        let [cmd, args] = [...message.content.split(' ')]
+        cmd = cmd.replace(/[^a-z]/gi, "")
+        cmd = commands.aliases[cmd] || cmd
+        if (allowedCommands.includes(cmd)) {
+            //Command
+            let cmdFile = `./commands/${cmd}.js`
+            delete require.cache[require.resolve(cmdFile)];
+            let commandFile = require(cmdFile);
+            commandFile.run(client, message, args, Discord)
+        } else {
+            //Modmail
+            let allow = await sqlHelper.checkModMailBlacklist(message.author.id).catch(e => errorHelper.report(message, client, e))
+            if (allow) {
+                let modmailCommand = require('./commands/modmail.js')
+                activeDMs.push(message.author.id)
+                await modmailCommand.run(client, message, Discord).catch(e => e)
+                activeDMs.splice(activeDMs.indexOf(message.author.id), 1)
+            }
         }
     }
 

@@ -183,7 +183,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             for (var r in specialReactsResolved) {
                 controlEmbed.addField(`People who reacted with ${specialReactsResolved[r]}:`, "None")
             }
-            if(config.afksettings.queue == "true" && next != undefined){controlEmbed.addField("Queue:", next.map(r => `<@!${r}>`).slice(0, -1).join(", "))}
+            if(config.afksettings.queue == "true" && next != undefined){controlEmbed.addField("Queue:", next.map(r => `<@!${r}>`).slice(0, -1).join(", ") || "None")}
             commandMessage = await message.channel.send(controlEmbed.setFooter("React with 🔓 to open the channel. React with ❌ to abort this AFK check."))
             await commandMessage.react("🔓")
             await commandMessage.react("❌")
@@ -461,6 +461,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             let currentAfks = JSON.parse(fs.readFileSync("currentAfks.json"))
             currentAfks[raidingChannel.id] = {
                 "channelId": raidingChannel.id,
+                "guildId":message.guild.id,
                 "raidLeader": message.member.id,
                 "earlyUsers": afk.earlyLocationIds,
                 "allRaiders": raidingChannel.members.map(m => m.id)
