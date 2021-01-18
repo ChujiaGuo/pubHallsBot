@@ -37,7 +37,7 @@ exports.run = async (client, message, args, Discord) => {
     if (!roles[args[0]]) return message.channel.send("Please specify a valid role. Valid roles are: `arl` `rl` `vrl` `security`")
     let role = await message.guild.roles.cache.find(r => r.id == config.roles.staff[args[0]])
     let permcheck = require('./permcheck.js')
-    let auth = await permcheck.run(client, message.member, role)
+    let auth = await permcheck.run(client, message.member, role.id)
     if (!auth) { return message.channel.send("You do not have permission to view this guide.") }
     let helpEmbed = new Discord.MessageEmbed()
         .setColor(role.hexColor)
