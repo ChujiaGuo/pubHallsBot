@@ -10,6 +10,7 @@ module.exports = {
      * @param {Error} error Error message
      */
     report: async (message, client, error) => {
+        await module.exports.log(message, client, error)
         let dev = await client.users.fetch(config.dev)
         let errorEmbed = new Discord.MessageEmbed()
             .setColor("#ff1212")
@@ -23,7 +24,6 @@ module.exports = {
             .setTimestamp()
         await dev.send(errorEmbed).catch(e => console.log(e))
         await dev.send(stackEmbed).catch(e => console.log(e))
-        await module.exports.log(message, client, error)
     },
     /**
      * Formats and Logs an error to console and error file

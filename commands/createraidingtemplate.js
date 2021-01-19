@@ -2,192 +2,338 @@ const fs = require('fs')
 const confirmationHelper = require('../helpers/confirmationHelper.js')
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
+    let runTemplates = JSON.parse(fs.readFileSync("runTemplates.json"))
     return new Promise(async (resolve, reject) => {
-        var runTemplates = JSON.parse(fs.readFileSync('runTemplates.json'))
-        let templateBase = { "specialReacts": [], "generalReacts": [], "description": "", "name": "", "color": "", "max": "", "emoji": "", "earlyLocPrice": "" }
-        let clear = templateBase
-        templateBase = runTemplates[message.author.id] || templateBase
-        var optionCollector
-        var displayMessage = await displayEmbed()
-        var editingMessage, editingEmbed
-
-        //Define Functions
-        async function displayEmbed(displayMessage) {
-            let displayEmbed = new Discord.MessageEmbed()
-                .setAuthor("These are your current settings")
-                .setColor(templateBase.color)
-                .setDescription("Respond with `close` to save and exit.\nRespond with `cancel` to exit without saving.\nRespond with `clear` to clear your template.\n\nTo edit a field, respond with it's corresponding number.")
-                .addField("1. Name", templateBase.name || "None")
-                .addField("2. Description", templateBase.description || "None")
-                .addField("3. Special Reacts", await displayEmojis(templateBase.specialReacts, true) || "None")
-                .addField("4. Normal Reacts", await displayEmojis(templateBase.generalReacts, true) || "None")
-                .addField("5. Primary Emoji", client.emojis.cache.find(e => e.id == templateBase.emoji) || "None")
-                .addField("6. Color", templateBase.color || "None")
-                .addField("7. Max Raiders", templateBase.max || "N/A")
-                .addField("8. Early Location Price", templateBase.earlyLocPrice || "N/A")
-            if (displayMessage) {
-                await displayMessage.edit(displayEmbed).catch(e => console.log(e))
-            } else {
-                displayMessage = await message.channel.send(displayEmbed)
-            }
-            createOptionCollectors(displayMessage.channel)
-            return displayMessage
-
+        var blankTemplate = { name: "", specialReacts: {}, generalReacts: [], description: "", color: "", max: "", emoji: "", earlyLocPrice: "", owner: message.author.id, id: "", reqs: "" }
+        var template = await selectTemplate()
+        let selectionMessage = template[0]
+        let selectionEmbed = template[1]
+        var displayMessage
+        if (!template[2]) {
+            selectionEmbed.setDescription("No Template Selected. Process Cancelled.")
+            return selectionMessage.edit(selectionEmbed)
+        } else {
+            template = runTemplates[template[2]] || { name: "", specialReacts: {}, generalReacts: [], description: "", color: "", max: "", emoji: "", earlyLocPrice: "", owner: message.author.id, id: "", reqs: "" }
+            var originalTemplate = Object.assign({}, template)
+            displayMessage = await displayTemplate(displayMessage, template)
+            await mainMenu(selectionMessage, selectionEmbed)
         }
-        async function createOptionCollectors(channel) {
-            optionCollector = channel.createMessageCollector((m) => m.author.id == message.author.id, { max: 1 })
-            optionCollector.on('collect', async m => { await m.delete().catch(e => e); await selectOption(m.content) })
-        }
-        async function selectOption(option) {
-            if ((parseInt(option) >= 1 && parseInt(option) <= 8) || ['close', 'cancel', 'clear'].includes(option)) {
-                let options = ['name', 'description', 'specialReacts', 'generalReacts', 'emoji', 'color', 'max', 'earlyLocPrice']
-                let displayValues = ['Name', 'Description', 'Special Reacts', 'Normal Reacts', 'Primary Emoji', 'Color', 'Max Raiders', 'Early Location Price']
-                let index = !isNaN(option) ? (parseInt(option) - 1) : option
-
-                if (index == 'close') { await save(); await close(); }
-                else if (index == 'cancel') { await close() }
-                else if (index == 'clear') { templateBase = clear; displayEmbed(displayMessage) }
-                else if (index >= 2 && index <= 4) { await editEmojis(options[index], displayValues[index]) }
-                else { await editString(options[index], displayValues[index]) }
-            } else { displayEmbed(displayMessage) }
-        }
-        async function editString(option, value) {
-            editingEmbed = new Discord.MessageEmbed()
-                .setColor(templateBase.color)
-                .setAuthor(`Currently Editing: ${value}`)
-                .setDescription(`Please respond with your new ${value}.\n\nRespond with \`done\` once complete.`)
-                .addField(`Old:`, templateBase[option] || 'None')
-                .addField(`New:`, templateBase[option] || 'None')
-            if (editingMessage) {
-                editingMessage = await editingMessage.edit(editingEmbed)
-            } else {
-                editingMessage = await message.channel.send(editingEmbed)
-            }
-            let newCollector = editingMessage.channel.createMessageCollector(m => m.author.id == message.author.id)
-            newCollector.on('collect', async m => {
-                await m.delete().catch(e => e)
-                if (m.content.toLowerCase() != 'done') {
-                    if (option == 'color' && !m.content.match(/^#?[a-f0-9]{6}$/gi)) m.content = `Invalid Color Code: ${m.content}`
-                    else if (option == 'color' && m.content.charAt(0) != "#") m.content = "#" + m.content
-                    else if ((option == "max" || option == "earlyLocPrice") && isNaN(m.content)) m.content = `Invalid ${value}: ${m.content} is not a number.`
-                    editingEmbed.fields[1].value = m.content
-                    await editingMessage.edit(editingEmbed).catch(e => e)
-                } else {
-                    newCollector.stop()
-                    templateBase[option] = editingEmbed.fields[1].value.includes("Invalid") ? "" : editingEmbed.fields[1].value
-                    editingEmbed.spliceFields(0, 2)
-                        .setDescription("Please choose another option.")
-                        .setAuthor("Currently Editing: None")
-                        .setColor(templateBase.color)
-                    await editingMessage.edit(editingEmbed)
-                    await displayEmbed(displayMessage)
-                }
-            })
-        }
-        async function editEmojis(option, value) {
-            if (typeof templateBase[option] == "string") templateBase[option] = templateBase[option].split(" ")
-            editingEmbed = new Discord.MessageEmbed()
-                .setColor(templateBase.color)
-                .setAuthor(`Currently Editing: ${value}`)
-                .setDescription(`React with 🔍 to search for emojis. React with ✅ once complete.`)
-                .addField(`Old:`, await displayEmojis(templateBase[option], true) || 'None')
-                .addField(`New:`, await displayEmojis(templateBase[option], true) || 'None')
-            if (editingMessage) {
-                editingMessage = await editingMessage.edit(editingEmbed)
-            } else {
-                editingMessage = await message.channel.send(editingEmbed)
-            }
-            await editingMessage.react("🔍")
-            await editingMessage.react("✅")
-            let endCollector = editingMessage.createReactionCollector((r, u) => !u.bot && ["🔍", "✅"].includes(r.emoji.name) && u.id == message.author.id)
-            endCollector.on('collect', async (r, u) => {
-                if (r.emoji.name == "🔍") {
-                    templateBase[option] = await selectEmojis(templateBase[option]).catch(e => e)
-                    editingEmbed.fields[1].value = await displayEmojis(templateBase[option], true) || 'None'
-                    await editingMessage.edit(editingEmbed)
-                } else {
-                    endCollector.stop()
-                    editingMessage.reactions.removeAll().catch(e => e)
-                    templateBase[option] = editingEmbed.fields[1].value.includes("Invalid") ? "" : editingEmbed.fields[1].value.replace(/T\d+|[^\d:]/gi, "").substring(2).split("::")
-                    if (option == "emoji") {
-                        templateBase[option] = templateBase[option][0]
-                    }
-                    editingEmbed.spliceFields(0, 2)
-                        .setDescription("Please choose another option.")
-                        .setAuthor("Currently Editing: None")
-                        .setColor(templateBase.color)
-                    await editingMessage.edit(editingEmbed)
-                    await displayEmbed(displayMessage)
-                }
-            })
-        }
-        async function selectEmojis(array) {
+        async function selectTemplate() {
+            //{ specialReacts: {}, generalReacts: [], description: "", color: "", max: "", emoji: "", earlyLocPrice: "", owner: message.author.id, id:"", name:""}
             return new Promise(async (resolve, reject) => {
-                let emojiEmbed = new Discord.MessageEmbed()
-                    .setColor(templateBase.color)
-                    .setDescription("React with 🔍 to query an emoji.\nReact with 🚫 to remove an emoji.\nReact with ✅ to return.")
-                    .addField("Current Selection:", await displayEmojis(array, true) || "None")
-                let emojiMessage = await message.channel.send(emojiEmbed)
-                let optionCollector = emojiMessage.createReactionCollector((r, u) => !u.bot && ["🔍", "✅", "🚫"].includes(r.emoji.name) && u.id == message.author.id)
-                optionCollector.on('collect', async (r, u) => {
-                    if (r.emoji.name == "🔍") {
-                        emojiEmbed.setDescription("Please enter a query.")
-                        await emojiMessage.edit(emojiEmbed)
-                        let queryCollector = emojiMessage.channel.createMessageCollector(m => m.author.id == message.author.id, { max: 1 })
-                        queryCollector.on('collect', async m => {
-                            await m.delete().catch(e => e)
-                            let query = m.content
-                            let emojiArray = client.emojis.cache.filter(e => e.name.toLowerCase().includes(query.toLowerCase())).map(e => e.id)
-                            if (emojiArray.length != 1) {
-                                message.channel.send(await displayEmojis(emojiArray, true) || "None").then(m => m.delete({ timeout: 15000 })).catch(e => e)
-                            } else {
-                                array = array.concat(emojiArray)
-                                emojiEmbed.fields[0].value = await displayEmojis(array, true) || "None"
-                                await emojiMessage.edit(emojiEmbed)
-                            }
-                        })
-                    } else if (r.emoji.name == "🚫") {
-                        emojiEmbed.setDescription("Which emoji would you like to delete? Please enter a name.")
-                        await emojiMessage.edit(emojiEmbed)
-                        let queryCollector = emojiMessage.channel.createMessageCollector(m => m.author.id == message.author.id, { max: 1 })
-                        queryCollector.on('collect', async m => {
-                            await m.delete().catch(e => e)
-                            let emojiArray = await displayEmojis(array)
-                            let index = emojiArray.indexOf(emojiArray.find(e => e.name.toLowerCase().includes(m.content.toLowerCase())))
-                            if (index != -1) {
-                                emojiArray.splice(index, 1)
-                            }
-                            array = emojiArray.map(e => e.id)
-                            emojiEmbed.fields[0].value = await displayEmojis(array, true) || "None"
-                            await emojiMessage.edit(emojiEmbed)
-                        })
+                let currentTemplates = Object.entries(runTemplates).filter(t => t[1].owner == message.author.id).map(t => [t[1].name, t[1].id])
+                currentTemplates.push(["Create New", "New"])
+                let emojis = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"].slice(0, currentTemplates.length)
+                emojis.push("❌")
+                if (currentTemplates.length == 1) return resolve(currentTemplates[0])
+                let selectionEmbed = new Discord.MessageEmbed()
+                    .setAuthor("Please choose which template to edit:")
+                    .setColor("#30ffea")
+                    .setDescription(`${currentTemplates.map(((e, i) => `${emojis[i]} ${e[0]}`)).join('\n')}`)
+                let selectionMessage = await message.channel.send(selectionEmbed)
+                let selectionCollector = selectionMessage.createReactionCollector((r, u) => !u.bot && u.id == message.author.id && emojis.includes(r.emoji.name), { limit: 1 })
+                selectionCollector.on('collect', r => {
+                    selectionMessage.reactions.removeAll().catch(e => e)
+                    if (r.emoji.name == "❌") {
+                        resolve([selectionMessage, selectionEmbed, false])
+
                     } else {
-                        await emojiMessage.delete()
-                        optionCollector.stop()
-                        resolve(array)
+                        resolve([selectionMessage, selectionEmbed, currentTemplates[emojis.indexOf(r.emoji.name)][1]])
                     }
                 })
-                await emojiMessage.react("🔍")
-                await emojiMessage.react("🚫")
-                await emojiMessage.react("✅")
+                for (var e of emojis) { await selectionMessage.react(e) }
+
             })
         }
-        async function displayEmojis(array, toString) {
-            if (toString) return array.map(eid => client.emojis.cache.find(e => e.id == eid)).join("")
-            return array.map(eid => client.emojis.cache.find(e => e.id == eid))
+        async function mainMenu(selectionMessage, selectionEmbed) {
+            return new Promise(async (resolve, reject) => {
+                await selectionMessage.reactions.removeAll()
+                selectionEmbed.setAuthor("Control Panel:").setDescription(`Currently Editing: ${template.name || "Blank Template"}\n\n✅ = Save\n♻️ = Reset to Last Save\n🗑️ = Reset\n❌ = Exit Without Saving`)
+                await selectionMessage.edit(selectionEmbed)
+                var baseOptionCollector = selectionMessage.createReactionCollector((r, u) => !u.bot && ["✅", "♻️", "🗑️", "❌"].includes(r.emoji.name) && u.id == message.author.id, { max: 1 })
+                baseOptionCollector.on('collect', async (r, u) => {
+                    if (r.emoji.name == "✅") {
+                        await r.message.reactions.removeAll().catch(e => e)
+                        if (template.id) {
+                            selectionEmbed.setDescription("Changes have been saved. If you want to undo this, please reset the template and save again.")
+                            await selectionMessage.edit(selectionEmbed)
+                            await confirmationHelper.confirmMessage(selectionMessage).catch(e => e)
+                            await save(template)
+                        } else {
+                            selectionEmbed.setDescription("You do not have an id. Please set one before saving.")
+                            await selectionMessage.edit(selectionEmbed)
+                            await confirmationHelper.confirmMessage(selectionMessage).catch(e => e)
+                        }
+                        mainMenu(selectionMessage, selectionEmbed)
+                    } else if (r.emoji.name == "♻️") {
+                        await r.message.reactions.removeAll().catch(e => e)
+                        selectionEmbed.setDescription("Are you sure you want to clear all changes made?")
+                        await selectionMessage.edit(selectionEmbed)
+                        if (await confirmationHelper.confirmMessage(selectionMessage).catch(e => e)) {
+                            Object.assign(template, originalTemplate)
+                            displayMessage = await displayTemplate(displayMessage, template)
+                            mainMenu(selectionMessage, selectionEmbed)
+                        } else { mainMenu(selectionMessage, selectionEmbed) }
+                    } else if (r.emoji.name == "🗑️") {
+                        await r.message.reactions.removeAll().catch(e => e)
+                        selectionEmbed.setDescription("Are you sure you want to reset the entire template?")
+                        await selectionMessage.edit(selectionEmbed)
+                        if (await confirmationHelper.confirmMessage(selectionMessage).catch(e => e)) {
+                            Object.assign(template, blankTemplate)
+                            displayMessage = await displayTemplate(displayMessage, template)
+                            mainMenu(selectionMessage, selectionEmbed)
+                        } else { mainMenu(selectionMessage, selectionEmbed) }
+                    } else {
+                        await r.message.reactions.removeAll().catch(e => e)
+                        if (JSON.stringify(template) != JSON.stringify(originalTemplate)) {
+                            selectionEmbed.setDescription("You have unsaved changes. Are you sure you want to exit without saving?")
+                            await selectionMessage.edit(selectionEmbed)
+                            let confirm = await confirmationHelper.confirmMessage(selectionMessage).catch(e => e)
+                            if (confirm) {
+                                selectionEmbed.setDescription("Closed.")
+                                selectionMessage.edit(selectionEmbed)
+                                displayMessage.delete().catch(e => e)
+                            } else { mainMenu(selectionMessage, selectionEmbed) }
+                        } else {
+                            selectionEmbed.setDescription("Closed.")
+                            selectionMessage.edit(selectionEmbed)
+                            displayMessage.delete().catch(e => e)
+                        }
+                        resolve(true)
 
+                    }
+                })
+                for (e of ["✅", "♻️", "🗑️", "❌"]) { await selectionMessage.react(e) }
+                resolve(baseOptionCollector)
+            })
         }
-        async function close() {
-            if (editingMessage) await editingMessage.delete().catch(e => e)
-            let closingEmbed = new Discord.MessageEmbed()
-                .setColor(templateBase.color)
-                .setDescription("The template has been closed.")
-            await displayMessage.edit(closingEmbed)
-            resolve(true)
+        async function displayTemplate(displayMessage, template) {
+            return new Promise(async (resolve, reject) => {
+                let emojis = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]
+                let options = ["description", "name", "id", "color", "max", "emoji", "price", "specialReacts", "generalReacts", "reqs"]
+                let displayEmbed = new Discord.MessageEmbed()
+                    .setAuthor(`${message.member.nickname.split("|")[0].replace(/[^a-z]/gi, "")}'s ${template.name || "No Name Available"}`)
+                    .setColor(template.color)
+                if (template.reqs) displayEmbed.setImage(template.reqs.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/) ? template.reqs : null)
+                for (o in options) {
+                    if (options[o].includes('Reacts') || options[o].includes('emoji')) {
+                        displayEmbed.addField(`${emojis[o]} ${await formatString(options[o])}`, await displayEmojis(template[options[o]]) || "N/A", true)
+                    } else {
+                        displayEmbed.addField(`${emojis[o]} ${await formatString(options[o])}`, template[options[o]] || "N/A", o != 0 ? true : false)
+                    }
+                }
+
+                if (displayMessage) {
+                    var display = await displayMessage.edit(displayEmbed)
+                } else {
+                    var display = await message.channel.send(displayEmbed)
+                }
+                displayMessage = display
+                let selectionCollector = display.createReactionCollector((r, u) => !u.bot && emojis.includes(r.emoji.name), { max: 1 })
+                selectionCollector.on('collect', async (r, u) => {
+                    await r.users.remove(u.id)
+                    let index = emojis.indexOf(r.emoji.name)
+                    if (options[index].includes("Reacts") || options[index].includes("emoji")) {
+                        let optionEmbed = new Discord.MessageEmbed()
+                            .setAuthor(`Selection for: ${await formatString(options[index])}`)
+                            .setColor(template.color)
+                            .addField(`Current:`, await displayEmojis(template[options[index]]) || "N/A")
+                            .addField(`New:`, `Please select your reactions below.`)
+                        let optionMessage = await message.channel.send(optionEmbed)
+                        //Pick Emojis
+                        if (index == 5) { var selection = await setEmoji(template.emoji); optionEmbed.spliceFields(1, 1, { name: "New:", value: await displayEmojis(selection) || "N/A" }) }
+                        else if (index == 7) { var selection = await setSpecial(template.specialReacts); optionEmbed.spliceFields(1, 1, { name: "New:", value: await displayEmojis(Object.keys(selection)) || "N/A" }) }
+                        else if (index == 8) { var selection = await setGeneral(template.generalReacts); optionEmbed.spliceFields(1, 1, { name: "New:", value: await displayEmojis(selection) || "N/A" }) }
+                        await optionMessage.edit(optionEmbed)
+                        //Confirm Selection
+                        let completeCollector = optionMessage.createReactionCollector((r, u) => !u.bot && u.id == message.author.id && ["✅", "❌"].includes(r.emoji.name), { max: 1 })
+                        completeCollector.on('collect', async (r, u) => {
+                            if (r.emoji.name == "✅") {
+                                template[options[index]] = selection
+                            }
+                            await optionMessage.delete().catch(e => e)
+                            displayMessage = await displayTemplate(displayMessage, template)
+
+                        })
+                        await optionMessage.react("✅")
+                        await optionMessage.react("❌")
+                    } else {
+                        let optionEmbed = new Discord.MessageEmbed()
+                            .setAuthor(`Selection for: ${await formatString(options[index])}`)
+                            .setColor(template.color)
+                            .addField(`Current:`, template[options[index]] || "N/A")
+                            .addField(`New:`, `Please type your chosen ${options[index]}`)
+                        let optionMessage = await message.channel.send(optionEmbed)
+                        let completeCollector = optionMessage.createReactionCollector((r, u) => !u.bot && u.id == message.author.id && ["✅", "❌"].includes(r.emoji.name), { max: 1 })
+                        let choiceCollector = message.channel.createMessageCollector(m => m.author.id == message.author.id)
+                        //Confirm Selection
+                        completeCollector.on('collect', async (r, u) => {
+                            if (r.emoji.name == "✅") { template[options[index]] = optionEmbed.fields[1].value.toLowerCase() == 'none' ? "" : optionEmbed.fields[1].value }
+                            optionMessage.delete()
+                            selectionCollector.stop()
+                            choiceCollector.stop()
+                            displayMessage = await displayTemplate(displayMessage, template)
+
+                        })
+                        //Pick Text
+                        choiceCollector.on('collect', async m => {
+                            await m.delete().catch(e => e)
+                            optionEmbed.spliceFields(1, 1, { name: "New:", value: m.content })
+                            await optionMessage.edit(optionEmbed)
+                        })
+                        await optionMessage.react("✅")
+                        await optionMessage.react("❌")
+                    }
+                })
+                if (displayMessage.reactions.cache.size != 10) {
+                    for (e of emojis) await display.react(e).catch(e => e)
+                }
+                resolve(displayMessage)
+            })
         }
-        async function save() {
-            runTemplates[message.author.id] = templateBase
+        async function setEmoji(current) {
+            return new Promise(async (resolve, reject) => {
+                resolve(selectEmojis(1, Array.isArray(current) ? current : current.split()))
+            })
+        }
+        async function setSpecial(current) {
+            return new Promise(async (resolve, reject) => {
+                let selection = await selectEmojis(null, Object.keys(current))
+                let obj = {}
+                for (e of selection) obj[e] = await query(`How many of ${await displayEmojis(e)} would you like?`)
+
+                resolve(obj)
+            })
+        }
+        async function setGeneral(current) {
+            return new Promise(async (resolve, reject) => {
+                resolve(selectEmojis(null, current))
+            })
+        }
+        async function selectEmojis(limit, current = []) {
+            return new Promise(async (resolve, reject) => {
+                current = current.filter(Boolean)
+                let original = Object.assign([], current)
+                let defaultDescription = "✅ = Save current selection\n🔍 = Search for emojis\n🗑️ = Remove from selection\n❌ = Cancel Selection"
+                let options = ["✅", "🔍", "🗑️", "❌"]
+                let selectionEmbed = new Discord.MessageEmbed()
+                    .setAuthor("Emoji Menu")
+                    .setColor("#30ffea")
+                    .setDescription(defaultDescription)
+                    .addField("Current Selection:", await displayEmojis(current) || "N/A")
+                let selectionMessage = await message.channel.send(selectionEmbed)
+                let selectionCollector = selectionMessage.createReactionCollector((r, u) => !u.bot && u.id == message.author.id && options.includes(r.emoji.name))
+                selectionCollector.on('collect', async (r, u) => {
+                    await r.users.remove(u.id)
+                    if (options.indexOf(r.emoji.name) == 0) {
+                        selectionMessage.delete().catch(e => e)
+                        resolve(current.slice(0, limit || current.length))
+                    }
+                    else if (options.indexOf(r.emoji.name) == 1) {
+                        selectionEmbed.setDescription("Please search for an emoji.")
+                        await selectionMessage.edit(selectionEmbed)
+                        let queryCollector = message.channel.createMessageCollector(m => m.author.id == message.author.id, { max: 1 })
+                        queryCollector.on('collect', async m => {
+                            let emojis = await findEmojis(m.content.toLowerCase())
+                            emojis = emojis.map(e => e.id)
+                            if (emojis.length == 1) {
+                                current = current.concat(emojis)
+                                selectionEmbed.spliceFields(0, 1, { name: "Current Selection:", value: await displayEmojis(current) || "N/A" })
+                                selectionEmbed.setDescription(defaultDescription)
+                            } else if (emojis.length == 0) {
+                                selectionEmbed.setDescription(defaultDescription + "\n\nNo Emojis Found. Please select another option.")
+                            } else if (emojis.length > 1) {
+                                selectionEmbed.addField(`All matches for: ${m.content}. Please type the corresponding reactions. (1st in list = 1)`, await displayEmojis(emojis) || "N/A")
+                                var choiceCollector = message.channel.createMessageCollector(m => m.author.id == message.author.id && !isNaN(m.content), { max: 1 })
+                                choiceCollector.on('collect', async m => {
+                                    if (emojis[m.content - 1]) {
+                                        current = current.concat(emojis[m.content - 1])
+                                        selectionEmbed.spliceFields(0, 2, { name: "Current Selection:", value: await displayEmojis(current) || "N/A" })
+                                        selectionEmbed.setDescription(defaultDescription)
+                                        await selectionMessage.edit(selectionEmbed)
+                                    }
+                                })
+                            }
+
+                            await selectionMessage.edit(selectionEmbed)
+                        })
+                    } else if (options.indexOf(r.emoji.name) == 2) {
+                        selectionEmbed.setDescription("Please select the index of the emoji you would like to remove. (1st in list = 1)")
+                        await selectionMessage.edit(selectionEmbed)
+                        let queryCollector = message.channel.createMessageCollector(m => m.author.id == message.author.id && !isNaN(m.content), { max: 1 })
+                        queryCollector.on('collect', async m => {
+                            let index = m.content - 1
+                            current.splice(index, 1)
+                            selectionEmbed.setDescription(defaultDescription).spliceFields(0, 1, { name: "Current Selection:", value: await displayEmojis(current) || "N/A" })
+                            await selectionMessage.edit(selectionEmbed)
+                        })
+                    } else if (options.indexOf(r.emoji.name) == 3) {
+                        selectionMessage.delete().catch(e => e)
+                        resolve(original.slice(0, limit || original.length))
+                    }
+                })
+                for (e of options) { await selectionMessage.react(e) }
+            })
+        }
+        async function save(template) {
+            if (isNaN(template.earlyLocPrice)) template.earlyLocPrice = ""
+            if (isNaN(template.max)) template.max = ""
+            template.id = template.id.split(" ").join("")
+            originalTemplate = template
+            delete runTemplates[originalTemplate.id]
+            runTemplates[template.id] = template
             fs.writeFileSync('runTemplates.json', JSON.stringify(runTemplates))
+        }
+        async function formatString(s) {
+            s = splitCamelCase(s)
+            return s
+        }
+        function splitCamelCase(word) {
+            var output, i, l, capRe = /[A-Z]/;
+            if (typeof (word) !== "string") {
+                throw new Error("The \"word\" parameter must be a string.");
+            }
+            output = [];
+            for (i = 0, l = word.length; i < l; i += 1) {
+                if (i === 0) {
+                    output.push(word[i].toUpperCase());
+                }
+                else {
+                    if (i > 0 && capRe.test(word[i])) {
+                        output.push(" ");
+                    }
+                    output.push(word[i]);
+                }
+            }
+            return output.join("");
+        }
+        async function normalizeString(s) {
+            s = s.split(' ').map((x, i) => i == 0 ? x.toLowerCase() : x).join('')
+            return s
+        }
+        async function displayEmojis(e) {
+            let emojiString = []
+            if (typeof e == 'string') emojiString.push(client.emojis.cache.find(i => i.id == e))
+            else if (Array.isArray(e)) { for (i of e) { emojiString.push(client.emojis.cache.find(e => e.id == i)) } }
+            else { for (i in e) { emojiString.push(client.emojis.cache.find(e => e.id == i)) } }
+            return emojiString.join(' ')
+        }
+        async function findEmojis(query) {
+            return client.emojis.cache.filter(e => e.name.toLowerCase().includes(query))
+        }
+        async function query(m) {
+            return new Promise(async (resolve, reject) => {
+                let promptEmbed = new Discord.MessageEmbed()
+                    .setColor("#30ffea")
+                    .setDescription(m)
+                let promptMessage = await message.channel.send(promptEmbed)
+                let promptCollector = message.channel.createMessageCollector(m => m.author.id == message.author.id && !isNaN(m.content), { max: 1 })
+                promptCollector.on('collect', m => {
+                    m.delete().catch(e => e)
+                    promptMessage.delete()
+                    resolve(m.content)
+                })
+            })
         }
     })
 }

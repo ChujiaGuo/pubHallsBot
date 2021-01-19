@@ -46,6 +46,11 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         var typeArg = args.shift()
         var runType = typeof reactions[typeArg] == 'object' ? typeArg : reactions[typeArg]
         runType = runType ? runType : message.member.id
+        if(!['cult', 'void', 'fullskipvoid'].includes(runType)){
+            let permcheck = require('./permcheck.js')
+            let auth = await permcheck.run(client, message.member, config.roles.staff.vrl)
+            if(!auth) return message.channel.send("You do not have permission to use custom templates.")
+        }
         var runLocation = args.join(" ")
 
         if (!runType || !reactions[runType]) {
