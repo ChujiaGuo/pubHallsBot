@@ -46,10 +46,10 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         var typeArg = args.shift()
         var runType = typeof reactions[typeArg] == 'object' ? typeArg : reactions[typeArg]
         runType = runType ? runType : message.member.id
-        if(!['cult', 'void', 'fullskipvoid'].includes(runType)){
+        if (!['cult', 'void', 'fullskipvoid'].includes(runType)) {
             let permcheck = require('./permcheck.js')
             let auth = await permcheck.run(client, message.member, config.roles.staff.vrl)
-            if(!auth) return message.channel.send("You do not have permission to use custom templates.")
+            if (!auth) return message.channel.send("You do not have permission to use custom templates.")
         }
         var runLocation = args.join(" ")
 
@@ -187,7 +187,9 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             //Status Embed
             statusEmbed.setAuthor(`${reactions[runType].name} starting soon in ${raidingChannel.name}`, message.author.avatarURL()).setDescription(`${reactions[runType].name} starting soon in ${raidingChannel.name}!\nIf you have any of the following, please react now to get moved in. You will not be able to react once the afk has started.\n\n${specialReactsResolved.join("")}`)
             statusMessage = await statusChannel.send(`@here <@&${runType == 'cult' ? '787198010748567562' : runType.includes('void') ? '787198246111805440' : ''}> ${reactions[runType].name} (${await client.emojis.resolve(reactions[runType].emoji)}) starting in \`${raidingChannel.name}\` in \`${config.afksettings.afkdelay / 1000}\` seconds.`, statusEmbed)
-            await statusChannel.send(`Requirements: ${reactions[runType].reqs}`)
+            if (reactions[runType].reqs) {
+                await statusChannel.send(`Requirements: ${reactions[runType].reqs}`)
+            }
             //Control Embed
             controlEmbed.setDescription(`**[AFK Check](${statusMessage.url}) control panel for \`${raidingChannel.name}\`\nRun Type: \`${reactions[runType].name}\`**`).addField("Location:", runLocation)
             for (var r in specialReactsResolved) {
