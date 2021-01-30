@@ -298,11 +298,13 @@ module.exports = {
             try {
                 var db = mysql.createConnection(config.dbinfo)
                 db.connect(e => { if (e) throw e })
-                db.query(`UPDATE users SET ?=? WHERE id=?;`, [columnName, columnName+1, userId], (e, rows) => {
+
+                db.query(`UPDATE users SET ${columnName}=${columnName}+${amount} WHERE id=${userId};`, (e, rows) => {
                     if (e) throw e
                     else { resolve(rows[0] ? rows : false) }
                 })
-                db.query(`UPDATE users SET ?=? WHERE ?=?;`, [currentWeekTypes[columnName], `${currentWeekTypes[columnName]}+1`, row, userId], (e, rows) => {
+                db.query(`UPDATE users SET ${currentWeekTypes[columnName]}=${currentWeekTypes[columnName]}+${amount} WHERE id=${userId};`, (e, rows) => {
+
                     if (e) throw e
                     else { resolve(rows[0] ? rows : false) }
                 })
