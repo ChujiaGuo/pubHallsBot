@@ -14,8 +14,10 @@
     "google-spreadsheet": "^3.0.13",
     "js-levenshtein": "^1.1.6",
     "mysql": "^2.18.1",
+    "node": "^15.4.0",
     "node-fetch": "^2.6.1",
     "opencollective-postinstall": "^2.0.2",
+    "string-similarity": "^4.0.4",
     "tesseract.js": "^2.1.1",
     "updates": "^10.2.13"
   },

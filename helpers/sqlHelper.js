@@ -283,5 +283,33 @@ module.exports = {
             db.end()
             db.end()
         })
+    },
+    currentWeekAdd: async (userId, columnName, amount) => {
+        return new Promise((resolve, reject) => {
+            let currentWeekTypes={
+                "feedback":"currentweekFeedback",
+                "parses":"currentweekparses",
+                "assists":"currentweekAssists",
+                "voidsLead":"currentweekVoid",
+                "cultsLead":"currentweekCult",
+                "eventsLead":"currentweekEvents"
+            }
+            if(!currentWeekTypes[columnName])return reject("Invalid row identifier for currentweek.")
+            try {
+                var db = mysql.createConnection(config.dbinfo)
+                db.connect(e => { if (e) throw e })
+                db.query(`UPDATE users SET ${columnName}=${columnName}+${amount} WHERE id=${userId};`, (e, rows) => {
+                    if (e) throw e
+                    else { resolve(rows[0] ? rows : false) }
+                })
+                db.query(`UPDATE users SET ${currentWeekTypes[columnName]}=${currentWeekTypes[columnName]}+${amount} WHERE id=${userId};`, (e, rows) => {
+                    if (e) throw e
+                    else { resolve(rows[0] ? rows : false) }
+                })
+                db.end()
+            } catch (e) {
+                reject(e)
+            }
+        })
     }
 }

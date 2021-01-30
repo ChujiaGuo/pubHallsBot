@@ -254,7 +254,7 @@ client.on("message", async message => {
 process.stdin.resume()
 process.on("uncaughtException", async (err) => {
     var owner = await client.users.fetch(config.dev)
-    await owner.send(`An uncaught error occured: \`\`\`${err.stack}\`\`\``)
+    await owner.send(`An uncaught error occured: \`\`\`${err.stack.substring(0, 1800)}\`\`\``)
     console.log(err)
 
     let processes = JSON.parse(fs.readFileSync('processes.json'))
