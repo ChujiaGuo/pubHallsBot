@@ -23,7 +23,7 @@ module.exports = {
                 .setAuthor(`${message.member.displayName}\'s Parse `, message.author.displayAvatarURL())
                 .setDescription(`\`\`\`\n${statusDescription}\n\`\`\``)
                 .setTimestamp();
-            statusMessage = await message.channel.send(statusEmbed);    
+            statusMessage = await message.channel.send(statusEmbed);
             try {
                 let classStats = {
                     "TEMPLATE": ["HP", "MP", "ATK", "DEF", "SPD", "VIT", "WIS", "DEX"],
@@ -60,7 +60,7 @@ module.exports = {
                     proxy: 'http://Nashex:Goldilocks1@us-wa.proxymesh.com:31280',
                     headers: {
                         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36',
-                        'Proxy-Authorization' : 'Basic TmFzaGV4OkdvbGRpbG9ja3Mx'
+                        'Proxy-Authorization': 'Basic TmFzaGV4OkdvbGRpbG9ja3Mx'
                     }
                 };
 
@@ -69,7 +69,7 @@ module.exports = {
                     .setAuthor("The Following People Do Not Meet Requirements")
                     .setColor("#41f230")
                     .setTimestamp();
-                
+
                 const getPlayers = async () => {
                     for (var i in players) {
                         try {
@@ -77,7 +77,7 @@ module.exports = {
                             await request(url, options, async (error, response, html) => {
                                 recieveRequests++;
                                 try {
-                                    if(!error && response.statusCode == 200) {
+                                    if (!error && response.statusCode == 200) {
                                         var $ = cheerio.load(html);
                                         //const siteBody = $('body');
                                         //console.log(siteBody.text());
@@ -105,14 +105,14 @@ module.exports = {
                                                             equip = client.emojis.cache.find(e => e.name.toLowerCase().includes(equip.toLowerCase()))
                                                             if (equip) {
                                                                 itemArray.push([`<:${equip.name}:${equip.id}>`, tier])
-                                                            
+
                                                             } else {
                                                                 itemArray.push([`🚫`, tier])
                                                             }
                                                         } else {
                                                             itemArray.push([`<:Backpack:719952565139406928>`, "UT"])
                                                         }
-                        
+
                                                     })
                                                     characterObject[columns[x]] = itemArray
                                                 } else if (x == 9) {
@@ -126,12 +126,12 @@ module.exports = {
                                                         characterObject[columns[x]] = baseStats
                                                         characterObject.Maxed = $('table[class="table table-striped tablesorter"]').find("tr").eq(1).find('td').eq(x).text()
                                                     } catch (e) { }
-        
+
                                                 }
                                             })
                                             validUsers.push(characterObject)
                                             var valid = checkRequirements(characterObject);
-                    
+
                                             if (valid == undefined) {
                                                 invalidUsers.push(characterObject.Name)
                                             } else {
@@ -145,14 +145,14 @@ module.exports = {
                                                 if (recieveRequests >= players.length) {
                                                     returnEmbed.setDescription(`\`\`\`\nParse Status: Complete\n\`\`\``)
                                                         .setFooter(`Time taken: ${(Date.now() - timeStarted) / 1000} seconds`)
-                                                        if (playersNotMeetingReqs) returnEmbed.addField("Additional Kick Commands", `\`\`\`\n/kick ${playersNotMeetingReqs.join(" ")}\n\`\`\``)
-                                                        if (playersNotMeetingReqs) returnEmbed.addField("Additional Find Command", `\`\`\`\n${config.prefix}find ${playersNotMeetingReqs.join(" ")}\n\`\`\``)    
-                                                        statusMessage.edit(returnEmbed);
-                                                        resolve();
+                                                    if (playersNotMeetingReqs) returnEmbed.addField("Additional Kick Commands", `\`\`\`\n/kick ${playersNotMeetingReqs.join(" ")}\n\`\`\``)
+                                                    if (playersNotMeetingReqs) returnEmbed.addField("Additional Find Command", `\`\`\`\n${config.prefix}find ${playersNotMeetingReqs.join(" ")}\n\`\`\``)
+                                                    resolve();
+                                                    return statusMessage.edit(returnEmbed);
                                                 }
-                        
+
                                             }
-        
+
                                         }
                                     } else {
                                         recieveRequests++;
@@ -173,7 +173,7 @@ module.exports = {
                 await getPlayers();
 
                 let requirements = config.requirements;
-                
+
                 if (invalidUsers.length > 0) {
                     var unreachedEmbed = new Discord.MessageEmbed()
                         .setAuthor("The Following People Have Unreachable Profiles")
@@ -192,7 +192,7 @@ module.exports = {
                             equipmentTier[i] = "None"
                         }
                     }
-                    
+
                     for (var i in characterObject.Equipment) {
                         if (bannedItems.some(e => e == (characterObject.Equipment[i][0].split(":")[1].toLowerCase()))) {
                             valid = false;
@@ -200,7 +200,7 @@ module.exports = {
                         }
                     }
 
-                    if (characterObject.L < parseInt(requirements.level)){
+                    if (characterObject.L < parseInt(requirements.level)) {
                         valid = false
                         reasons.push(`Player is below level ${requirements.level} (Lvl ${characterObject.L}) `)
                     }
@@ -235,8 +235,8 @@ module.exports = {
             } catch (e) {
                 reject();
                 console.log(e);
-            }    
-            
-        });   
-    } 
+            }
+
+        });
+    }
 }    
