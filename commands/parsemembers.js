@@ -47,17 +47,17 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 var result = await ocrClient.textDetection(imageURL);
             } catch (e) {
                 statusDescription = 'Parse status: Error\nAttempting to use Tesseract OCR Text Recognition. This may take a bit longer';
-                statusMessage.edit(statusEmbed.setDescription(`\`\`\`\n${statusDescription}.\n\`\`\`\n**Error**:\n\`\`\`${e}\`\`\``));
+                await statusMessage.edit(statusEmbed.setDescription(`\`\`\`\n${statusDescription}.\n\`\`\`\n**Error**:\n\`\`\`${e}\`\`\``));
                 try {
                     var result = await tessOcr(imageURL);
                     google = false;
                 } catch (e) {
                     statusDescription = 'Parse status: Error Tesseract OCR Failed';
-                    statusMessage.edit(statusEmbed.setDescription(`\`\`\`\n${statusDescription}\n\`\`\`\n**Error**:\n\`\`\`${e}\`\`\``));
+                    await statusMessage.edit(statusEmbed.setDescription(`\`\`\`\n${statusDescription}\n\`\`\`\n**Error**:\n\`\`\`${e}\`\`\``));
                 }
             }
             statusDescription = 'Parse status: Text Recieved';
-            statusMessage.edit(statusEmbed.setDescription(`\`\`\`\n${statusDescription}.\n\`\`\``));
+            await statusMessage.edit(statusEmbed.setDescription(`\`\`\`\n${statusDescription}.\n\`\`\``));
             if (google) var players = result[0].fullTextAnnotation.text.replace(/\n/g, " ").split(' ');
             else var players = result.replace(/\n/g, " ").split(' ');
 
@@ -158,7 +158,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 if (matches.length > 0) statusEmbed.addField('Name Matches', `\`\`\`\n${(matches.join("\n")).substring(0, 950)}\n\`\`\``);
                 if (crasherListNames.length > 0) statusEmbed.addField('Kick Commands', `\`\`\`\n/kick ${(crasherListNames.join(" ")).substring(0, 950)}\n\`\`\``);
                 if (crasherListNames.length > 0) statusEmbed.addField('Find Command', `\`\`\`\n${config.prefix}find ${(crasherListNames.join(" ")).substring(0, 950)}\n\`\`\``);
-                statusMessage.edit(statusEmbed);
+                await statusMessage.edit(statusEmbed);
                 let parsecharacters = require("./parsecharactersv2.js");
                 parsecharacters.parseCharacters(playersInVc, Discord, message, client);
                 resolve(true)
