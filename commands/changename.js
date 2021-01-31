@@ -19,12 +19,13 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
 
         var newName = args.shift()
-        if (newName == user.nickname) {
-            if (newName.charAt(0).toLowerCase() == user.nickname.charAt(0)) newName = newName.charAt(0).toUpperCase() + newName.substring(1)
-            else{
+        if(newName.toLowerCase() == user.user.username.toLowerCase()){
+            if (newName.charAt(0).toLowerCase() == user.user.username.charAt(0)) newName = newName.charAt(0).toUpperCase() + newName.substring(1)
+            else {
                 newName = newName.charAt(0).toLowerCase() + newName.substring(1)
             }
         }
+
         var checkUsers = await message.guild.members.cache.find(m => m.nickname && m.nickname.toLowerCase().replace(/[^a-z|]/gi, '').split('|').includes(newName.toLowerCase()))
         if (checkUsers != undefined && checkUsers != user) {
             return message.channel.send(`There is already a user with the name: \`${newName}\` <@!${checkUsers.id}>`)
