@@ -52,7 +52,7 @@ module.exports = {
                 var invalidUsers = [];
                 var validUsers = [];
                 var playersNotMeetingReqs = [];
-                var recieveRequests = 0;
+                var receiveRequests = 0;
 
                 var timeStarted = Date.now();
 
@@ -75,7 +75,7 @@ module.exports = {
                         try {
                             var url = `https://www.realmeye.com/player/${players[i]}`;
                             await request(url, options, async (error, response, html) => {
-                                recieveRequests++;
+                                receiveRequests++;
                                 try {
                                     if (!error && response.statusCode == 200) {
                                         var $ = cheerio.load(html);
@@ -142,7 +142,7 @@ module.exports = {
                                                     playersNotMeetingReqs.push(characterObject.Name);
                                                     statusMessage.edit(returnEmbed);
                                                 }
-                                                if (recieveRequests >= players.length && receiveRequests > 0) {
+                                                if (receiveRequests >= players.length && receiveRequests > 0) {
                                                     receiveRequests = -999
                                                     returnEmbed.setDescription(`\`\`\`\nParse Status: Complete\n\`\`\``)
                                                         .setFooter(`Time taken: ${(Date.now() - timeStarted) / 1000} seconds`)
@@ -156,7 +156,7 @@ module.exports = {
 
                                         }
                                     } else {
-                                        recieveRequests++;
+                                        receiveRequests++;
                                         //console.log('Something went wrong..')
                                     }
                                 } catch (e) {
@@ -165,7 +165,7 @@ module.exports = {
                                 }
                             });
                         } catch (e) {
-                            recieveRequests++;
+                            receiveRequests++;
                             message.channel.send(`There was an error fetching ${players[i]}'s Realmeye page: ${e}`)
                         }
                     }
