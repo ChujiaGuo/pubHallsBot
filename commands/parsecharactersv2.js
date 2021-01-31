@@ -147,9 +147,8 @@ module.exports = {
                                                         .setFooter(`Time taken: ${(Date.now() - timeStarted) / 1000} seconds`)
                                                     if (playersNotMeetingReqs) returnEmbed.addField("Additional Kick Commands", `\`\`\`\n/kick ${playersNotMeetingReqs.join(" ")}\n\`\`\``)
                                                     if (playersNotMeetingReqs) returnEmbed.addField("Additional Find Command", `\`\`\`\n${config.prefix}find ${playersNotMeetingReqs.join(" ")}\n\`\`\``)
-                                                    resolve();
                                                     receiveRequests = -1
-                                                    return statusMessage.edit(returnEmbed);
+                                                    return resolve(await statusMessage.edit(returnEmbed));
                                                 }
 
                                             }
