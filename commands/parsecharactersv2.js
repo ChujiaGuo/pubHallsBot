@@ -142,12 +142,13 @@ module.exports = {
                                                     playersNotMeetingReqs.push(characterObject.Name);
                                                     statusMessage.edit(returnEmbed);
                                                 }
-                                                if (recieveRequests >= players.length && receiveRequests != -1) {
+                                                if (recieveRequests >= players.length && receiveRequests > 0) {
+                                                    receiveRequests = -999
                                                     returnEmbed.setDescription(`\`\`\`\nParse Status: Complete\n\`\`\``)
                                                         .setFooter(`Time taken: ${(Date.now() - timeStarted) / 1000} seconds`)
-                                                    if (playersNotMeetingReqs) returnEmbed.addField("Additional Kick Commands", `\`\`\`\n/kick ${playersNotMeetingReqs.join(" ")}\n\`\`\``)
-                                                    if (playersNotMeetingReqs) returnEmbed.addField("Additional Find Command", `\`\`\`\n${config.prefix}find ${playersNotMeetingReqs.join(" ")}\n\`\`\``)
-                                                    receiveRequests = -1
+                                                    if (playersNotMeetingReqs) {
+                                                        returnEmbed.addField("Additional Kick Commands", `\`\`\`\n/kick ${playersNotMeetingReqs.join(" ")}\n\`\`\``).addField("Additional Find Command", `\`\`\`\n${config.prefix}find ${playersNotMeetingReqs.join(" ")}\n\`\`\``)
+                                                    }
                                                     return resolve(await statusMessage.edit(returnEmbed));
                                                 }
 
