@@ -160,7 +160,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 if (crasherListNames.length > 0) statusEmbed.addField('Find Command', `\`\`\`\n${config.prefix}find ${(crasherListNames.join(" ")).substring(0, 950)}\n\`\`\``);
                 statusMessage.edit(statusEmbed);
                 let parsecharacters = require("./parsecharactersv2.js");
-                parsecharacters.parseCharacters(crasherListNames, Discord, message, client);
+                parsecharacters.parseCharacters(playersInVc, Discord, message, client);
                 resolve(true)
                 
             } catch (e) { console.log(e); }
