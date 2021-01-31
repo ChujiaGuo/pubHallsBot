@@ -121,17 +121,19 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 
             if (altListNames.length > 0) {
                 for (var i of altListNames) {
-                    var match = stringSimilarity.findBestMatch(i, crasherListNames).bestMatch;
-                    if (match.rating > parseFloat(config.parsesettings.nameThreshold)) {
-                        matches.push(`Matched: ${i} => ${match.target}`);
-                        console.log(`Matched: ${i} to ${match.target}`);
-                        altListNames.splice(altListNames.indexOf(i), 1);
-                        altHashMap.delete(i);
-                        crasherListNames.splice(crasherListNames.indexOf(match.target), 1);
-                        var name = new RegExp(`\\*\\*` + match.target + `\\*\\*`, 'gi');
-                        whoText = whoText.replace(name, `${match.target}`);
+                    if (i.length > 0 && Object.getPrototypeOf([]) == Array.prototype) {
+                        var match = stringSimilarity.findBestMatch(i, crasherListNames).bestMatch;
+                        if (match.rating > parseFloat(config.parsesettings.nameThreshold)) {
+                            matches.push(`Matched: ${i} => ${match.target}`);
+                            console.log(`Matched: ${i} to ${match.target}`);
+                            altListNames.splice(altListNames.indexOf(i), 1);
+                            altHashMap.delete(i);
+                            crasherListNames.splice(crasherListNames.indexOf(match.target), 1);
+                            var name = new RegExp(`\\*\\*` + match.target + `\\*\\*`, 'gi');
+                            whoText = whoText.replace(name, `${match.target}`);
+                        }
+                        console.log(match);
                     }
-                    console.log(match);
                 }
             }
 
