@@ -60,7 +60,7 @@ module.exports = {
                     proxy: 'http://Nashex:Goldilocks1@us-wa.proxymesh.com:31280',
                     headers: {
                         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36',
-                        'Proxy-Authorization' : 'Basic TmFzaGV4OkdvbGRpbG9ja3Mx'
+                        'Proxy-Authorization': 'Basic TmFzaGV4OkdvbGRpbG9ja3Mx'
                     }
                 };
 
@@ -74,7 +74,7 @@ module.exports = {
                     for (var i in players) {
                         try {
                             var url = `https://www.realmeye.com/player/${players[i]}`;
-                            await request(url, options, async (error, response, html) => {
+                            request(url, options, async (error, response, html) => {
                                 receiveRequests++;
                                 try {
                                     if (!error && response.statusCode == 200) {
@@ -148,14 +148,13 @@ module.exports = {
                                                         .setFooter(`Time taken: ${(Date.now() - timeStarted) / 1000} seconds`)
                                                     if (returnEmbed.fields.length > 0) returnEmbed.addField("Additional Kick Commands", `\`\`\`\n/kick ${playersNotMeetingReqs.join(" ")}\n\`\`\``).addField("Additional Find Command", `\`\`\`\n${config.prefix}find ${playersNotMeetingReqs.join(" ")}\n\`\`\``);
                                                     else returnEmbed.setAuthor('All Players Meet Requirements');
-                                                    return resolve(await statusMessage.edit(returnEmbed)); 
+                                                    return resolve(await statusMessage.edit(returnEmbed));
                                                 }
 
                                             }
 
                                         }
                                     } else {
-                                        receiveRequests++;
                                         //console.log('Something went wrong..')
                                     }
                                 } catch (e) {
@@ -164,7 +163,6 @@ module.exports = {
                                 }
                             });
                         } catch (e) {
-                            receiveRequests++;
                             message.channel.send(`There was an error fetching ${players[i]}'s Realmeye page: ${e}`)
                         }
                     }
@@ -186,7 +184,7 @@ module.exports = {
                     let valid = true
                     let reasons = []
                     //Check Gear Requirements
-                    if (characterObject.Equipment == undefined) return [true, reasons]; 
+                    if (characterObject.Equipment == undefined) return [true, reasons];
                     let equipmentTier = characterObject.Equipment.map(a => a[1].replace(/ST/gi, "-1").replace(/UT/gi, "-1").replace(/[^0-9-\n]/gi, ""))
                     for (var i in equipmentTier) {
                         if (equipmentTier[i].length == 0) {
@@ -200,7 +198,7 @@ module.exports = {
                                 valid = false;
                                 reasons.push(`Item is banned (${characterObject.Equipment[i][0]})`)
                             }
-                        } catch (e) {}
+                        } catch (e) { }
                     }
 
                     if (characterObject.L < parseInt(requirements.level)) {
