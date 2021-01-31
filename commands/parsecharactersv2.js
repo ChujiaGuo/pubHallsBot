@@ -154,6 +154,7 @@ module.exports = {
         
                                         }
                                     } else {
+                                        recieveRequests++;
                                         //console.log('Something went wrong..')
                                     }
                                 } catch (e) {
