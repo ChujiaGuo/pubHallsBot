@@ -121,17 +121,21 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 
             if (altListNames.length > 0) {
                 for (var i of altListNames) {
-                    var match = stringSimilarity.findBestMatch(i, crasherListNames).bestMatch;
-                    if (match.rating > parseFloat(config.parsesettings.nameThreshold)) {
-                        matches.push(`Matched: ${i} => ${match.target}`);
-                        console.log(`Matched: ${i} to ${match.target}`);
-                        altListNames.splice(altListNames.indexOf(i), 1);
-                        altHashMap.delete(i);
-                        crasherListNames.splice(crasherListNames.indexOf(match.target), 1);
-                        var name = new RegExp(`\\*\\*` + match.target + `\\*\\*`, 'gi');
-                        whoText = whoText.replace(name, `${match.target}`);
-                    }
-                    console.log(match);
+                    try {
+                        if (i.length > 0 && Object.getPrototypeOf([]) == Array.prototype) {
+                            var match = stringSimilarity.findBestMatch(i, crasherListNames).bestMatch;
+                            if (match.rating > parseFloat(config.parsesettings.nameThreshold)) {
+                                matches.push(`Matched: ${i} => ${match.target}`);
+                                console.log(`Matched: ${i} to ${match.target}`);
+                                altListNames.splice(altListNames.indexOf(i), 1);
+                                altHashMap.delete(i);
+                                crasherListNames.splice(crasherListNames.indexOf(match.target), 1);
+                                var name = new RegExp(`\\*\\*` + match.target + `\\*\\*`, 'gi');
+                                whoText = whoText.replace(name, `${match.target}`);
+                            }
+                            console.log(match);
+                        }
+                    } catch (e) {console.log(e);}
                 }
             }
 
@@ -160,7 +164,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 if (crasherListNames.length > 0) statusEmbed.addField('Find Command', `\`\`\`\n${config.prefix}find ${(crasherListNames.join(" ")).substring(0, 950)}\n\`\`\``);
                 await statusMessage.edit(statusEmbed);
                 let parsecharacters = require("./parsecharactersv2.js");
-                parsecharacters.parseCharacters(playersInVc, Discord, message, client);
+                if (playersInVc.length > -1) parsecharacters.parseCharacters(crasherListNames, Discord, message, client);
                 resolve(true)
                 
             } catch (e) { console.log(e); }

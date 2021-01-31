@@ -48,29 +48,24 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 //Suspended Anywhere?
                 let suspendedString = "";
                 if (member.roles.cache.has(config.roles.general.vetsuspended)) {
-                    suspendedString += `\n<@&${config.roles.general.vetsuspended}>`
+                    suspendedString += `<@&${config.roles.general.vetsuspended}>`
                 }
                 if (member.roles.cache.has(config.roles.general.tempsuspended)) {
-                    suspendedString += `\n<@&${config.roles.general.tempsuspended}>`
+                    suspendedString += `<@&${config.roles.general.tempsuspended}>`
                 }
                 if (member.roles.cache.has(config.roles.general.permasuspended)) {
-                    suspendedString += `\n<@&${config.roles.general.permasuspended}>`
+                    suspendedString += `<@&${config.roles.general.permasuspended}>`
                 }
                 if (suspendedString.length == 0) {
                     suspendedString += "❌"
-                } else {
-                    suspendedString += "\n✅"
                 }
 
                 returnEmbed
-                    .setDescription(`User: <@!${member.id}>`)
+                    .setDescription(`**[User RealmEye](https://www.realmeye.com/player/${member.displayName.toLowerCase().replace(/[^a-z|]/gi, "").split('|')[0]})** | **User tag:** <@!${member.id}>` +
+                        `\n\n**Roles:** ${member.roles.cache.map(r => r).sort((a, b) => b.position - a.position).filter(r => r.id != message.guild.id).join(', ')}`)
                     .addFields(
-                        { name: "Highest Role:", value: `<@&${member.roles.highest.id}>`, inline: true },
-                        { name: "Suspended?", value: suspendedString, inline: true },
-                        { name: "Voice Channel:", value: (member.voice.channel) ? member.voice.channel : "None", inline: true },
-                        { name: "Is Nitro?", value: (member.roles.cache.has(config.roles.general.nitro)) ? "✅" : "❌", inline: true },
-                        { name: "Realmeye:", value: `https://www.realmeye.com/player/${member.displayName.toLowerCase().replace(/[^a-z|]/gi, "").split('|')[0]}`, inline: true },
-                        { name: "Roles:", value: `${member.roles.cache.map(r => r).sort((a, b) => b - a).filter(r => r.id != message.guild.id).join(', ')}` }
+                        { name: "Voice Channel:", value: `${(member.voice.channel) ? member.voice.channel : "None"}`, inline: true},
+                        { name: "Suspended:", value: `${suspendedString}`, inline: true},
                     )
                     .setColor("#41f230")
                 await message.channel.send(returnEmbed)
