@@ -142,14 +142,13 @@ module.exports = {
                                                     playersNotMeetingReqs.push(characterObject.Name);
                                                     statusMessage.edit(returnEmbed);
                                                 }
-                                                if (receiveRequests >= players.length && receiveRequests > 0) {
-                                                    receiveRequests = -999
+                                                if (receiveRequests >= players.length && receiveRequests > 0 && playersNotMeetingReqs) {
+                                                    receiveRequests = -999;
                                                     returnEmbed.setDescription(`\`\`\`\nParse Status: Complete\n\`\`\``)
                                                         .setFooter(`Time taken: ${(Date.now() - timeStarted) / 1000} seconds`)
-                                                    if (playersNotMeetingReqs) {
-                                                        returnEmbed.addField("Additional Kick Commands", `\`\`\`\n/kick ${playersNotMeetingReqs.join(" ")}\n\`\`\``).addField("Additional Find Command", `\`\`\`\n${config.prefix}find ${playersNotMeetingReqs.join(" ")}\n\`\`\``)
-                                                    }
-                                                    return resolve(await statusMessage.edit(returnEmbed));
+                                                    if (returnEmbed.fields.length > 0) returnEmbed.addField("Additional Kick Commands", `\`\`\`\n/kick ${playersNotMeetingReqs.join(" ")}\n\`\`\``).addField("Additional Find Command", `\`\`\`\n${config.prefix}find ${playersNotMeetingReqs.join(" ")}\n\`\`\``);
+                                                    else returnEmbed.setAuthor('All Players Meet Requirements');
+                                                    return resolve(await statusMessage.edit(returnEmbed)); 
                                                 }
 
                                             }
@@ -187,6 +186,7 @@ module.exports = {
                     let valid = true
                     let reasons = []
                     //Check Gear Requirements
+                    if (characterObject.Equipment == undefined) return [true, reasons]; 
                     let equipmentTier = characterObject.Equipment.map(a => a[1].replace(/ST/gi, "-1").replace(/UT/gi, "-1").replace(/[^0-9-\n]/gi, ""))
                     for (var i in equipmentTier) {
                         if (equipmentTier[i].length == 0) {
@@ -195,10 +195,12 @@ module.exports = {
                     }
 
                     for (var i in characterObject.Equipment) {
-                        if (bannedItems.some(e => e == (characterObject.Equipment[i][0].split(":")[1].toLowerCase()))) {
-                            valid = false;
-                            reasons.push(`Item is banned (${characterObject.Equipment[i][0]})`)
-                        }
+                        try {
+                            if (bannedItems.some(e => e == (characterObject.Equipment[i][0].split(":")[1].toLowerCase()))) {
+                                valid = false;
+                                reasons.push(`Item is banned (${characterObject.Equipment[i][0]})`)
+                            }
+                        } catch (e) {}
                     }
 
                     if (characterObject.L < parseInt(requirements.level)) {
