@@ -76,7 +76,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     .addFields(
                         { name: "Voice Channel:", value: `${(member.voice.channel) ? member.voice.channel : "None"}`, inline: true },
                         { name: "Suspended:", value: `${suspendedString}`, inline: true },
-                        { name: "Expulsions:", value: expulsionsString, inline: true }
+                        { name: "Expulsions:", value: expulsionsString || "None", inline: true }
                     )
                     .setColor("#41f230")
                 await message.channel.send(returnEmbed)
