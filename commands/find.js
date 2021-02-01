@@ -1,4 +1,5 @@
 const fs = require('fs')
+const sqlHelper = require('../helpers/sqlHelper')
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
     var config = JSON.parse(fs.readFileSync('config.json'))
@@ -7,6 +8,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             return message.channel.send(`You are missing arguments. Expected 1, received ${args.length}.`)
         }
         var couldNotFind = []
+        var expelled = []
         for (var i in args) {
             let returnEmbed = new Discord.MessageEmbed()
             let memberResolvable = args[i]
@@ -64,12 +66,14 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     .setDescription(`**[User RealmEye](https://www.realmeye.com/player/${member.displayName.toLowerCase().replace(/[^a-z|]/gi, "").split('|')[0]})** | **User tag:** <@!${member.id}>` +
                         `\n\n**Roles:** ${member.roles.cache.map(r => r).sort((a, b) => b.position - a.position).filter(r => r.id != message.guild.id).join(', ')}`)
                     .addFields(
-                        { name: "Voice Channel:", value: `${(member.voice.channel) ? member.voice.channel : "None"}`, inline: true},
-                        { name: "Suspended:", value: `${suspendedString}`, inline: true},
+                        { name: "Voice Channel:", value: `${(member.voice.channel) ? member.voice.channel : "None"}`, inline: true },
+                        { name: "Suspended:", value: `${suspendedString}`, inline: true },
+                        { name: "Expelled:", value: (await sqlHelper.checkExpelled(member.id)) ? "✅" : "❌", inline: true }
                     )
                     .setColor("#41f230")
                 await message.channel.send(returnEmbed)
             } else {
+                if(await sqlHelper.checkExpelled(args[i])){expelled.push(args[i])}
                 couldNotFind.push(`[${args[i]}](https://www.realmeye.com/player/${args[i]})`)
             }
         }
@@ -95,6 +99,12 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 await message.channel.send(returnEmbed)
             }
 
+        }
+        if(expelled.length > 0){
+            let expelledEmbed = new Discord.MessageEmbed()
+            .setDescription(`The following users are expelled:\n${expelled.join(", ")}`)
+            .setColor("#ff1212")
+            await message.channel.send(expelledEmbed)
         }
     }
     catch (e) {

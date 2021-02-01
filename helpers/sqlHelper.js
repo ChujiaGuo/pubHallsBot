@@ -286,15 +286,15 @@ module.exports = {
     },
     currentWeekAdd: async (userId, columnName, amount) => {
         return new Promise((resolve, reject) => {
-            let currentWeekTypes={
-                "feedback":"currentweekFeedback",
-                "parses":"currentweekparses",
-                "assists":"currentweekAssists",
-                "voidsLead":"currentweekVoid",
-                "cultsLead":"currentweekCult",
-                "eventsLead":"currentweekEvents"
+            let currentWeekTypes = {
+                "feedback": "currentweekFeedback",
+                "parses": "currentweekparses",
+                "assists": "currentweekAssists",
+                "voidsLead": "currentweekVoid",
+                "cultsLead": "currentweekCult",
+                "eventsLead": "currentweekEvents"
             }
-            if(!currentWeekTypes[columnName])return reject("Invalid row identifier for currentweek.")
+            if (!currentWeekTypes[columnName]) return reject("Invalid row identifier for currentweek.")
             try {
                 var db = mysql.createConnection(config.dbinfo)
                 db.connect(e => { if (e) throw e })
@@ -308,6 +308,23 @@ module.exports = {
                     if (e) throw e
                     else { resolve(rows[0] ? rows : false) }
                 })
+                db.end()
+            } catch (e) {
+                reject(e)
+            }
+        })
+    },
+    checkExpelled: async (identifier) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                var db = mysql.createConnection(config.dbinfo)
+                db.connect(e => { if (e) throw e })
+
+                db.query(`SELECT * FROM veriblacklist where id=?`, [identifier], (e, rows) => {
+                    if (e) throw e
+                    else { resolve(rows[0] ? true : false) }
+                })
+
                 db.end()
             } catch (e) {
                 reject(e)
