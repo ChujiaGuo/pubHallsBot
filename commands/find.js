@@ -1,4 +1,5 @@
 const fs = require('fs')
+const { checkExpelled } = require('../helpers/sqlHelper')
 const sqlHelper = require('../helpers/sqlHelper')
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
@@ -62,13 +63,20 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     suspendedString += "❌"
                 }
 
+                //Expulsions
+                let expulsionsString = "";
+                //Nicknames
+                for(var n of member.displayName.toLowerCase().replace(/[^a-z|]/gi, "").split('|').concat(member.id)){
+                    if(await checkExpelled(n)) expulsionsString+=`${n}: Expelled\n`
+                }
+
                 returnEmbed
                     .setDescription(`**[User RealmEye](https://www.realmeye.com/player/${member.displayName.toLowerCase().replace(/[^a-z|]/gi, "").split('|')[0]})** | **User tag:** <@!${member.id}>` +
                         `\n\n**Roles:** ${member.roles.cache.map(r => r).sort((a, b) => b.position - a.position).filter(r => r.id != message.guild.id).join(', ')}`)
                     .addFields(
                         { name: "Voice Channel:", value: `${(member.voice.channel) ? member.voice.channel : "None"}`, inline: true },
                         { name: "Suspended:", value: `${suspendedString}`, inline: true },
-                        { name: "Expelled:", value: (await sqlHelper.checkExpelled(member.id)) ? "✅" : "❌", inline: true }
+                        { name: "Expulsions:", value: expulsionsString, inline: true }
                     )
                     .setColor("#41f230")
                 await message.channel.send(returnEmbed)
