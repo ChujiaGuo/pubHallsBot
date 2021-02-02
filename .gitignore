@@ -1,4 +1,5 @@
 node_modules/
+/package-lock.json
 /config.json
 /blankConfig.json
 /nitrodelay.json
@@ -9,6 +10,7 @@ node_modules/
 /acceptedleaverequests.json
 /currentleaverequests.json
 /runTemplates.json
+/lockdownPerms.json
 /errorLog.txt
 oldStuff/
 commands/test.js
