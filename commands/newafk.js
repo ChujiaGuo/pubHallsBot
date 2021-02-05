@@ -116,12 +116,13 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             //Create Channel
             var raidingChannel = await base.clone({
                 name: `${message.member.nickname.replace(/[^a-z|]/gi, "").split("|")[0]}'s ${reactions[runType].name}`,
+                userLimit: reactions[runType].max,
                 parent: message.channel.parent.id
             })
             await raidingChannel.setPosition(lounge.position) //Set to top of list
             if (reactions[runType].max.length > 0) {
                 try {
-                    await raidingChannel.setUserLimit(parseInt(reactions[runType].max))
+                    await raidingChannel.setUserLimit(reactions[runType].max)
                 } catch (e) {
                     errorHelper.report(message, client, e)
                 }
