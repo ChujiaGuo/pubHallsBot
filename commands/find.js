@@ -20,7 +20,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 if (isNaN(memberResolvable.slice(3, -1)) || memberResolvable.slice(3, -1).length == 0) {
                     //Get from nickname
                     try {
-                        member = await message.guild.members.cache.find(m => m.displayName.toLowerCase().replace(/[^a-z|]/gi, '').split('|').includes(memberResolvable.toLowerCase()))
+                        member = await message.guild.members.cache.find(m => m.nickname && m.nickname.toLowerCase().replace(/[^a-z|]/gi, '').split('|').includes(memberResolvable.toLowerCase()))
                     } catch (e) {
                         returnEmbed.setColor("#ff1212")
                         returnEmbed.setDescription(`I could not find a user with the nickname of: ${args[i]}`)
