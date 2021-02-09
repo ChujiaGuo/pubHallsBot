@@ -11,7 +11,7 @@ const worker = createWorker()
 exports.run = async (client, message, args, Discord, sudo = false) => {
     return new Promise(async (resolve, reject) => {
         var config = JSON.parse(fs.readFileSync('config.json'));
-        await sqlHelper.currentWeekAdd(message.author.id,'parses', 1);
+        await sqlHelper.currentWeekAdd(message.author.id, 'parses', 1);
 
         //Channel Number
         var channelNumber = args[0]
@@ -46,7 +46,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             try {
                 var result = await ocrClient.textDetection(imageURL);
             } catch (e) {
-                statusDescription = 'Parse status: Error\nAttempting to use Tesseract OCR Text Recognition. This may take a bit longer';
+                statusDescription = 'Parse status: Error\nAttempting to use Tesseract. This may take a bit longer';
                 await statusMessage.edit(statusEmbed.setDescription(`\`\`\`\n${statusDescription}.\n\`\`\`\n**Error**:\n\`\`\`${e}\`\`\``));
                 try {
                     var result = await tessOcr(imageURL);
@@ -58,9 +58,14 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             }
             statusDescription = 'Parse status: Text Recieved';
             await statusMessage.edit(statusEmbed.setDescription(`\`\`\`\n${statusDescription}.\n\`\`\``));
-            if (google) var players = result[0].fullTextAnnotation.text.replace(/\n/g, " ").split(' ');
-            else var players = result.replace(/\n/g, " ").split(' ');
-
+            if (google && result[0].fullTextAnnotation == null) {
+                resolve(await statusMessage.edit(statusEmbed.setDescription(`\`\`\`\nParse status: Failed to recognize text. Trying again...\n\`\`\``)));
+                return exports.run(client, message, args, Discord);
+            }
+            else {
+                if (google) var players = result[0].fullTextAnnotation.text.replace(/\n/g, " ").split(' ');
+                else var players = result.replace(/\n/g, " ").split(' ');
+            }
             players = players.slice(players.indexOf(players.find(i => i.includes("):"))) + 1);
 
             for (var i in players) {
@@ -72,10 +77,10 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 
             channelMembers = raidingChannel.members.map(m => m);
             var whoText = google ? result[0].fullTextAnnotation.text : result.text;
-            var crasherList = [], crasherListNames = [],  otherVCList = [], otherVCNames = [], altList = [], altListNames = [], playersInVc = [], notVet = [], matches = [];
+            var crasherList = [], crasherListNames = [], otherVCList = [], otherVCNames = [], altList = [], altListNames = [], playersInVc = [], notVet = [], matches = [];
 
             let commandFile = require(`./permcheck.js`);
-        
+
             //Start channel parsing
             //People in /who but not in channel
             for (var i in players) {
@@ -84,13 +89,13 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     //People who aren't in the server
                     crasherListNames.push(players[i].replace(/[^a-z]/gi, ""));
                     var name = new RegExp(players[i].match(/([0-9a-zA-Z ])/g).join(""), 'gi');
-                    if (players[i].length > 3) whoText = whoText.replace(name, function(v) { return`**${v}**`; });
+                    if (players[i].length > 3) whoText = whoText.replace(name, function (v) { return `**${v}**`; });
                 } else if (member.voice.channel == undefined) {
                     //People who aren't in a voice channel but are a member
                     if (!(await commandFile.run(client, member, config.roles.staff.arl))) {
                         crasherListNames.push(players[i].replace(/[^a-z]/gi, ""));
                         var name = new RegExp(players[i], 'gi');
-                        whoText = whoText.replace(name, function(v) { return`**${v}**`; });
+                        whoText = whoText.replace(name, function (v) { return `**${v}**`; });
                     }
                 } else if (member.voice.channel != undefined && member.voice.channel != raidingChannel) {
                     //People in a different voice channel
@@ -104,7 +109,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 }
                 if (config.parsesettings.displayVet.toLowerCase() == "true"
                     && origin == 100 && !member.roles.cache.has(config.roles.general.vetraider)) {
-                        notVet.push(nickname); 
+                    notVet.push(nickname);
                 }
             }
 
@@ -116,7 +121,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             });
 
             crasherListNames = crasherListNames.filter(Boolean);
-            
+
             var stringSimilarity = require("string-similarity");
 
             if (altListNames.length > 0) {
@@ -135,12 +140,12 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                             }
                             console.log(match);
                         }
-                    } catch (e) {console.log(e);}
+                    } catch (e) { console.log(e); }
                 }
             }
 
             altList = Array.from(altHashMap.values());
-        
+
             for (var i of crasherListNames) {
                 let member = message.guild.members.cache.find(n => n.nickname != null && n.displayName.toLowerCase().replace(/[^a-z|]/gi, '').split('|').includes(i.toLowerCase()));
                 if (member == undefined) {
@@ -149,7 +154,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     crasherList.push(`<@!${member.id}>`);
                 }
             }
-        
+
             try {
                 statusDescription = 'Parse status: VC Parse Complete';
                 statusEmbed.setDescription(`\`\`\`\n${statusDescription}\n\`\`\``)
@@ -166,9 +171,9 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 let parsecharacters = require("./parsecharactersv2.js");
                 if (playersInVc.length > -1) parsecharacters.parseCharacters(playersInVc, Discord, message, client);
                 resolve(true)
-                
+
             } catch (e) { console.log(e); }
-            
+
         }
 
         catch (e) {
