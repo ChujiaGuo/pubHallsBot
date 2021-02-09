@@ -8,7 +8,7 @@ const { createWorker } = require('tesseract.js');
 const worker = createWorker()
 
 
-exports.run = async (client, message, args, Discord, sudo = false) => {
+exports.run = async (client, message, args, Discord, sudo = false, previous = false) => {
     return new Promise(async (resolve, reject) => {
         var config = JSON.parse(fs.readFileSync('config.json'));
         await sqlHelper.currentWeekAdd(message.author.id, 'parses', 1);
@@ -59,8 +59,8 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             statusDescription = 'Parse status: Text Recieved';
             await statusMessage.edit(statusEmbed.setDescription(`\`\`\`\n${statusDescription}.\n\`\`\``));
             if (google && result[0].fullTextAnnotation == null) {
-                resolve(await statusMessage.edit(statusEmbed.setDescription(`\`\`\`\nParse status: Failed to recognize text. Trying again...\n\`\`\``)));
-                return exports.run(client, message, args, Discord);
+                resolve(await statusMessage.edit(statusEmbed.setDescription(`\`\`\`\nParse status: Failed to recognize text. ${!previous ? 'Trying again...' : 'Please try again later.'}\n\`\`\``)));
+                return !previous ? null : await exports.run(client, message, args, Discord, false, true);
             }
             else {
                 if (google) var players = result[0].fullTextAnnotation.text.replace(/\n/g, " ").split(' ');
