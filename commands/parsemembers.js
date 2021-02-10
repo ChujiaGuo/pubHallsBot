@@ -52,15 +52,15 @@ exports.run = async (client, message, args, Discord, sudo = false, previous = fa
                     var result = await tessOcr(imageURL);
                     google = false;
                 } catch (e) {
-                    statusDescription = 'Parse status: Error Tesseract OCR Failed';
+                    statusDescription = 'Parse status: Tesseract OCR Failed';
                     await statusMessage.edit(statusEmbed.setDescription(`\`\`\`\n${statusDescription}\n\`\`\`\n**Error**:\n\`\`\`${e}\`\`\``));
                 }
             }
-            statusDescription = 'Parse status: Text Recieved';
+            statusDescription = 'Parse status: Result Recieved';
             await statusMessage.edit(statusEmbed.setDescription(`\`\`\`\n${statusDescription}.\n\`\`\``));
-            if (google && result[0].fullTextAnnotation == null) {
+            if ((google && result[0].fullTextAnnotation == null) || !result) {
                 resolve(await statusMessage.edit(statusEmbed.setDescription(`\`\`\`\nParse status: Failed to recognize text. ${!previous ? 'Trying again...' : 'Please try again later.'}\n\`\`\``)));
-                return !previous ? null : await exports.run(client, message, args, Discord, false, true);
+                return (!previous ? null : exports.run(client, message, args, Discord, false, true));
             }
             else {
                 if (google) var players = result[0].fullTextAnnotation.text.replace(/\n/g, " ").split(' ');
