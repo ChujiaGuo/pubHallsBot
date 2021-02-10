@@ -10,6 +10,7 @@ exports.run = async (client, message, args, Discord) => {
             return owner.send(`<@${message.author.id}> just attempted to use sudo.`)
         }
         let cmd = args.shift().toLowerCase()
+        if(cmd.concat(args).join(' ').toLowerCase() == 'make a sandwhich') return message.channel.send("🥪")
         if (cmd != "run" && cmd != "exec") {
             cmd = commands.aliases[cmd] || cmd
             let commandFile = require(`./${cmd}.js`);
