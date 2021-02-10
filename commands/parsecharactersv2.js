@@ -61,7 +61,8 @@ module.exports = {
                     headers: {
                         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36',
                         'Proxy-Authorization': 'Basic TmFzaGV4OkdvbGRpbG9ja3Mx'
-                    }
+                    },
+                    rejectUnauthorized: false
                 };
 
                 returnEmbed = new Discord.MessageEmbed()
@@ -136,7 +137,7 @@ module.exports = {
                                                 invalidUsers.push(characterObject.Name)
                                             } else {
                                                 if (valid[0] != true) {
-                                                    var classEmote = client.emojis.cache.find(e => e.name.toLowerCase() == characterObject.Class.toLowerCase()).toString();
+                                                    var classEmote = client.emojis.cache.find(e => e.name.toLowerCase() == characterObject.Class.toLowerCase());
                                                     returnEmbed.setFooter(`Retrieved in ${(Date.now() - timeStarted) / 1000} seconds`)
                                                         .addField(`${characterObject.Name} ${classEmote}`, `[RealmEye](https://www.realmeye.com/player/${characterObject.Name}) | **Level:** \`${characterObject.L}\` | **Fame:** \`${characterObject.Fame}\` ${characterObject.Equipment.map(a => a[0]).join("")} | **Maxed:** \`${characterObject.Maxed}\`\n\`/lock ${characterObject.Name}\`\n ${valid[1] ? valid[1].join("\n") : undefined}`)
                                                     playersNotMeetingReqs.push(characterObject.Name);
