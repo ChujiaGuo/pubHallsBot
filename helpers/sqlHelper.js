@@ -263,8 +263,22 @@ module.exports = {
             }
         })
     },
-    mergeJsonTable: async (json, tableName) => {
+    mute: async (client, member, reason, unsuspendtime) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                var db = mysql.createConnection(config.dbinfo)
+                db.connect(e => { if (e) throw e })
 
+                db.query(`INSERT INTO mutes (id, guildid, muted, reason, modid, uTime) VALUES (${member.id}, ${member.guild.id}, 1, ?, ${client.user.id}, ${unsuspendtime})`,[reason], (e, rows) => {
+                    if (e) throw e
+                    else { resolve(rows[0] ? rows : false) }
+                })
+
+                db.end()
+            } catch (e) {
+                reject(e)
+            }
+        })
     },
     testConnection: async () => {
         return new Promise((resolve, reject) => {

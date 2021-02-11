@@ -144,6 +144,29 @@ client.on("message", async message => {
         }
     }
 
+    //Check for role pings and auto-mute
+    if (message.mentions.roles.size > 0 && config.automute.enabled.toLowerCase() == "true") {
+        let member = message.member
+        let permcheck = require('./commands/permcheck.js')
+        let auth = await permcheck.run(client, member, config.roles.staff.eo)
+        if (!auth) {
+            await member.roles.add(config.roles.general.muted)
+            await sqlHelper.mute(client, member, "Pinging Roles", Date.now() + parseInt(config.automute.duration))
+
+            let logEmbed = new Discord.MessageEmbed()
+                .setColor("#30ffea")
+                .setAuthor("User Muted")
+                .setDescription(`Duration: ${await toTimeString(config.automute.duration)}\nReason: Pinging Roles`)
+                .addField(`User's Server Name: ${member.nickname}`, `${member} (Username: ${member.user.username})`)
+
+            await member.send(logEmbed)
+            logEmbed.description = logEmbed.description + `\nOriginal Message [Here](${message.url})\nOriginal Message Content:\n${message.content}`
+            let logChannel = message.guild.channels.cache.find(c => c.id == config.channels.log.mod)
+            await logChannel.send(logEmbed)
+
+        }
+    }
+
     //Not a command
     if (message.content.indexOf(config.prefix) != 0) return;
 
