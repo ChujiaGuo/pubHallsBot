@@ -274,6 +274,86 @@ client.on("message", async message => {
     }
 })
 
+client.on("guildMemberUpdate", async (oldMember, newMember) => {
+    //Get difference between two members
+    let flags = { guildid: newMember.guild.id, memberid: newMember.id }
+    if ((newMember.nickname && oldMember.nickname) && newMember.nickname.replace(/[^a-z|]/gi, "").toLowerCase() != oldMember.nickname.replace(/[^a-z|]/gi, "").toLowerCase()) { flags["changed_name"] = { new: newMember.nickname, old: oldMember.nickname } } //Names
+    let roles = await roleDiff(oldMember, newMember) //Roles
+    if (roles.changed) { flags['changed_roles'] = roles }
+
+    if (Object.keys(flags).length <= 2) return;
+    console.log(flags)
+
+    //Get other server and member
+    let servers = ["343704644712923138", "708026927721480254"]
+    let otherServer = client.guilds.cache.find(g => g.id == servers.filter(i => i != newMember.guild.id)[0])
+    if (!otherServer) return console.log(`Other guild not found. Original Guild: ${newMember.guild.name} ${newMember.guild.id}`);
+    let otherMember = await otherServer.members.fetch(newMember.user)
+
+    //Get Log channel in other server
+    let logChannels = ["362714467257286656", "708026928724181026"]
+    let logChannel = otherServer.channels.cache.find(c => c.id == logChannels[servers.indexOf(otherServer.id)])
+
+    //Get Affiliate Staff in other server
+    let affiliateRoles = ["804042379006967810", "804035384849465374"]
+    let affiliateRole = otherServer.roles.cache.find(r => r.id = affiliateRoles[servers.indexOf(otherServer.id)])
+
+    //Copy over changed names
+    if (flags.changed_name) {
+        let newName = flags.changed_name.new
+        let oldName = otherMember.nickname
+        if (otherMember.nickname && otherMember.nickname.match(/[^a-z|\s]/gi)) {
+            newName = otherMember.nickname.match(/[^a-z|\s]/gi).join("") + newName.match(/[a-z|\s]/gi).join("")
+        }
+        if(otherMember.nickname == newName) return console.log("Automatic name change aborted: Names already match")
+        var logEmbed = new Discord.MessageEmbed()
+            .setColor("#41f230")
+            .setTitle("Name Changed")
+            .setDescription(`Name Changed for:\n\`${otherMember.nickname}\` <@!${otherMember.id}>\nOld Name: ${oldName}\nNew Name: ${newName}`)
+            .addField(`User's Server Name: \`${otherMember.nickname}\``, `<@!${otherMember.id}> (Username: ${otherMember.user.username})`, true)
+            .addField(`Mod's Server Name: \`${newMember.guild.name} Auto\``, `N/A`, true)
+            .setTimestamp()
+        try {
+            await otherMember.setNickname(newName)
+            await logChannel.send(logEmbed)
+        } catch (e) {
+            console.error(e)
+        }
+
+    }
+
+    //Give Affiliate Staff
+    if (flags.changed_roles) {
+
+    }
+
+    async function roleDiff(oldMember, newMember) {
+        let oldRoles = oldMember.roles.cache.map(r => r.id)
+        let newRoles = newMember.roles.cache.map(r => r.id)
+        var removed = []
+        var added = []
+        for (var i in newRoles) {
+            if (!oldRoles.includes(newRoles[i])) {
+                added.push(newRoles[i])
+            }
+        }
+        for (var i in oldRoles) {
+            if (!newRoles.includes(oldRoles[i])) {
+                removed.push(oldRoles[i])
+            }
+        }
+        return {
+            "changed": (added.length > 0 || removed.length > 0) ? true : false,
+            "added": added,
+            "removed": removed
+        }
+    }
+    async function intersect(arr1, arr2) {
+        let set2 = new Set(arr2)
+        return [...new Set(arr1)].filter(x => set2.has(x))
+    }
+})
+
 process.stdin.resume()
 process.on("uncaughtException", async (err) => {
     var owner = await client.users.fetch(config.dev)
