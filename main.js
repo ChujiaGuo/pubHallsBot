@@ -277,7 +277,9 @@ client.on("message", async message => {
 client.on("guildMemberUpdate", async (oldMember, newMember) => {
     //Get difference between two members
     let flags = { guildid: newMember.guild.id, memberid: newMember.id }
+    
     if ((newMember.nickname && oldMember.nickname) && newMember.nickname.replace(/[^a-z|]/gi, "").toLowerCase() != oldMember.nickname.replace(/[^a-z|]/gi, "").toLowerCase()) { flags["changed_name"] = { new: newMember.nickname, old: oldMember.nickname } } //Names
+
     let roles = await roleDiff(oldMember, newMember) //Roles
     if (roles.changed) { flags['changed_roles'] = roles }
 
