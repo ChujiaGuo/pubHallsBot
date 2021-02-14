@@ -305,7 +305,7 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
         let newName = flags.changed_name.new
         let oldName = otherMember.nickname
         if (otherMember.nickname && otherMember.nickname.match(/[^a-z|\s]/gi)) {
-            newName = otherMember.nickname.match(/[^a-z|\s]/gi).join("") + newName.match(/[a-z|\s]/gi).join("")
+            newName = otherMember.nickname.match(/[^a-z|\s]/gi)[0] + newName.match(/[a-z|\s]/gi).join("")
         }
         if (otherMember.nickname == newName) return console.log("Automatic name change aborted: Names already match")
         if (otherMember.roles.cache.size <= 1) return console.log("Automatic name change aborted: Other member not verified")
