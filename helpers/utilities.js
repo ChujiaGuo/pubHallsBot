@@ -19,11 +19,11 @@ module.exports = {
         }
         //Channel Number
         var channelNumber = args[0]
-    
+
         //Channel Available?
-        if (message.member.voice.channelID) { // User is in a channel
+        if (message.guild.channels.cache.find(c => c.id == channelNumber) && message.guild.channels.cache.find(c => c.id == channelNumber).type == "voice") { // User is in a channel
             return message.member.voice.channelID;
-        } else if (message.guild.channels.cache.find(c => c.id == channelNumber) && message.guild.channels.cache.find(c => c.id == channelNumber).type == "voice") {
+        } else if (message.member.voice.channelID) {
             return channelNumber;
         } else {
             if (origin == 100) {
