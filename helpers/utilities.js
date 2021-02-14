@@ -22,9 +22,9 @@ module.exports = {
 
         //Channel Available?
         if (message.guild.channels.cache.find(c => c.id == channelNumber) && message.guild.channels.cache.find(c => c.id == channelNumber).type == "voice") { // User is in a channel
-            return message.member.voice.channelID;
-        } else if (message.member.voice.channelID) {
             return channelNumber;
+        } else if (message.member.voice.channelID) {
+            return message.member.voice.channelID;
         } else {
             if (origin == 100) {
                 if (config.channels.veteran.raiding[channelNumber] == undefined) {
