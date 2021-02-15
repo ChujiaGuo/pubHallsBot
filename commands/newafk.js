@@ -163,7 +163,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     await sqlHelper.removeFromQueue(next);
                 }
             }
-            await raidingChannel.overwritePermissions(channelPermissions)
+            raidingChannel.overwritePermissions(channelPermissions)
             return raidingChannel
         }
         async function editQueue(queueChannel) {
