@@ -25,7 +25,8 @@ exports.run = async (client, message, args, Discord) => {
         } else { //Else add to lockdown
             try {
                 let allPermissions = channel.permissionOverwrites // Get all channel permissions
-                lockdownLogs[channel.id] = JSON.parse(JSON.stringify(allPermissions)) //Add permissions to logs
+
+                lockdownLogs[channel.id] = allPermissions //Add permissions to logs
 
                 //Remove "SEND_MESSAGES" permission from every role except higher ups
                 let { hdev, hrl, officer, mod, admin } = config.roles.staff //Get higher up ids
@@ -34,22 +35,19 @@ exports.run = async (client, message, args, Discord) => {
                 for (r of allPermissions) {
                     let permission = r[1]
                     if (!higherUps.includes(r[0])) {
-                        allPermissions.set(r[0], {
-                            id: r[0],
-                            deny: "SEND_MESSAGES"
-                        })
+                        await permission.update({
+                            SEND_MESSAGES: false
+                        }, "Locking down the channel.")
                     }else{
-                        allPermissions.set(r[0], {
-                            id: r[0],
-                            allow: "SEND_MESSAGES"
-                        })
+                        await permission.update({
+                            SEND_MESSAGES: true
+                        }, "Locking down the channel.")
                     }
                 }
-                allPermissions.set(client.user.id, {
-                    id: client.user.id,
-                    allow: "SEND_MESSAGES"
+                await channel.updateOverwrite(client.user.id, {
+                    SEND_MESSAGES: true,
+                    MANAGE_CHANNELS: true,
                 })
-                await channel.overwritePermissions(allPermissions)
                 fs.writeFileSync('lockdownPerms.json', JSON.stringify(lockdownLogs))
 
                 let confirmationEmbed = new Discord.MessageEmbed()
