@@ -78,7 +78,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                         { name: "Suspended:", value: `${suspendedString}`, inline: true },
                         { name: "Expulsions:", value: expulsionsString || "None", inline: true }
                     )
-                    .setColor("#41f230")
+                    .setColor("#30ffea")
                 await message.channel.send(returnEmbed)
             } else {
                 if(await sqlHelper.checkExpelled(args[i])){expelled.push(args[i])}

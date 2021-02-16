@@ -27,7 +27,6 @@ exports.run = async (client, message, args, Discord) => {
                 let allPermissions = channel.permissionOverwrites // Get all channel permissions
 
                 lockdownLogs[channel.id] = allPermissions //Add permissions to logs
-                fs.writeFileSync('lockdownPerms.json', JSON.stringify(lockdownLogs))
 
                 //Remove "SEND_MESSAGES" permission from every role except higher ups
                 let { hdev, hrl, officer, mod, admin } = config.roles.staff //Get higher up ids
@@ -45,6 +44,8 @@ exports.run = async (client, message, args, Discord) => {
                     SEND_MESSAGES: true,
                     MANAGE_CHANNELS: true,
                 })
+                fs.writeFileSync('lockdownPerms.json', JSON.stringify(lockdownLogs))
+
                 let confirmationEmbed = new Discord.MessageEmbed()
                     .setColor("#30ffea")
                     .setAuthor("This channel has been locked down.")
