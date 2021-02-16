@@ -29,7 +29,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 returnEmbed.setDescription(`**Help Panel for: ${cmd.toLowerCase()}**\n\n` + "This command does not have a help panel. Please check your spelling.")
                 return message.channel.send(returnEmbed)
             } else {
-                returnEmbed.setDescription(`**Help Panel for: ${cmd.toLowerCase()}**\n\n` + commands.help[cmd] + ` ${Object.keys(commands.aliases).filter(c => commands.aliases[c] == cmd).join(", ")}\n\n**Minimum Role Required: **<@&${commands.settings[cmd].permsint[message.guild.id] == "0" ? message.guild.id : commands.settings[cmd].permsint[message.guild.id]}>\n\n**Command Status: **${commands.settings[cmd].enabled.toLowerCase() == "true" ? "Enabled" : "Disabled"} ${cmd == "bazaarparse" ? "\n\nFor extra help, please watch the informational video from <@!213552175102689283>. It  can be found in the pinned messages." : ""}`)
+                returnEmbed.setDescription(`**Help Panel for: ${cmd.toLowerCase()}**\n\n` + commands.help[cmd] + ` ${Object.keys(commands.aliases).filter(c => commands.aliases[c] == cmd).join(", ")}\n\n**Minimum Role Required: **<@&${commands.settings[cmd].permsint[message.guild.id] == "0" ? message.guild.id : commands.settings[cmd].permsint[message.guild.id]}>\n\n**Command Status: **${commands.settings[cmd].enabled[message.guild.id].toLowerCase() == "true" ? "Enabled" : "Disabled"} ${cmd == "bazaarparse" ? "\n\nFor extra help, please watch the informational video from <@!213552175102689283>. It  can be found in the pinned messages." : ""}`)
                 return message.channel.send(returnEmbed)
             }
         }
