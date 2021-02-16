@@ -33,10 +33,14 @@ exports.run = async (client, message, args, Discord) => {
                 let higherUps = [hdev, hrl, officer, mod, admin]
 
                 for (r of allPermissions) {
+                    let permission = r[1]
                     if (!higherUps.includes(r[0])) {
-                        let permission = r[1]
                         await permission.update({
                             SEND_MESSAGES: false
+                        }, "Locking down the channel.")
+                    }else{
+                        await permission.update({
+                            SEND_MESSAGES: true
                         }, "Locking down the channel.")
                     }
                 }
