@@ -29,7 +29,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 returnEmbed.setDescription(`**Help Panel for: ${cmd.toLowerCase()}**\n\n` + "This command does not have a help panel. Please check your spelling.")
                 return message.channel.send(returnEmbed)
             } else {
-                returnEmbed.setDescription(`**Help Panel for: ${cmd.toLowerCase()}**\n\n` + commands.help[cmd] + ` ${Object.keys(commands.aliases).filter(c => commands.aliases[c] == cmd).join(", ")}\n\n**Minimum Role Required: **<@&${commands.settings[cmd].permsint == "0" ? message.guild.id : commands.settings[cmd].permsint}>\n\n**Command Status: **${commands.settings[cmd].enabled.toLowerCase() == "true" ? "Enabled" : "Disabled"} ${cmd == "bazaarparse" ? "\n\nFor extra help, please watch the informational video from <@!213552175102689283>. It  can be found in the pinned messages." : ""}`)
+                returnEmbed.setDescription(`**Help Panel for: ${cmd.toLowerCase()}**\n\n` + commands.help[cmd] + ` ${Object.keys(commands.aliases).filter(c => commands.aliases[c] == cmd).join(", ")}\n\n**Minimum Role Required: **<@&${commands.settings[cmd].permsint[message.guild.id] == "0" ? message.guild.id : commands.settings[cmd].permsint[message.guild.id]}>\n\n**Command Status: **${commands.settings[cmd].enabled.toLowerCase() == "true" ? "Enabled" : "Disabled"} ${cmd == "bazaarparse" ? "\n\nFor extra help, please watch the informational video from <@!213552175102689283>. It  can be found in the pinned messages." : ""}`)
                 return message.channel.send(returnEmbed)
             }
         }
@@ -50,7 +50,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         let sorted = {}
         for (var x in categories) {
             let type = categories[x]
-            sorted[type] = Object.entries(commands.settings).filter(cmd => cmd.length > 1 && cmd[1].category != undefined && cmd[1].category.toLowerCase() == type && cmd[1].enabled.toLowerCase() == "true")
+            sorted[type] = Object.entries(commands.settings).filter(cmd => cmd.length > 1 && cmd[1].category != undefined && cmd[1].category.toLowerCase() == type && cmd[1].enabled[message.guild.id].toLowerCase() == "true")
             let allowedCommands = []
             for (var y in sorted[type]) {
                 let auth = await permcheck.run(client, message.member, sorted[type][y][1].permsint == "0" ? message.guild.id : sorted[type][y][1].permsint)
