@@ -7,6 +7,7 @@ exports.run = async (client, member, checkint) => {
     /* if (member.id == config.dev) {
         return true
     } */
+    if(checkint == 0) return true;
     try{
         if(member.guild.roles.cache.has(checkint)){
             if(member.roles.hoist != null && member.roles.hoist.comparePositionTo(checkint) >= 0){
@@ -18,6 +19,7 @@ exports.run = async (client, member, checkint) => {
             return false
         }
     }catch(e){
+        console.log(e)
         let owner = await client.users.fetch(config.dev)
         var errorEmbed = new Discord.MessageEmbed()
             .setColor("#ff1212")
