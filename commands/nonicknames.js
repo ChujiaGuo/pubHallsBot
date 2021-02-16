@@ -1,7 +1,7 @@
 const fs = require('fs')
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
-    const config = JSON.parse(fs.readFileSync("config.json"))
+    const config = JSON.parse(fs.readFileSync("config.json"))[message.guild.id]
     return new Promise(async (resolve, reject) => {
         try {
             let eventRole = message.guild.roles.cache.get(config.roles.general.eventraider)

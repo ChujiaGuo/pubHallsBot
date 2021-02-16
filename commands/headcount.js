@@ -1,10 +1,11 @@
 const fs = require('fs')
 const runTemplates = JSON.parse(fs.readFileSync("runTemplates.json"))
-const config = JSON.parse(fs.readFileSync('config.json'))
 const errorHelper = require('../helpers/errorHelper.js')
 
 exports.run = async (client, message, args, Discord) => {
     let chosenTemplate = runTemplates[args[0]] || runTemplates[message.member.id]
+    const config = JSON.parse(fs.readFileSync('config.json'))[message.guild.id]
+
     if (!chosenTemplate) return message.channel.send(`Invalid Template Identifier: ${args[0]}`)
 
     //Creating the Embed

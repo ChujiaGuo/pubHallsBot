@@ -7,7 +7,8 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         try {
 
             //Define Basic Variables
-            var config = JSON.parse(fs.readFileSync('config.json'))
+            var baseConfig = JSON.parse(fs.readFileSync('config.json'))
+            var config = JSON.parse(fs.readFileSync('config.json'))[message.guild.id]
             var currentLocation = config
             var currentPath = 'config';
 
@@ -141,7 +142,8 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                         }
                         break
                     case 'close':
-                        fs.writeFileSync('config.json', JSON.stringify(config))
+                        baseConfig[message.guild.id] = config
+                        fs.writeFileSync('config.json', JSON.stringify(baseConfig))
                         messageCollector.stop()
                         await displayMessage.delete()
                         commandsEmbed.setDescription("The setup has been stopped. The changes should take affect immediately.")

@@ -10,7 +10,7 @@ const worker = createWorker()
 
 exports.run = async (client, message, args, Discord, sudo = false, previous = false) => {
     return new Promise(async (resolve, reject) => {
-        var config = JSON.parse(fs.readFileSync('config.json'));
+        var config = JSON.parse(fs.readFileSync('config.json'))[message.guild.id];
         await sqlHelper.currentWeekAdd(message.author.id, 'parses', 1);
 
         //Channel Number

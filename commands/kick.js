@@ -1,7 +1,7 @@
 const fs = require('fs')
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
-    var config = JSON.parse(fs.readFileSync('config.json'))
+    var config = JSON.parse(fs.readFileSync('config.json'))[message.guild.id]
     try {
         //Number of arguments
         if (args.length < 2) {

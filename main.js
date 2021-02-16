@@ -4,6 +4,7 @@ const Discord = require("discord.js");
 const { Socket } = require("dgram");
 const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'] });
 var config = JSON.parse(fs.readFileSync("config.json"))
+var mainConfig = {dev:config.dev}
 var commands = JSON.parse(fs.readFileSync("commands.json"))
 var sqlHelper = require("./helpers/sqlHelper.js");
 var processManager = require("./helpers/processManager.js")
@@ -65,43 +66,43 @@ client.once("ready", async () => {
     }
     fs.writeFileSync('afk.json', JSON.stringify(afk))
     console.log("Bot Up.")
-    setInterval(async () => {
-        let leaverequests = JSON.parse(fs.readFileSync('acceptedleaverequests.json'))
-        for (var i in leaverequests) {
-            let currentTime = Date.now()
-            if (currentTime >= leaverequests[i].endingAt) {
-                let guild = await client.guilds.resolve(leaverequests[i].guildId)
-                let member = await guild.members.fetch(i)
-                let channel = await guild.channels.cache.find(c => c.id == config.channels.log.leaverequest)
-                let embed = new Discord.MessageEmbed()
-                    .setColor("#41f230")
-                    .setAuthor(`${member.nickname}(Username: ${member.user.username})'s leave has expired`)
-                    .setDescription(`Their roles:\n${leaverequests[i].roles.join(", ")}`)
-                await channel.send(`<@!${leaverequests[i].approvedBy}>, <@!${member.id}>'s leave has expired. If they want to stay on leave, please have them request leave again.`, embed)
-                delete leaverequests[i]
-            }
-        }
-        fs.writeFileSync('acceptedleaverequests.json', JSON.stringify(leaverequests))
-    }, 60000)
+    // setInterval(async () => {
+    //     let leaverequests = JSON.parse(fs.readFileSync('acceptedleaverequests.json'))
+    //     for (var i in leaverequests) {
+    //         let currentTime = Date.now()
+    //         if (currentTime >= leaverequests[i].endingAt) {
+    //             let guild = await client.guilds.resolve(leaverequests[i].guildId)
+    //             let member = await guild.members.fetch(i)
+    //             let channel = await guild.channels.cache.find(c => c.id == config.channels.log.leaverequest)
+    //             let embed = new Discord.MessageEmbed()
+    //                 .setColor("#41f230")
+    //                 .setAuthor(`${member.nickname}(Username: ${member.user.username})'s leave has expired`)
+    //                 .setDescription(`Their roles:\n${leaverequests[i].roles.join(", ")}`)
+    //             await channel.send(`<@!${leaverequests[i].approvedBy}>, <@!${member.id}>'s leave has expired. If they want to stay on leave, please have them request leave again.`, embed)
+    //             delete leaverequests[i]
+    //         }
+    //     }
+    //     fs.writeFileSync('acceptedleaverequests.json', JSON.stringify(leaverequests))
+    // }, 60000)
 })
-client.on("guildMemberAdd", async member => {
-    //People Leaving and Rejoin Guild to Bypass Suspensions
-    let guildId = member.guild.id
-    let id = member.id
-    const suspensions = JSON.parse(fs.readFileSync('suspensions.json'))
-    var temp, vet, perma
-    if (suspensions.normal.id) {
-        await member.roles.add(config.roles.general.tempsuspended)
-        temp == true;
-    }
-    if (suspensions.veteran.id && temp != true) {
-        await member.roles.add(config.roles.general.vetsuspended)
-    }
-    if (suspensions.perma.id) {
-        await member.roles.add(config.roles.general.permasuspended)
-    }
+// client.on("guildMemberAdd", async member => {
+//     //People Leaving and Rejoin Guild to Bypass Suspensions
+//     let guildId = member.guild.id
+//     let id = member.id
+//     const suspensions = JSON.parse(fs.readFileSync('suspensions.json'))
+//     var temp, vet, perma
+//     if (suspensions.normal.id) {
+//         await member.roles.add(config.roles.general.tempsuspended)
+//         temp == true;
+//     }
+//     if (suspensions.veteran.id && temp != true) {
+//         await member.roles.add(config.roles.general.vetsuspended)
+//     }
+//     if (suspensions.perma.id) {
+//         await member.roles.add(config.roles.general.permasuspended)
+//     }
 
-})
+// })
 client.on("messageReactionAdd", async (r, u) => {
     if (u.bot) return;
     if (r.partial) await r.fetch().catch(e => console.log(e))
@@ -109,21 +110,17 @@ client.on("messageReactionAdd", async (r, u) => {
     await messageReactionAdd.run(client, r.message, Discord, r, u).catch(e => e.toString().includes('Error') ? errorHelper.report(r.message, client, e) : e)
 })
 client.on("message", async message => {
-    config = JSON.parse(fs.readFileSync("config.json"))
     commands = JSON.parse(fs.readFileSync("commands.json"))
     processes = JSON.parse(fs.readFileSync('processes.json'))
-
-    //Filters
-    //Bot
     if (message.author.bot) return;
-    if (message.content.includes(`<@!${client.user.id}> prefix`)) return message.channel.send(config.prefix)
 
     //DM Channel
     if (message.channel.type == "dm" && !activeDMs.includes(message.author.id)) {
         if (processes.pendingRestart) return message.channel.send("Bot is pending a restart. Please try again later.")
         //Commands in DMs
+
         let allowedCommands = ['joinruns']
-        let [cmd, args] = [...message.content.split(' ')]
+        let [cmd, ...args] = [...message.content.split(' ')]
         cmd = cmd.replace(/[^a-z]/gi, "")
         cmd = commands.aliases[cmd] || cmd
         if (allowedCommands.includes(cmd)) {
@@ -139,10 +136,19 @@ client.on("message", async message => {
                 let modmailCommand = require('./commands/modmail.js')
                 activeDMs.push(message.author.id)
                 await modmailCommand.run(client, message, Discord).catch(e => e)
-                activeDMs.splice(activeDMs.indexOf(message.author.id), 1)
+                return activeDMs.splice(activeDMs.indexOf(message.author.id), 1)
+            }else{
+                return
             }
         }
     }
+    
+    //Filters
+    //Bot
+    config = JSON.parse(fs.readFileSync("config.json"))[message.guild.id]
+    if (message.content.includes(`<@!${client.user.id}> prefix`)) return message.channel.send(config.prefix)
+
+    
 
     //Check for role pings and auto-mute
     if (message.mentions.roles.size > 0 && config.automute.enabled.toLowerCase() == "true") {
@@ -265,7 +271,7 @@ client.on("message", async message => {
             message.channel.send(errorEmbed)
         } else {
             console.log(e)
-            var owner = await client.users.fetch(config.dev)
+            var owner = await client.users.fetch(mainConfig.dev)
             errorEmbed.setDescription(`There was a problem processing \`$${cmd}\` for the following reason: \n\nAn internal error occured. The developer has been notified of this and will fix it as soon as possible. The bot will DM you once finished.`)
             await message.channel.send(errorEmbed)
             errorEmbed.setDescription(`Error Processing: \`${cmd}\`\nError Message:\`\`\`${e.toString()}\`\`\`\From User: <@${message.author.id}>\nIn guild: \`${message.guild.name}\``)
@@ -359,7 +365,7 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
 
 process.stdin.resume()
 process.on("uncaughtException", async (err) => {
-    var owner = await client.users.fetch(config.dev)
+    var owner = await client.users.fetch(mainConfig.dev)
     await owner.send(`An uncaught error occured: \`\`\`${err.stack.substring(0, 1800)}\`\`\``)
     console.log(err)
 

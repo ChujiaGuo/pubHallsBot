@@ -16,7 +16,7 @@ const limiter = new Bottleneck({
 module.exports = {
     parseCharacters: async function parseCharacters(players, Discord, message, client) {
         return new Promise(async (resolve, reject) => {
-            var config = JSON.parse(fs.readFileSync('config.json'))
+            var config = JSON.parse(fs.readFileSync('config.json'))[message.guild.id]
             var statusDescription = 'Parse status: Retrieving players from RealmEye';
             var statusEmbed = new Discord.MessageEmbed()
                 .setColor("#41f230")

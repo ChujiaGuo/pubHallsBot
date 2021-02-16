@@ -2,7 +2,7 @@ const fs = require('fs')
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
     try {
-        var config = JSON.parse(fs.readFileSync('config.json'))
+        var config = JSON.parse(fs.readFileSync('config.json'))[message.guild.id]
         var user = args.shift()
         if (isNaN(user)) {
             if (isNaN(user.slice(3, -1)) || user.slice(3, -1).length == 0) {
@@ -52,8 +52,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 .addField(`Mod's Server Name: \`${message.member.nickname}\``, `<@!${message.member.id}> (Username: ${message.member.user.username})`, true)
                 .setTimestamp()
             await logChannel.send(logEmbed)
-            await message.channel.send(`Name Changed for: <@!${user.id}>`)
-            await user.setNickname(newName)
+            await message.channel.send(`Successfully Vet Verified for: <@!${user.id}>`)
         } catch (e) {
             return message.channel.send(`For the following reason, I do not have permission to manually verify this user: \`\`\`${e}\`\`\``)
         }

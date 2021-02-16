@@ -9,7 +9,7 @@ module.exports = {
         let guild = await client.guilds.cache.find(g => g.id == guildId)
         console.log(guildId)
         if (guild) {
-            let channel = await guild.channels.cache.find(c => c.id == config.channels.command.status)
+            let channel = await guild.channels.cache.find(c => c.id == config[guildId].channels.command.status)
             if (channel) {
                 let statusEmbed = await module.exports.createStatusEmbed(client)
                 let statusMessage = await channel.send(statusEmbed)

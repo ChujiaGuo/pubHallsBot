@@ -1,7 +1,7 @@
 const fs = require('fs')
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
-    const config = JSON.parse(fs.readFileSync('config.json'))
+    const config = JSON.parse(fs.readFileSync('config.json'))[message.guild.id]
     if (args.length == 0) {
         return message.channel.send(`Please use a valid role or it's appropriate abbriviation. Valid role identifiers are:\n${Object.keys(config.roles.staff).join(", ") + Object.keys(config.roles.general).join(", ")}`)
     }

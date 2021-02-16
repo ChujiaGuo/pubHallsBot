@@ -8,7 +8,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     if (args.length < 2) {
         return message.channel.send("You are missing some arguments!")
     }
-    var config = JSON.parse(fs.readFileSync('config.json'))
+    var config = JSON.parse(fs.readFileSync('config.json'))[message.guild.id]
     var commands = JSON.parse(fs.readFileSync('commands.json'))
     var afk = JSON.parse(fs.readFileSync("afk.json"))
     var nitroCounter = 0,
@@ -146,7 +146,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             })
             //Next in Queue (normal runs only)
             if (origin == 10 && queueChannel != undefined && config.afksettings.queue == 'true') {
-                next = await sqlHelper.nextInQueue(runType);
+                next = await sqlHelper.nextInQueue(runType, message.guild.id);
                 next = next.map(r => r.userid)
                 for (i in next) {
                     let id = next[i]

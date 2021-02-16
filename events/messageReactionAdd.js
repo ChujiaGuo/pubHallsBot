@@ -4,7 +4,8 @@ const confirmationHelper = require("../helpers/confirmationHelper.js")
 const sqlHelper = require("../helpers/sqlHelper.js")
 
 exports.run = async (client, message, Discord, reaction, user) => {
-    const config = JSON.parse(fs.readFileSync('config.json'))
+    if (!message.guild) return
+    let config = JSON.parse(fs.readFileSync('config.json'))[message.guild.id]
     return new Promise(async (resolve, reject) => {
         //Retriving related JSONs
         var afk = JSON.parse(fs.readFileSync('afk.json'))
@@ -134,8 +135,8 @@ exports.run = async (client, message, Discord, reaction, user) => {
                     let embed = reaction.message.embeds[0]
                     embed.setAuthor(embed.author.name + " -- Resolved with 📧")
                     await reaction.message.edit(embed)
-                    await reaction.message.reactions.removeAll()
-                    await reaction.message.react("📧")
+                    await reaction.message.reactions.removeAll().catch(e => console.log(e))
+                    await reaction.message.react("📧").catch(e => console.log(e))
                 } else {
                     await reaction.message.reactions.removeAll()
                     await reaction.message.react("🔑")

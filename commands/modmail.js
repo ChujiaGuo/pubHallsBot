@@ -1,7 +1,7 @@
 const fs = require('fs')
 
 exports.run = async (client, message, Discord) => {
-    const config = require('../config.json')
+    let config = require('../config.json')
     return new Promise(async (resolve, reject) => {
 
         //Confirm Modmail
@@ -30,6 +30,7 @@ exports.run = async (client, message, Discord) => {
         confirmationCollector.on("collect", async (r, u) => {
             if (r.emoji.name == "✅") {
                 let guild = await selectGuild().catch(e => errorHelper.report(message, client, e))
+                config = config[guild.id]
                 if (!guild) {
                     return message.channel.send("There was some problem selecting a guild.")
                 }

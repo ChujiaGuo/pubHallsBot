@@ -13,7 +13,7 @@ const limiter = new Bottleneck({
 })
 
 exports.run = async (client, message, args, Discord, sudo = false, results = undefined) => {
-    var config = JSON.parse(fs.readFileSync('config.json'))
+    var config = JSON.parse(fs.readFileSync('config.json'))[message.guild.id]
     try {
         let classStats = {
             "TEMPLATE": ["HP", "MP", "ATK", "DEF", "SPD", "VIT", "WIS", "DEX"],

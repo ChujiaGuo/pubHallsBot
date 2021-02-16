@@ -2,7 +2,7 @@ const fs = require('fs')
 var sqlHelper = require("../helpers/sqlHelper.js")
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
-    var config = JSON.parse(fs.readFileSync("config.json"))
+    var config = JSON.parse(fs.readFileSync("config.json"))[message.guild.id]
     const commands = JSON.parse(fs.readFileSync("commands.json"))
     for (var i in config.afksettings) {
         if (!isNaN(config.afksettings[i])) {

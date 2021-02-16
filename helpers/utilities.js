@@ -4,6 +4,7 @@ const config = require('../config.json');
 
 module.exports = {
     isRaidChannel: function isRaidChannel(message, args, reject) {
+        config = config[message.guild.id]
         //Get Channel
         //Find Origin
         var origin = 0;

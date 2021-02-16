@@ -3,7 +3,7 @@ const Discord = require('discord.js')
 
 exports.run = async (client, member, checkint) => {
     let userperms = 0
-    var config = JSON.parse(fs.readFileSync("config.json"))
+    var config = JSON.parse(fs.readFileSync("config.json"))[member.guild.id]
     /* if (member.id == config.dev) {
         return true
     } */

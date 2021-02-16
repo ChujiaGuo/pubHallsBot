@@ -6,7 +6,7 @@ const worker = createWorker()
 
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
-    var config = JSON.parse(fs.readFileSync('config.json'))
+    var config = JSON.parse(fs.readFileSync('config.json'))[message.guild.id]
     try {
         if (args.length < 1) {
             return message.channel.send(`You are missing arguments. Expected 1, received ${args.length}.`)

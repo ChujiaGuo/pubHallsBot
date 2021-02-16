@@ -1,7 +1,7 @@
 const fs = require('fs')
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
-    const config = JSON.parse(fs.readFileSync('config.json'))
+    const config = JSON.parse(fs.readFileSync('config.json'))[message.guild.id]
     var reportObject = {
         "messageLink": message.url,
         "messageAuthor": `<@!${message.author.id}>`,

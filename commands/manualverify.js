@@ -2,7 +2,7 @@ const fs = require('fs')
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
     try {
-        var config = JSON.parse(fs.readFileSync('config.json'))
+        var config = JSON.parse(fs.readFileSync('config.json'))[message.guild.id]
         var user = args.shift()
         var ign = args.shift()
         if (isNaN(user)) {
@@ -61,7 +61,6 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 .setTimestamp()
             await logChannel.send(logEmbed)
             await message.channel.send(`Name Changed for: <@!${user.id}>`)
-            await user.setNickname(newName)
         } catch (e) {
             return message.channel.send(`For the following reason, I do not have permission to manually verify this user: \`\`\`${e}\`\`\``)
         }

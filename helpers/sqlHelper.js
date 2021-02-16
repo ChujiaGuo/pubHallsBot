@@ -186,12 +186,12 @@ module.exports = {
             }
         })
     },
-    nextInQueue: async (queueType) => {
+    nextInQueue: async (queueType, guildid) => {
         return new Promise((resolve, reject) => {
             var db = mysql.createConnection(config.dbinfo)
             db.connect(err => { if (err) throw err })
             try {
-                db.query(`SELECT userid FROM afk_queue WHERE queuetype = '${queueType}' AND admittime < ${Date.now()} ORDER BY jointime LIMIT ${config.afksettings.queueamount}`, (err, result) => {
+                db.query(`SELECT userid FROM afk_queue WHERE queuetype = '${queueType}' AND admittime < ${Date.now()} ORDER BY jointime LIMIT ${config[guildid].afksettings.queueamount}`, (err, result) => {
                     if (err) throw err;
                     if (result) {
                         resolve(result)
