@@ -53,7 +53,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             sorted[type] = Object.entries(commands.settings).filter(cmd => cmd.length > 1 && cmd[1].category != undefined && cmd[1].category.toLowerCase() == type && cmd[1].enabled[message.guild.id].toLowerCase() == "true")
             let allowedCommands = []
             for (var y in sorted[type]) {
-                let auth = await permcheck.run(client, message.member, sorted[type][y][1].permsint == "0" ? message.guild.id : sorted[type][y][1].permsint)
+                let auth = await permcheck.run(client, message.member, sorted[type][y][1].permsint[message.guild.id] == "0" ? message.guild.id : sorted[type][y][1].permsint[message.guild.id])
                 if (auth) {
                     allowedCommands.push(sorted[type][y])
                 }
