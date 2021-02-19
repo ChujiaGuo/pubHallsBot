@@ -365,6 +365,7 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
                 .addField(`Mod's Server Name: \`${newMember.guild.name} Auto\``, `N/A`, true)
                 .setTimestamp()
             try {
+                if(otherMember.roles.cache.has(affiliateRole.id)) return console.log (`Affiliate staff aborted: Other member already has role.`)
                 await otherMember.roles.add(affiliateRole)
                 await logChannel.send(logEmbed)
                 console.log(`Affiliate Staff Successfully Given for ${otherMember.id} in ${otherMember.guild.name}`)
