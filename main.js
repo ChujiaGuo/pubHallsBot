@@ -367,7 +367,7 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
             try {
                 await otherMember.roles.add(affiliateRole)
                 await logChannel.send(logEmbed)
-                console.log(`Affiliate Staff Successful for ${otherMember.id} in ${otherMember.guild.name}`)
+                console.log(`Affiliate Staff Successfully Given for ${otherMember.id} in ${otherMember.guild.name}`)
             } catch (e) {
                 console.error(e)
             }
@@ -385,7 +385,7 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
             try {
                 await otherMember.roles.remove(affiliateRole)
                 await logChannel.send(logEmbed)
-                console.log(`Affiliate Staff Successful for ${otherMember.id} in ${otherMember.guild.name}`)
+                console.log(`Affiliate Staff Successfully Removed for ${otherMember.id} in ${otherMember.guild.name}`)
             } catch (e) {
                 console.error(e)
             }
