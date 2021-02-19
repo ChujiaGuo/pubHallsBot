@@ -310,10 +310,23 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
     if (flags.changed_name) {
         let newName = flags.changed_name.new
         let oldName = otherMember.nickname
-        if (otherMember.nickname && otherMember.nickname.match(/[^a-z|\s]/gi)) {
-            newName = otherMember.nickname.match(/[^a-z|\s]/gi)[0] + newName.match(/[a-z|\s]/gi).join("")
+
+        //Prefix Checking
+        if (oldName && oldName.match(/[^a-z|\s]/gi)) {
+            newName = oldName.match(/[^a-z|\s]/gi)[0] + newName.match(/[a-z|\s]/gi).join("")
+        }else{
+            newName = newName.match(/[a-z|\s]/gi).join("")
         }
-        if (otherMember.nickname == newName) return console.log("Automatic name change aborted: Names already match")
+
+        //Name Formatting
+        if(newName == otherMember.user.username){
+            newName = newName.toLowerCase()
+            if(newName == otherMember.user.username){
+                newName = newName.charAt(0).toUpperCase() + newName.substring(1)
+            }
+        } 
+
+        if (oldName.toLowerCase() == newName.toLowerCase()) return console.log("Automatic name change aborted: Names already match")
         if (otherMember.roles.cache.size <= 1) return console.log("Automatic name change aborted: Other member not verified")
         var logEmbed = new Discord.MessageEmbed()
             .setColor("#41f230")
@@ -325,6 +338,7 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
         try {
             await otherMember.setNickname(newName)
             await logChannel.send(logEmbed)
+            console.log(`Automatic Name Change Successful for ${otherMember.id} in ${newMember.guild.name}: ${oldName} -> ${newName}`)
         } catch (e) {
             console.error(e)
         }
