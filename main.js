@@ -281,6 +281,8 @@ client.on("message", async message => {
 })
 
 client.on("guildMemberUpdate", async (oldMember, newMember) => {
+    var fullConfig = JSON.parse(fs.readFileSync("config.json"))
+
     //Get difference between two members
     let flags = { guildid: newMember.guild.id, memberid: newMember.id }
 
@@ -307,7 +309,7 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
     let affiliateRole = otherServer.roles.cache.find(r => r.id = affiliateRoles[servers.indexOf(otherServer.id)])
 
     //Get Staff Roles in current server
-    let staffRoles = Object.values(config[newMember.guild.id].roles.staff)
+    let staffRoles = Object.values(fullConfig[newMember.guild.id].roles.staff)
 
     //Copy over changed names
     if (flags.changed_name) {
