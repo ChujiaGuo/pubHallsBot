@@ -4,7 +4,7 @@ const Discord = require("discord.js");
 const { Socket } = require("dgram");
 const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'] });
 var config = JSON.parse(fs.readFileSync("config.json"))
-var mainConfig = {dev:config.dev}
+var mainConfig = { dev: config.dev }
 var commands = JSON.parse(fs.readFileSync("commands.json"))
 var sqlHelper = require("./helpers/sqlHelper.js");
 var processManager = require("./helpers/processManager.js")
@@ -137,18 +137,18 @@ client.on("message", async message => {
                 activeDMs.push(message.author.id)
                 await modmailCommand.run(client, message, Discord).catch(e => e)
                 return activeDMs.splice(activeDMs.indexOf(message.author.id), 1)
-            }else{
+            } else {
                 return
             }
         }
     }
-    
+
     //Filters
     //Bot
     config = JSON.parse(fs.readFileSync("config.json"))[message.guild.id]
     if (message.content.includes(`<@!${client.user.id}> prefix`)) return message.channel.send(config.prefix)
 
-    
+
 
     //Check for role pings and auto-mute
     if (message.mentions.roles.size > 0 && config.automute.enabled.toLowerCase() == "true") {
@@ -283,7 +283,7 @@ client.on("message", async message => {
 client.on("guildMemberUpdate", async (oldMember, newMember) => {
     //Get difference between two members
     let flags = { guildid: newMember.guild.id, memberid: newMember.id }
-    
+
     if ((newMember.nickname && oldMember.nickname) && newMember.nickname.replace(/[^a-z|]/gi, "").toLowerCase() != oldMember.nickname.replace(/[^a-z|]/gi, "").toLowerCase()) { flags["changed_name"] = { new: newMember.nickname, old: oldMember.nickname } } //Names
 
     let roles = await roleDiff(oldMember, newMember) //Roles
@@ -306,6 +306,9 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
     let affiliateRoles = ["804042379006967810", "804035384849465374"]
     let affiliateRole = otherServer.roles.cache.find(r => r.id = affiliateRoles[servers.indexOf(otherServer.id)])
 
+    //Get Staff Roles in current server
+    let staffRoles = Object.values(config[newMember.guild.id].roles.staff)
+
     //Copy over changed names
     if (flags.changed_name) {
         let newName = flags.changed_name.new
@@ -314,17 +317,17 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
         //Prefix Checking
         if (oldName && oldName.match(/[^a-z|\s]/gi)) {
             newName = oldName.match(/[^a-z|\s]/gi)[0] + newName.match(/[a-z|\s]/gi).join("")
-        }else{
+        } else {
             newName = newName.match(/[a-z|\s]/gi).join("")
         }
 
         //Name Formatting
-        if(newName == otherMember.user.username){
+        if (newName == otherMember.user.username) {
             newName = newName.toLowerCase()
-            if(newName == otherMember.user.username){
+            if (newName == otherMember.user.username) {
                 newName = newName.charAt(0).toUpperCase() + newName.substring(1)
             }
-        } 
+        }
 
         if (oldName.toLowerCase() == newName.toLowerCase()) return console.log("Automatic name change aborted: Names already match")
         if (otherMember.roles.cache.size <= 1) return console.log("Automatic name change aborted: Other member not verified")
@@ -345,9 +348,45 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
 
     }
 
-    //Give Affiliate Staff
     if (flags.changed_roles) {
+        //Give Affiliate Staff
+        let isStaff = await intersect(staffRoles, newMember.roles.cache.map(r => r.id))
+        let removedStaff = await intersect(staffRoles, flags.changed_roles.removed)
 
+        if (isStaff.length >= 1) {
+            let logEmbed = new Discord.MessageEmbed()
+                .setColor("#41f230")
+                .setTitle("Affiliate Staff Given")
+                .setDescription(`Affiliate Staff given to: ${otherMember}`)
+                .addField(`User's Server Name: \`${otherMember.nickname}\``, `<@!${otherMember.id}> (Username: ${otherMember.user.username})`, true)
+                .addField(`Mod's Server Name: \`${newMember.guild.name} Auto\``, `N/A`, true)
+                .setTimestamp()
+            try {
+                await otherMember.roles.add(affiliateRole)
+                await logChannel.send(logEmbed)
+                console.log(`Affiliate Staff Successful for ${otherMember.id} in ${otherMember.guild.name}`)
+            } catch (e) {
+                console.error(e)
+            }
+        }
+
+        //Remove Affiliate Staff
+        if (removedStaff.length >= 1 && isStaff.length < 1) {
+            let logEmbed = new Discord.MessageEmbed()
+                .setColor("#41f230")
+                .setTitle("Affiliate Staff Removed")
+                .setDescription(`Affiliate Staff removed from: ${otherMember}`)
+                .addField(`User's Server Name: \`${otherMember.nickname}\``, `<@!${otherMember.id}> (Username: ${otherMember.user.username})`, true)
+                .addField(`Mod's Server Name: \`${newMember.guild.name} Auto\``, `N/A`, true)
+                .setTimestamp()
+            try {
+                await otherMember.roles.remove(affiliateRole)
+                await logChannel.send(logEmbed)
+                console.log(`Affiliate Staff Successful for ${otherMember.id} in ${otherMember.guild.name}`)
+            } catch (e) {
+                console.error(e)
+            }
+        }
     }
 
     async function roleDiff(oldMember, newMember) {
