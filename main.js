@@ -298,7 +298,7 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
     let servers = ["343704644712923138", "708026927721480254"]
     let otherServer = client.guilds.cache.find(g => g.id == servers.filter(i => i != newMember.guild.id)[0])
     if (!otherServer) return console.log(`Other guild not found. Original Guild: ${newMember.guild.name} ${newMember.guild.id}`);
-    let otherMember = await otherServer.members.fetch(newMember.user)
+    let otherMember = await otherServer.members.fetch(newMember.user).catch(e => e)
 
     //Get Log channel in other server
     let logChannels = ["362714467257286656", "708026928724181026"]
