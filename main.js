@@ -363,6 +363,7 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
                 .setDescription(`Affiliate Staff given to: ${otherMember}`)
                 .addField(`User's Server Name: \`${otherMember.nickname}\``, `<@!${otherMember.id}> (Username: ${otherMember.user.username})`, true)
                 .addField(`Mod's Server Name: \`${newMember.guild.name} Auto\``, `N/A`, true)
+                .addField(`Other Member Roles:`, `${newMember.roles.cache.map(r => r.name).join(', ')}` || "None")
                 .setTimestamp()
             try {
                 if(otherMember.roles.cache.has(affiliateRole.id)) return console.log (`Affiliate staff aborted: Other member already has role.`)
@@ -382,6 +383,7 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
                 .setDescription(`Affiliate Staff removed from: ${otherMember}`)
                 .addField(`User's Server Name: \`${otherMember.nickname}\``, `<@!${otherMember.id}> (Username: ${otherMember.user.username})`, true)
                 .addField(`Mod's Server Name: \`${newMember.guild.name} Auto\``, `N/A`, true)
+                .addField(`Other Member Roles:`, `${newMember.roles.cache.map(r => r.name).join(', ')}` || "None")
                 .setTimestamp()
             try {
                 await otherMember.roles.remove(affiliateRole)
