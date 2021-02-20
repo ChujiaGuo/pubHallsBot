@@ -332,7 +332,7 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
             }
         }
 
-        if (oldName.toLowerCase() == newName.toLowerCase()) return console.log("Automatic name change aborted: Names already match")
+        if (oldName == newName) return console.log("Automatic name change aborted: Names already match")
         if (otherMember.roles.cache.size <= 1) return console.log("Automatic name change aborted: Other member not verified")
         var logEmbed = new Discord.MessageEmbed()
             .setColor("#41f230")
