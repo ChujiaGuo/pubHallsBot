@@ -223,6 +223,7 @@ client.on("message", async message => {
         }
         try {
             await message.guild.members.fetch()
+            await message.guild.roles.fetch()
             if (cmd == "report") {
                 activeDMs.push(message.author.id)
             }

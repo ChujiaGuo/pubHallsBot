@@ -30,7 +30,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
         //Try by id
         else if (message.guild.roles.cache.has(roleIdentifier)) {
-            role = await message.guild.roles.cache.find(r => r.id == roleIdentifier)
+            role = await message.guild.roles.fetch(roleIdentifier)
         }
         //Try by name
         else if (message.guild.roles.cache.find(r => r.name.toLowerCase() == roleIdentifier.toLowerCase())) {
