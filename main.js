@@ -223,7 +223,6 @@ client.on("message", async message => {
         }
         try {
             await message.guild.members.fetch()
-            await message.guild.roles.fetch()
             if (cmd == "report") {
                 activeDMs.push(message.author.id)
             }
@@ -301,6 +300,10 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
     if (!otherServer) return console.log(`Other guild not found. Original Guild: ${newMember.guild.name} ${newMember.guild.id}`);
     let otherMember = await otherServer.members.fetch(newMember.user).catch(e => e)
     if(!otherMember) return console.log(`Other Member not found. Original Member: ${newMember.id}`)
+
+    //Get role and member caches
+    await otherServer.roles.fetch()
+    await otherServer.members.fetch()
 
     //Get Log channel in other server
     let logChannels = ["362714467257286656", "708026928724181026"]
