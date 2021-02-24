@@ -154,7 +154,7 @@ client.on("message", async message => {
     if (message.mentions.roles.size > 0 && config.automute.enabled.toLowerCase() == "true") {
         let member = message.member
         let permcheck = require('./commands/permcheck.js')
-        let auth = await permcheck.run(client, member, config.roles.staff.eo)
+        let auth = await permcheck.run(client, member, config.automute.minrole)
         if (!auth) {
             await member.roles.add(config.roles.general.muted)
             await sqlHelper.mute(client, member, "Pinging Roles", Date.now() + parseInt(config.automute.duration))
@@ -370,7 +370,7 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
                 .addField(`Other Member Roles:`, `${newMember.roles.cache.map(r => r.name).join(', ')}` || "None")
                 .setTimestamp()
             try {
-                if(otherMember.roles.cache.has(affiliateRole.id)) return console.log (`Affiliate staff aborted: Other member already has role.`)
+                //if(otherMember.roles.cache.has(affiliateRole.id)) return console.log (`Affiliate staff aborted: Other member already has role.`)
                 await otherMember.roles.add(affiliateRole)
                 await logChannel.send(logEmbed)
                 console.log(`Affiliate Staff Successfully Given for ${otherMember.id} in ${otherMember.guild.name}`)
