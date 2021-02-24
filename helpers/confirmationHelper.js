@@ -5,7 +5,8 @@ let config = JSON.parse(fs.readFileSync("config.json"))
 module.exports = {
     confirmMessage: async (message) => {
         return new Promise(async (resolve, reject) => {
-            if(message.guild)config = config[message.guild.id]
+            let config = JSON.parse(fs.readFileSync("config.json"))
+            if (message.guild) config = config[message.guild.id]
             let confirmationCollector = message.createReactionCollector((r, u) => !u.bot && (r.emoji.name == "✅" || r.emoji.name == "❌"), { max: 1, time: 60000 })
             confirmationCollector.on('end', async r => {
                 if (r == "time") { reject(false) }
