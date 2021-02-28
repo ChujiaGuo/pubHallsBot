@@ -299,7 +299,7 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
     let otherServer = client.guilds.cache.find(g => g.id == servers.filter(i => i != newMember.guild.id)[0])
     if (!otherServer) return console.log(`Other guild not found. Original Guild: ${newMember.guild.name} ${newMember.guild.id}`);
     let otherMember = await otherServer.members.fetch(newMember.user).catch(e => e)
-    if(!otherMember) return console.log(`Other Member not found. Original Member: ${newMember.id}`)
+    if (!otherMember) return console.log(`Other Member not found. Original Member: ${newMember.id}`)
 
     //Get role and member caches
     await otherServer.roles.fetch()
@@ -361,6 +361,8 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
         let removedStaff = await intersect(staffRoles, flags.changed_roles.removed)
         let addedRoles = await otherServer.roles.fetch(flags.changed_roles.added)
         let removedRoles = await otherServer.roles.fetch(flags.changed_roles.removed)
+        if (!addedRoles) addedRoles = []
+        if (!removedRoles) removedRoles = []
 
         if (isStaff.length >= 1) {
             let logEmbed = new Discord.MessageEmbed()
