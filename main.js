@@ -301,20 +301,21 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
     let otherMember = await otherServer.members.fetch(newMember.user).catch(e => e)
     if (!otherMember) return console.log(`Other Member not found. Original Member: ${newMember.id}`)
 
+    var thisServerConfig = fullConfig[newMember.guild.id]
+    var otherServerConfig = fullConfig[otherServer.id]
+
     //Get role and member caches
     await otherServer.roles.fetch()
     await otherServer.members.fetch()
 
     //Get Log channel in other server
-    let logChannels = ["362714467257286656", "708026928724181026"]
-    let logChannel = otherServer.channels.cache.find(c => c.id == logChannels[servers.indexOf(otherServer.id)])
+    let logChannel = otherServer.channels.cache.find(c => c.id == otherServerConfig.channels.log.mod)
 
     //Get Affiliate Staff in other server
-    let affiliateRoles = ["804042379006967810", "804035384849465374"]
-    let affiliateRole = otherServer.roles.cache.find(r => r.id = affiliateRoles[servers.indexOf(otherServer.id)])
+    let affiliateRole = otherServer.roles.cache.find(r => r.id = otherServerConfig.roles.general.affiliate)
 
     //Get Staff Roles in current server
-    let staffRoles = Object.values(fullConfig[newMember.guild.id].roles.staff)
+    let staffRoles = Object.values(thisServerConfig.roles.staff)
 
     //Copy over changed names
     if (flags.changed_name) {
@@ -359,8 +360,8 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
         //Give Affiliate Staff
         let isStaff = await intersect(staffRoles, newMember.roles.cache.map(r => r.id))
         let removedStaff = await intersect(staffRoles, flags.changed_roles.removed)
-        let addedRoles = await otherServer.roles.fetch(flags.changed_roles.added)
-        let removedRoles = await otherServer.roles.fetch(flags.changed_roles.removed)
+        let addedRoles = flags.changed_roles.added.map(id => newMember.guild.roles.cache.find(r => r.id == id) || id)
+        let removedRoles = flags.changed_roles.removed.map(id => newMember.guild.roles.cache.find(r => r.id == id) || id)
         if (!addedRoles) addedRoles = []
         if (!removedRoles) removedRoles = []
 
@@ -368,15 +369,16 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
             let logEmbed = new Discord.MessageEmbed()
                 .setColor("#41f230")
                 .setTitle("Affiliate Staff Given")
-                .setDescription(`Affiliate Staff given to: ${otherMember}`)
+                .setDescription(`${affiliateRole} given to: ${otherMember}`)
                 .addField(`User's Server Name: \`${otherMember.nickname}\``, `<@!${otherMember.id}> (Username: ${otherMember.user.username})`, true)
                 .addField(`Mod's Server Name: \`${newMember.guild.name} Auto\``, `N/A`, true)
                 .addField(`Other Member Roles:`, `${newMember.roles.cache.map(r => r.name).join(', ')}` || "None")
                 .addField(`Roles Added:`, addedRoles.map(r => r.name).join(', ') || "N/A", true)
-                .addField(`Roles Added:`, removedRoles.map(r => r.name).join(', ') || "N/A", true)
+                .addField(`Roles Removed:`, removedRoles.map(r => r.name).join(', ') || "N/A", true)
                 .setTimestamp()
             try {
-                //if(otherMember.roles.cache.has(affiliateRole.id)) return console.log (`Affiliate staff aborted: Other member already has role.`)
+                if(affiliateRole.name != "Affiliate Staff" || affiliateRole.id != otherServerConfig.roles.general.affiliate) return console.log(`Affiliate staff aborted (Giving): Incorrect role selected. Selected Role: (Name: ${affiliateRole.name}, Id: ${affiliateRole.id})`)
+                if(otherMember.roles.cache.has(affiliateRole.id)) return console.log (`Affiliate staff aborted: Other member already has role.`)
                 await otherMember.roles.add(affiliateRole)
                 await logChannel.send(logEmbed)
                 console.log(`Affiliate Staff Successfully Given for ${otherMember.id} in ${otherMember.guild.name}`)
@@ -395,9 +397,10 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
                 .addField(`Mod's Server Name: \`${newMember.guild.name} Auto\``, `N/A`, true)
                 .addField(`Other Member Roles:`, `${newMember.roles.cache.map(r => r.name).join(', ')}` || "None")
                 .addField(`Roles Added:`, addedRoles.map(r => r.name).join(', ') || "N/A", true)
-                .addField(`Roles Added:`, removedRoles.map(r => r.name).join(', ') || "N/A", true)
+                .addField(`Roles Removed:`, removedRoles.map(r => r.name).join(', ') || "N/A", true)
                 .setTimestamp()
             try {
+                if(affiliateRole.name != "Affiliate Staff" || affiliateRole.id != otherServerConfig.roles.general.affiliate) return console.log(`Affiliate staff aborted (Removal): Incorrect role selected. Selected Role: (Name: ${affiliateRole.name}, Id: ${affiliateRole.id})`)
                 await otherMember.roles.remove(affiliateRole)
                 await logChannel.send(logEmbed)
                 console.log(`Affiliate Staff Successfully Removed for ${otherMember.id} in ${otherMember.guild.name}`)
