@@ -312,7 +312,7 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
     let logChannel = otherServer.channels.cache.find(c => c.id == otherServerConfig.channels.log.mod)
 
     //Get Affiliate Staff in other server
-    let affiliateRole = otherServer.roles.cache.find(r => r.id = otherServerConfig.roles.general.affiliate)
+    let affiliateRole = await otherServer.roles.fetch(otherServerConfig.roles.general.affiliate)
 
     //Get Staff Roles in current server
     let staffRoles = Object.values(thisServerConfig.roles.staff)
