@@ -359,8 +359,8 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
         //Give Affiliate Staff
         let isStaff = await intersect(staffRoles, newMember.roles.cache.map(r => r.id))
         let removedStaff = await intersect(staffRoles, flags.changed_roles.removed)
-        let addedRoles = await otherGuild.roles.fetch(flags.changed_roles.added)
-        let removedRoles = await otherGuild.roles.fetch(flags.changed_roles.removed)
+        let addedRoles = await otherServer.roles.fetch(flags.changed_roles.added)
+        let removedRoles = await otherServer.roles.fetch(flags.changed_roles.removed)
 
         if (isStaff.length >= 1) {
             let logEmbed = new Discord.MessageEmbed()
