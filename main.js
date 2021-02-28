@@ -359,6 +359,8 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
         //Give Affiliate Staff
         let isStaff = await intersect(staffRoles, newMember.roles.cache.map(r => r.id))
         let removedStaff = await intersect(staffRoles, flags.changed_roles.removed)
+        let addedRoles = await otherGuild.roles.fetch(flags.changed_roles.added)
+        let removedRoles = await otherGuild.roles.fetch(flags.changed_roles.removed)
 
         if (isStaff.length >= 1) {
             let logEmbed = new Discord.MessageEmbed()
@@ -368,6 +370,8 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
                 .addField(`User's Server Name: \`${otherMember.nickname}\``, `<@!${otherMember.id}> (Username: ${otherMember.user.username})`, true)
                 .addField(`Mod's Server Name: \`${newMember.guild.name} Auto\``, `N/A`, true)
                 .addField(`Other Member Roles:`, `${newMember.roles.cache.map(r => r.name).join(', ')}` || "None")
+                .addField(`Roles Added:`, addedRoles.map(r => r.name).join(', ') || "N/A", true)
+                .addField(`Roles Added:`, removedRoles.map(r => r.name).join(', ') || "N/A", true)
                 .setTimestamp()
             try {
                 //if(otherMember.roles.cache.has(affiliateRole.id)) return console.log (`Affiliate staff aborted: Other member already has role.`)
@@ -388,6 +392,8 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
                 .addField(`User's Server Name: \`${otherMember.nickname}\``, `<@!${otherMember.id}> (Username: ${otherMember.user.username})`, true)
                 .addField(`Mod's Server Name: \`${newMember.guild.name} Auto\``, `N/A`, true)
                 .addField(`Other Member Roles:`, `${newMember.roles.cache.map(r => r.name).join(', ')}` || "None")
+                .addField(`Roles Added:`, addedRoles.map(r => r.name).join(', ') || "N/A", true)
+                .addField(`Roles Added:`, removedRoles.map(r => r.name).join(', ') || "N/A", true)
                 .setTimestamp()
             try {
                 await otherMember.roles.remove(affiliateRole)
