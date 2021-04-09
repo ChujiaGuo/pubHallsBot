@@ -280,7 +280,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             //❌ React
             if (r.emoji.id == "764652567296606258") {
                 let permcheck = require(`./permcheck.js`)
-                var auth = await permcheck.run(client, member, commands.settings.afk.permsint)
+                var auth = await permcheck.run(client, member, commands.settings.afk.permsint[message.guild.id])
                 if (auth) endAfk(member)
             }
             //Nitro React
