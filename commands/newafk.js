@@ -259,7 +259,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         async function addReactions() {
             if (statusEmbed.description == "This afk check has been aborted.") return;
             statusEmbed.setAuthor(`${reactions[runType].name} started in ${raidingChannel.name}`, message.author.avatarURL()).setFooter(`Time Remaining: ${Math.floor(config.afksettings.afktime / 60000)} Minute(s) ${(config.afksettings.afktime % 60000) / 1000} Seconds`)
-            await statusMessage.edit(`@here <@&${runType == 'cult' ? '787198010748567562' : runType.includes('void') ? '787198246111805440' : ''}> ${reactions[runType].name} (${await client.emojis.resolve(reactions[runType].emoji)}) started by ${message.author} in \`${raidingChannel.name}\`.`, statusEmbed)
+            await statusMessage.edit(`@here <@&${runType == 'cult' ? '787198010748567562' : runType.includes('void') ? '787198246111805440' : ''}> ${reactions[runType].name} (${await client.emojis.resolve(reactions[runType].emoji)}) started by ${message.author} in <#${raidingChannel.id}> \`${raidingChannel.name}\`.`, statusEmbed)
             for (var r of Object.keys(reactions[runType].specialReacts)) { //Custom Special
                 try {
                     await statusMessage.react(r)
