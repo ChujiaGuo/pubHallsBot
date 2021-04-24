@@ -143,6 +143,35 @@ client.on("message", async message => {
         }
     }
 
+    //Counting Channel
+    if (message.channel.id == "825524687995666462") {
+        let config = JSON.parse(fs.readFileSync("config.json"))[message.guild.id]
+
+        let member = message.member
+
+        let current = message.content
+        let previous = await message.channel.messages.fetch({ limit: 1, before: message.id })
+        previous = previous.first()
+        previous = previous.content
+        if (parseInt(current) != parseInt(previous) + 1) {
+            await message.delete()
+
+            await member.roles.add(config.roles.general.muted)
+            await sqlHelper.mute(client, member, "Can't Count", Date.now() + parseInt("86400000"))
+
+            let logEmbed = new Discord.MessageEmbed()
+                .setColor("#30ffea")
+                .setAuthor("User Muted")
+                .setDescription(`Duration: ${await toTimeString(config.automute.duration)}\nReason: Can't Count`)
+                .addField(`User's Server Name: ${member.nickname}`, `${member} (Username: ${member.user.username})`)
+
+            await member.send(logEmbed)
+            logEmbed.description = logEmbed.description + `\nPrevious Message Content:\n${previous}\nOriginal Message Content:\n${current}`
+            let logChannel = message.guild.channels.cache.find(c => c.id == config.channels.log.mod)
+            await logChannel.send(logEmbed)
+        }
+    }
+
     //Filters
     //Bot
     config = JSON.parse(fs.readFileSync("config.json"))[message.guild.id]
@@ -377,8 +406,8 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
                 .addField(`Roles Removed:`, removedRoles.map(r => r.name).join(', ') || "N/A", true)
                 .setTimestamp()
             try {
-                if(affiliateRole.name != "Affiliate Staff" || affiliateRole.id != otherServerConfig.roles.general.affiliate) return console.log(`Affiliate staff aborted (Giving): Incorrect role selected. Selected Role: (Name: ${affiliateRole.name}, Id: ${affiliateRole.id})`)
-                if(otherMember.roles.cache.has(affiliateRole.id)) return console.log (`Affiliate staff aborted: Other member already has role.`)
+                if (affiliateRole.name != "Affiliate Staff" || affiliateRole.id != otherServerConfig.roles.general.affiliate) return console.log(`Affiliate staff aborted (Giving): Incorrect role selected. Selected Role: (Name: ${affiliateRole.name}, Id: ${affiliateRole.id})`)
+                if (otherMember.roles.cache.has(affiliateRole.id)) return console.log(`Affiliate staff aborted: Other member already has role.`)
                 await otherMember.roles.add(affiliateRole)
                 await logChannel.send(logEmbed)
                 console.log(`Affiliate Staff Successfully Given for ${otherMember.id} in ${otherMember.guild.name}`)
@@ -400,7 +429,7 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
                 .addField(`Roles Removed:`, removedRoles.map(r => r.name).join(', ') || "N/A", true)
                 .setTimestamp()
             try {
-                if(affiliateRole.name != "Affiliate Staff" || affiliateRole.id != otherServerConfig.roles.general.affiliate) return console.log(`Affiliate staff aborted (Removal): Incorrect role selected. Selected Role: (Name: ${affiliateRole.name}, Id: ${affiliateRole.id})`)
+                if (affiliateRole.name != "Affiliate Staff" || affiliateRole.id != otherServerConfig.roles.general.affiliate) return console.log(`Affiliate staff aborted (Removal): Incorrect role selected. Selected Role: (Name: ${affiliateRole.name}, Id: ${affiliateRole.id})`)
                 await otherMember.roles.remove(affiliateRole)
                 await logChannel.send(logEmbed)
                 console.log(`Affiliate Staff Successfully Removed for ${otherMember.id} in ${otherMember.guild.name}`)
