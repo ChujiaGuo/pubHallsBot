@@ -33,6 +33,7 @@ module.exports = {
                     "Bard": [670, 385, 55, 25, 55, 45, 75, 70]
                 }
 
+                let requirements = config.requirements;
                 var bannedItems = client.guilds.cache.get(config.parsesettings.bannedItemsServer).emojis.cache.map(e => e.name.toLowerCase());
 
                 var invalidUsers = [];
@@ -84,8 +85,6 @@ module.exports = {
                 }
 
                 await getPlayers();
-
-                let requirements = config.requirements;
 
                 if (invalidUsers.length > 0) {
                     var unreachedEmbed = new Discord.MessageEmbed()
