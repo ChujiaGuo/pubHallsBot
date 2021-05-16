@@ -15,10 +15,10 @@ exports.run = async (client, message, args, Discord) => {
     }
     var displayWarns = (userJSON, user) => {
         if (!userJSON) return user
-        userJSON = userJSON.map((w,i) => `Warn #${i+1}\nReason: ${w.reason}\nMod: <@!${w.modid}>`)
+        userJSON = userJSON.map((w, i) => `Warn #${i + 1}\nReason: ${w.reason}\nMod: <@!${w.modid}>`)
         let displayEmbed = new Discord.MessageEmbed()
             .setColor("#30ffea")
-            .setDescription(`**__Warns for <@!${user.id}>__**\n\n${userJSON.join("\n")}`)
+            .setDescription(`**__Warns for <@!${user.id}>__**\n\n${userJSON.join("\n\n")}`)
             .setTimestamp()
         message.channel.send(displayEmbed)
     }
@@ -32,7 +32,7 @@ exports.run = async (client, message, args, Discord) => {
                 if (status) invalidDatabaseUsers.push(status);
             } else { invalidUsers.push(args[i]) }
         }
-    }else{
+    } else {
         return message.channel.send("You are missing some arguments!")
     }
     if (invalidUsers.length > 0) {
