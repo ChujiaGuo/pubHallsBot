@@ -38,7 +38,6 @@ module.exports = {
             request(opt, async (err, resp, html) => {
                 if (!html) return
                 let body = JSON.parse(html)
-                console.log(body)
                 if (!body) {
                     if (retry) return rej('No Proxies')
                     else {
@@ -65,26 +64,30 @@ module.exports = {
         if (proxyList.length < 10) await module.exports.reloadProxies()
         return proxyList.shift()
     },
-    requestSite: async (url, type='parse') => {
+    requestSite: async (client, url, type = 'parse') => {
         return new Promise(async (resolve, reject) => {
+            let currentProxy = await module.exports.nextProxy()
             const options = {
-                proxy: module.exports.nextProxy(),
+                proxy: currentProxy,
                 headers: agents[(agents.length * Math.random()) ^ 0],
                 url: url,
                 method: "GET"
             }
-            request(url, options, async (error, response, html) => {
+            request(options, async (error, response, html) => {
                 try {
                     if (!error && response.statusCode == 200) {
-                        if(type == 'parse'){
-                            resolve(await module.exports.parseData(html).catch(e => e))
-                        }else{
-                            resolve(await module.exports.verifyData(html).catch(e => e))
+                        console.log(`Page Loaded Using: ${currentProxy}`)
+                        if (type == 'parse') {
+                            resolve(await module.exports.parseData(client, html, url).catch(e => e))
+                        } else {
+                            resolve(await module.exports.verifyData(client, html, url).catch(e => e))
                         }
                     } else {
-                        if (response.statusCode == 407) {
+                        if (error.message == "tunneling socket could not be established, cause=connect ECONNREFUSED 127.0.0.1:80") {
+                            console.log(`Invalid Proxy: ${currentProxy}`)
                             invalidCounter += 1
                             if (invalidCounter >= 2) {
+                                console.log("Reloading Proxies")
                                 await module.exports.discardProxies()
                                 await module.exports.reloadProxies()
                             }
@@ -98,7 +101,7 @@ module.exports = {
             });
         })
     },
-    parseData: async (html) => {
+    parseData: async (client, html, url) => {
         return new Promise(async (resolve, reject) => {
             var $ = cheerio.load(html);
             let columns = []
@@ -106,7 +109,7 @@ module.exports = {
                 columns.push($('table[class="table table-striped tablesorter"]').find("tr").eq(0).find('th').eq(x).text())
             })
             if (columns.length != 10) {
-                reject(`https://www.realmeye.com/player/${players[i]}`)
+                reject(url)
             } else {
                 var characterObject = { "Name": $('title').text().split(': ')[1].split(' ')[0] }
                 columns.slice(2)

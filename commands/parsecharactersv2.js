@@ -52,7 +52,7 @@ module.exports = {
                     for (var i in players) {
                         try {
                             var url = `https://www.realmeye.com/player/${players[i]}`;
-                            let result = await realmeyeHelper.requestSite(url).catch(e => e)
+                            let result = await realmeyeHelper.requestSite(client, url).catch(e => e)
                             if (result.match(/^https:\/\/www.realmeye.com\/player\//gi)) { invalidUsers.push(result.replace(/^https:\/\/www.realmeye.com\/player\//gi, "")); continue }
 
                             var valid = checkRequirements(result);
