@@ -26,7 +26,7 @@ module.exports = {
                 if (table && column && rowIdentifier) {
                     var db = mysql.createConnection(config.dbinfo)
                     db.connect(e => { if (e) throw e })
-                    db.query(`SELECT * FROM ${table} where ?=?;`, [column, rowIdentifier], (e, rows) => {
+                    db.query(`SELECT * FROM ${table} where ${column}=?;`, [rowIdentifier], (e, rows) => {
                         if (e) console.log(e)
                         else { resolve(rows[0] ? rows : false) }
                     })
@@ -54,7 +54,7 @@ module.exports = {
             try {
                 var db = mysql.createConnection(config.dbinfo)
                 db.connect(e => { if (e) throw e })
-                db.query(`UPDATE ${table} SET ?=? WHERE ?=?;`, [column, newValue, row, rowIdentifier], (e, rows) => {
+                db.query(`UPDATE ${table} SET ${column}=? WHERE ${row}=?;`, [newValue, rowIdentifier], (e, rows) => {
                     if (e) throw e
                     else { resolve(rows[0] ? rows : false) }
                 })
