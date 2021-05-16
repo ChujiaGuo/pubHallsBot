@@ -1,17 +1,5 @@
 const fs = require('fs')
-const request = require('request');
-const fetch = require('node-fetch')
-const cors = require('cors')({ origin: true })
-const cheerio = require('cheerio')
-const vision = require('@google-cloud/vision')
-const ocrClient = new vision.ImageAnnotatorClient()
-const Bottleneck = require("bottleneck")
-const { createWorker } = require('tesseract.js')
-const worker = createWorker()
-const limiter = new Bottleneck({
-    minTime: 1000,
-    maxConcurrent: 2
-})
+const realmeyeHelper = require('../helpers/realmeyeHelper.js')
 
 module.exports = {
     parseCharacters: async function parseCharacters(players, Discord, message, client) {
@@ -49,21 +37,10 @@ module.exports = {
 
                 var invalidUsers = [];
                 var validUsers = [];
-                var invalidUsers = [];
-                var validUsers = [];
                 var playersNotMeetingReqs = [];
                 var receiveRequests = 0;
 
                 var timeStarted = Date.now();
-
-                var options = {
-                    proxy: 'http://Nashex:Goldilocks1@us-wa.proxymesh.com:31280',
-                    headers: {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36',
-                        'Proxy-Authorization': 'Basic TmFzaGV4OkdvbGRpbG9ja3Mx'
-                    },
-                    rejectUnauthorized: false
-                };
 
                 returnEmbed = new Discord.MessageEmbed()
                     .setDescription(`\`\`\`\nParse Status: Parsing Characters...\n\`\`\``)
@@ -75,94 +52,31 @@ module.exports = {
                     for (var i in players) {
                         try {
                             var url = `https://www.realmeye.com/player/${players[i]}`;
-                            request(url, options, async (error, response, html) => {
-                                receiveRequests++;
-                                try {
-                                    if (!error && response.statusCode == 200) {
-                                        var $ = cheerio.load(html);
-                                        //const siteBody = $('body');
-                                        //console.log(siteBody.text());
-                                        let columns = []
-                                        $('table[class="table table-striped tablesorter"]').find("tr").eq(0).find('th').each(async x => {
-                                            columns.push($('table[class="table table-striped tablesorter"]').find("tr").eq(0).find('th').eq(x).text())
-                                        })
-                                        if (columns.length != 10) {
-                                            invalidUsers.push(players[i])
-                                        } else {
-                                            var characterObject = { "Name": $('title').text().split(': ')[1].split(' ')[0] }
-                                            columns.slice(2)
-                                            $('table[class="table table-striped tablesorter"]').find("tr").eq(1).find('td').each(async x => {
-                                                if (x < 8) {
-                                                    characterObject[columns[x]] = $('table[class="table table-striped tablesorter"]').find("tr").eq(1).find('td').eq(x).text()
-                                                } else if (x == 8) {
-                                                    let itemArray = []
-                                                    $('table[class="table table-striped tablesorter"]').find("tr").eq(1).find('td').eq(x).find(".item").each(async item => {
-                                                        let equip = $('table[class="table table-striped tablesorter"]').find("tr").eq(1).find('td').eq(x).find(".item").eq(item).prop("title")
-                                                        if (item != 4) {
-                                                            equip = equip.split(" ")
-                                                            let tier = equip.pop()
-                                                            equip = equip.join("")
-                                                            equip = equip.replace(/[^a-z0-9]/gi, "")
-                                                            equip = client.emojis.cache.find(e => e.name.toLowerCase().includes(equip.toLowerCase()))
-                                                            if (equip) {
-                                                                itemArray.push([`<:${equip.name}:${equip.id}>`, tier])
+                            let result = await realmeyeHelper.requestSite(url).catch(e => e)
+                            if (result.match(/^https:\/\/www.realmeye.com\/player\//gi)) { invalidUsers.push(result.replace(/^https:\/\/www.realmeye.com\/player\//gi, "")); continue }
 
-                                                            } else {
-                                                                itemArray.push([`🚫`, tier])
-                                                            }
-                                                        } else {
-                                                            itemArray.push([`<:Backpack:719952565139406928>`, "UT"])
-                                                        }
+                            var valid = checkRequirements(result);
 
-                                                    })
-                                                    characterObject[columns[x]] = itemArray
-                                                } else if (x == 9) {
-                                                    try {
-                                                        let totalStats = JSON.parse($('table[class="table table-striped tablesorter"]').find("tr").eq(1).find('td').eq(x).find(".player-stats").prop("data-stats"))
-                                                        let statBonuses = JSON.parse($('table[class="table table-striped tablesorter"]').find("tr").eq(1).find('td').eq(x).find(".player-stats").prop("data-bonuses"))
-                                                        let baseStats = []
-                                                        for (var i in totalStats) {
-                                                            baseStats.push(totalStats[i] - statBonuses[i])
-                                                        }
-                                                        characterObject[columns[x]] = baseStats
-                                                        characterObject.Maxed = $('table[class="table table-striped tablesorter"]').find("tr").eq(1).find('td').eq(x).text()
-                                                    } catch (e) { }
-
-                                                }
-                                            })
-                                            validUsers.push(characterObject)
-                                            var valid = checkRequirements(characterObject);
-
-                                            if (valid == undefined) {
-                                                invalidUsers.push(characterObject.Name)
-                                            } else {
-                                                if (valid[0] != true) {
-                                                    var classEmote = client.emojis.cache.find(e => e.name.toLowerCase() == characterObject.Class.toLowerCase());
-                                                    returnEmbed.setFooter(`Retrieved in ${(Date.now() - timeStarted) / 1000} seconds`)
-                                                        .addField(`${characterObject.Name} ${classEmote}`, `[RealmEye](https://www.realmeye.com/player/${characterObject.Name}) | **Level:** \`${characterObject.L}\` | **Fame:** \`${characterObject.Fame}\` ${characterObject.Equipment.map(a => a[0]).join("")} | **Maxed:** \`${characterObject.Maxed}\`\n\`/lock ${characterObject.Name}\`\n ${valid[1] ? valid[1].join("\n") : undefined}`)
-                                                    playersNotMeetingReqs.push(characterObject.Name);
-                                                    statusMessage.edit(returnEmbed);
-                                                }
-                                                if (receiveRequests >= players.length && receiveRequests > 0 && playersNotMeetingReqs) {
-                                                    receiveRequests = -999;
-                                                    returnEmbed.setDescription(`\`\`\`\nParse Status: Complete\n\`\`\``)
-                                                        .setFooter(`Time taken: ${(Date.now() - timeStarted) / 1000} seconds`)
-                                                    if (returnEmbed.fields.length > 0) returnEmbed.addField("Additional Kick Commands", `\`\`\`\n/kick ${playersNotMeetingReqs.join(" ")}\n\`\`\``).addField("Additional Find Command", `\`\`\`\n${config.prefix}find ${playersNotMeetingReqs.join(" ")}\n\`\`\``);
-                                                    else returnEmbed.setAuthor('All Players Meet Requirements');
-                                                    return resolve(await statusMessage.edit(returnEmbed));
-                                                }
-
-                                            }
-
-                                        }
-                                    } else {
-                                        //console.log('Something went wrong..')
-                                    }
-                                } catch (e) {
-                                    console.log(e)
-                                    invalidUsers.push(characterObject.Name)
+                            if (valid == undefined) {
+                                invalidUsers.push(result.Name)
+                            } else {
+                                if (valid[0] != true) {
+                                    var classEmote = client.emojis.cache.find(e => e.name.toLowerCase() == result.Class.toLowerCase());
+                                    returnEmbed.setFooter(`Retrieved in ${(Date.now() - timeStarted) / 1000} seconds`)
+                                        .addField(`${result.Name} ${classEmote}`, `[RealmEye](https://www.realmeye.com/player/${result.Name}) | **Level:** \`${result.L}\` | **Fame:** \`${result.Fame}\` ${result.Equipment.map(a => a[0]).join("")} | **Maxed:** \`${result.Maxed}\`\n\`/lock ${result.Name}\`\n ${valid[1] ? valid[1].join("\n") : undefined}`)
+                                    playersNotMeetingReqs.push(result.Name);
+                                    statusMessage.edit(returnEmbed);
                                 }
-                            });
+                                if (receiveRequests >= players.length && receiveRequests > 0 && playersNotMeetingReqs) {
+                                    receiveRequests = -999;
+                                    returnEmbed.setDescription(`\`\`\`\nParse Status: Complete\n\`\`\``)
+                                        .setFooter(`Time taken: ${(Date.now() - timeStarted) / 1000} seconds`)
+                                    if (returnEmbed.fields.length > 0) returnEmbed.addField("Additional Kick Commands", `\`\`\`\n/kick ${playersNotMeetingReqs.join(" ")}\n\`\`\``).addField("Additional Find Command", `\`\`\`\n${config.prefix}find ${playersNotMeetingReqs.join(" ")}\n\`\`\``);
+                                    else returnEmbed.setAuthor('All Players Meet Requirements');
+                                    return resolve(await statusMessage.edit(returnEmbed));
+                                }
+
+                            }
                         } catch (e) {
                             message.channel.send(`There was an error fetching ${players[i]}'s Realmeye page: ${e}`)
                         }
@@ -241,4 +155,4 @@ module.exports = {
 
         });
     }
-}    
+}
