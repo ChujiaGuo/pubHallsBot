@@ -31,6 +31,7 @@ const agents = [{
 module.exports = {
     reloadProxies: async (retry = false) => {
         return new Promise(res => {
+            console.log("Retrieving proxies...")
             let opt = {
                 url: 'https://proxy.webshare.io/api/proxy/list/?page=0&countries=US',
                 headers: { 'Authorization': 'Token 9710e00293182b4f18c94175637a08dd02aaac57' }
@@ -50,6 +51,7 @@ module.exports = {
                 for (let i of body.results) {
                     proxyList.push(`http://${i.username}:${i.password}@${i.proxy_address}:${i.ports.http}`)
                 }
+                console.log("Proxies retrieved")
                 res(true)
             })
         })
@@ -62,6 +64,7 @@ module.exports = {
     },
     nextProxy: async () => {
         if (proxyList.length < 10) await module.exports.reloadProxies()
+        console.log(`Proxies remaining: ${proxyList.length-1}`)
         return proxyList.shift()
     },
     requestSite: async (client, url, type = 'parse') => {
@@ -157,7 +160,3 @@ module.exports = {
         })
     }
 }
-/**
- *
- *
- */
