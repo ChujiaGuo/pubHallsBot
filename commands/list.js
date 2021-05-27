@@ -40,6 +40,8 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
         if (role != undefined) {
             let userIdList = await role.members.map(m => `<@!${m.id}>`)
+            let onlyRole = await role.members.filter(m => m.roles.highest == role).map(m => `<@!${m.id}>`)
+            let otherRole = await role.members.filter(m => m.roles.highest != role).map(m => `<@!${m.id}>`)
             let returnEmbed = new Discord.MessageEmbed()
                 .setAuthor(`People with ${role.name}:`)
                 .setFooter(`There are ${userIdList.length} people with this role.`)
@@ -47,7 +49,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 returnEmbed.setDescription("There are too many people with this role to list out.")
                     .setColor("#ff1212")
             } else {
-                returnEmbed.setDescription(userIdList.join(', '))
+                returnEmbed.setDescription(`The following people have ${role}, along with a higher role (${otherRole.length}):\n${otherRole.join(", ")}\n\n The following people have ${role} as their highest role (${onlyRole.length}):\n${onlyRole.join(", ")}`)
                     .setColor("#41f230")
             }
             message.channel.send(returnEmbed)
