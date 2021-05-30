@@ -39,7 +39,7 @@ exports.run = async (client, message, args, Discord) => {
             statusEmbed
                 .setColor("#30ffea")
                 .setAuthor("Member Unverified")
-                .setDescription(null)
+                .setDescription("")
                 .addField(`User:`, member, true)
                 .addField(`Mod:`, message.author, true)
                 .addField(`Reason:`, reason || "No reason was given.")
