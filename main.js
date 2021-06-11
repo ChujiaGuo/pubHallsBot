@@ -252,7 +252,7 @@ client.on("message", async message => {
         }
         try {
             await message.guild.members.fetch()
-            if (cmd == "report") {
+            if (["report", "requestleave"].includes(cmd)) {
                 activeDMs.push(message.author.id)
             }
             if (processes.pendingRestart) return message.channel.send("Bot is pending a restart. Please try again later.")
