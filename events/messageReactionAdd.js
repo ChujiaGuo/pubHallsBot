@@ -212,3 +212,7 @@ exports.run = async (client, message, Discord, reaction, user) => {
         }
     })
 }
+
+async function toTimeString(time) {
+    return `${Math.floor(time / 604800000)} Weeks ${Math.floor(time % 604800000) / 86400000} Days`
+}

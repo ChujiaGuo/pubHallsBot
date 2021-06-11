@@ -141,6 +141,8 @@ client.on("message", async message => {
                 return
             }
         }
+    }else if(message.channel.type == "dm"){
+        return
     }
 
     //Counting Channel
@@ -174,6 +176,7 @@ client.on("message", async message => {
 
     //Filters
     //Bot
+    console.log(message)
     config = JSON.parse(fs.readFileSync("config.json"))[message.guild.id]
     if (message.content.includes(`<@!${client.user.id}> prefix`)) return message.channel.send(config.prefix)
 
