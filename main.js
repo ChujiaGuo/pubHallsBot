@@ -12,6 +12,8 @@ var confirmationHelper = require("./helpers/confirmationHelper.js")
 var activeDMs = []
 var errorHelper = require('./helpers/errorHelper.js')
 
+sqlHelper.startConnection()
+
 client.once("ready", async () => {
     let processes = JSON.parse(fs.readFileSync('processes.json'))
     processes.botStatus = "#16c60c"

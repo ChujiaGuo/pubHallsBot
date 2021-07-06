@@ -3,13 +3,9 @@ const fs = require("fs")
 const { resolve } = require("path")
 const e = require("cors")
 const config = JSON.parse(fs.readFileSync("config.json"))
+const errorHelper = require('./errorHelper.js')
 
-// db.on('error', err => {
-//     if(err.code == "PROTOCOL_CONNECTION_LOST") db = mysql.createConnection(config.dbinfo)
-//     else{
-//         process.emit('uncaughtException', err)
-//     }
-// })
+var db;
 
 module.exports = {
     /**
@@ -22,7 +18,7 @@ module.exports = {
      */
     get: async (table, column, rowIdentifier) => {
         let connection = await module.exports.testConnection().catch(e => e)
-        if(connection != "Connected"){
+        if (connection != "Connected") {
             return new Promise(async (resolve, reject) => {
                 reject("Bad Connection")
             })
@@ -57,7 +53,7 @@ module.exports = {
      */
     set: async (table, column, newValue, row = column, rowIdentifier) => {
         let connection = await module.exports.testConnection().catch(e => e)
-        if(connection != "Connected"){
+        if (connection != "Connected") {
             return new Promise(async (resolve, reject) => {
                 reject("Bad Connection")
             })
@@ -78,7 +74,7 @@ module.exports = {
     },
     editUser: async (tableName, userId, columnName, amount) => {
         let connection = await module.exports.testConnection().catch(e => e)
-        if(connection != "Connected"){
+        if (connection != "Connected") {
             return new Promise(async (resolve, reject) => {
                 reject("Bad Connection")
             })
@@ -109,7 +105,7 @@ module.exports = {
     },
     managePoints: async (userId, points, type = 'add', multiplier = 1) => {
         let connection = await module.exports.testConnection().catch(e => e)
-        if(connection != "Connected"){
+        if (connection != "Connected") {
             return new Promise(async (resolve, reject) => {
                 reject("Bad Connection")
             })
@@ -130,7 +126,7 @@ module.exports = {
     },
     retrieveUser: async (userId) => {
         let connection = await module.exports.testConnection().catch(e => e)
-        if(connection != "Connected"){
+        if (connection != "Connected") {
             return new Promise(async (resolve, reject) => {
                 reject("Bad Connection")
             })
@@ -157,7 +153,7 @@ module.exports = {
     },
     checkModMailBlacklist: async (userId) => {
         let connection = await module.exports.testConnection().catch(e => e)
-        if(connection != "Connected"){
+        if (connection != "Connected") {
             return new Promise(async (resolve, reject) => {
                 reject("Bad Connection")
             })
@@ -184,7 +180,7 @@ module.exports = {
     },
     modmailBlacklist: async (userId) => {
         let connection = await module.exports.testConnection().catch(e => e)
-        if(connection != "Connected"){
+        if (connection != "Connected") {
             return new Promise(async (resolve, reject) => {
                 reject("Bad Connection")
             })
@@ -210,7 +206,7 @@ module.exports = {
     },
     addToQueue: async (userId, queueType) => {
         let connection = await module.exports.testConnection().catch(e => e)
-        if(connection != "Connected"){
+        if (connection != "Connected") {
             return new Promise(async (resolve, reject) => {
                 reject("Bad Connection")
             })
@@ -236,7 +232,7 @@ module.exports = {
     },
     nextInQueue: async (queueType, guildid) => {
         let connection = await module.exports.testConnection().catch(e => e)
-        if(connection != "Connected"){
+        if (connection != "Connected") {
             return new Promise(async (resolve, reject) => {
                 reject("Bad Connection")
             })
@@ -260,7 +256,7 @@ module.exports = {
     },
     removeFromQueue: async (ids) => {
         let connection = await module.exports.testConnection().catch(e => e)
-        if(connection != "Connected"){
+        if (connection != "Connected") {
             return new Promise(async (resolve, reject) => {
                 reject("Bad Connection")
             })
@@ -288,7 +284,7 @@ module.exports = {
     },
     queuePosition: async (id, queueType) => {
         let connection = await module.exports.testConnection().catch(e => e)
-        if(connection != "Connected"){
+        if (connection != "Connected") {
             return new Promise(async (resolve, reject) => {
                 reject("Bad Connection")
             })
@@ -312,7 +308,7 @@ module.exports = {
     },
     suspendUser: async (suspensionJSON) => {
         let connection = await module.exports.testConnection().catch(e => e)
-        if(connection != "Connected"){
+        if (connection != "Connected") {
             return new Promise(async (resolve, reject) => {
                 reject("Bad Connection")
             })
@@ -344,7 +340,7 @@ module.exports = {
                 var db = mysql.createConnection(config.dbinfo)
                 db.connect(e => { if (e) throw e })
 
-                db.query(`INSERT INTO mutes (id, guildid, muted, reason, modid, uTime) VALUES (${member.id}, ${member.guild.id}, 1, ?, ${client.user.id}, ${unsuspendtime})`,[reason], (e, rows) => {
+                db.query(`INSERT INTO mutes (id, guildid, muted, reason, modid, uTime) VALUES (${member.id}, ${member.guild.id}, 1, ?, ${client.user.id}, ${unsuspendtime})`, [reason], (e, rows) => {
                     if (e) throw e
                     else { resolve(rows[0] ? rows : false) }
                 })
@@ -356,11 +352,12 @@ module.exports = {
         })
     },
     testConnection: async () => {
-        return new Promise((resolve, reject) => {
-            var db = mysql.createConnection(config.dbinfo)
-            db.connect(err => { if (err) reject('Not Connected') })
-            db.end()
-            resolve('Connected')
+        return new Promise(async (resolve, reject) => {
+            if (db.state == "authenticated"){
+                resolve("Connected")
+            }else{
+                reject("Not Connected")
+            }
         })
     },
     makeError: async () => {
@@ -375,7 +372,7 @@ module.exports = {
     },
     currentWeekAdd: async (userId, columnName, amount) => {
         let connection = await module.exports.testConnection().catch(e => e)
-        if(connection != "Connected"){
+        if (connection != "Connected") {
             return new Promise(async (resolve, reject) => {
                 reject("Bad Connection")
             })
@@ -411,7 +408,7 @@ module.exports = {
     },
     checkExpelled: async (identifier) => {
         let connection = await module.exports.testConnection().catch(e => e)
-        if(connection != "Connected"){
+        if (connection != "Connected") {
             return new Promise(async (resolve, reject) => {
                 reject("Bad Connection")
             })
@@ -431,5 +428,29 @@ module.exports = {
                 reject(e)
             }
         })
+    },
+    startConnection: async () => {
+        this.db = new Promise(async (resolve, reject) => {
+            db = mysql.createConnection(config.dbinfo)
+            db.connect(err => {
+                if (err) {
+                    console.log("connection failed: ", err)
+                    reject("Not Connected")
+                }
+            })
+
+            db.on('error', async err => {
+                console.log("error: ", err)
+                if (err.code == "PROTOCOL_CONNECTION_LOST") {
+                    createConnection()
+                } else {
+                    console.log(err)
+                }
+            })
+
+            resolve(db)
+        })
+
+        return db
     }
 }
