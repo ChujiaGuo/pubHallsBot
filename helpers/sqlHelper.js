@@ -21,6 +21,12 @@ module.exports = {
      * @param {any} rowIdentifier The value to find
      */
     get: async (table, column, rowIdentifier) => {
+        let connection = await module.exports.testConnection().catch(e => e)
+        if(connection != "Connected"){
+            return new Promise(async (resolve, reject) => {
+                reject("Bad Connection")
+            })
+        }
         return new Promise(async (resolve, reject) => {
             try {
                 if (table && column && rowIdentifier) {
@@ -50,6 +56,12 @@ module.exports = {
      * @param {any} rowIdentifier The row to find
      */
     set: async (table, column, newValue, row = column, rowIdentifier) => {
+        let connection = await module.exports.testConnection().catch(e => e)
+        if(connection != "Connected"){
+            return new Promise(async (resolve, reject) => {
+                reject("Bad Connection")
+            })
+        }
         return new Promise(async (resolve, reject) => {
             try {
                 var db = mysql.createConnection(config.dbinfo)
@@ -65,6 +77,12 @@ module.exports = {
         })
     },
     editUser: async (tableName, userId, columnName, amount) => {
+        let connection = await module.exports.testConnection().catch(e => e)
+        if(connection != "Connected"){
+            return new Promise(async (resolve, reject) => {
+                reject("Bad Connection")
+            })
+        }
         var db = mysql.createConnection(config.dbinfo)
         db.connect(err => { if (err) throw err })
         try {
@@ -90,6 +108,12 @@ module.exports = {
         }
     },
     managePoints: async (userId, points, type = 'add', multiplier = 1) => {
+        let connection = await module.exports.testConnection().catch(e => e)
+        if(connection != "Connected"){
+            return new Promise(async (resolve, reject) => {
+                reject("Bad Connection")
+            })
+        }
         return new Promise((resolve, reject) => {
             var db = mysql.createConnection(config.dbinfo)
             db.connect(err => { if (err) reject(err) })
@@ -105,6 +129,12 @@ module.exports = {
         })
     },
     retrieveUser: async (userId) => {
+        let connection = await module.exports.testConnection().catch(e => e)
+        if(connection != "Connected"){
+            return new Promise(async (resolve, reject) => {
+                reject("Bad Connection")
+            })
+        }
         return new Promise((resolve, reject) => {
             var db = mysql.createConnection(config.dbinfo)
             db.connect(err => { if (err) throw err })
@@ -126,6 +156,12 @@ module.exports = {
         })
     },
     checkModMailBlacklist: async (userId) => {
+        let connection = await module.exports.testConnection().catch(e => e)
+        if(connection != "Connected"){
+            return new Promise(async (resolve, reject) => {
+                reject("Bad Connection")
+            })
+        }
         return new Promise((resolve, reject) => {
             var db = mysql.createConnection(config.dbinfo)
             db.connect(err => { if (err) throw err })
@@ -147,6 +183,12 @@ module.exports = {
         })
     },
     modmailBlacklist: async (userId) => {
+        let connection = await module.exports.testConnection().catch(e => e)
+        if(connection != "Connected"){
+            return new Promise(async (resolve, reject) => {
+                reject("Bad Connection")
+            })
+        }
         return new Promise((resolve, reject) => {
             var db = mysql.createConnection(config.dbinfo)
             db.connect(err => { if (err) throw err })
@@ -167,6 +209,12 @@ module.exports = {
         })
     },
     addToQueue: async (userId, queueType) => {
+        let connection = await module.exports.testConnection().catch(e => e)
+        if(connection != "Connected"){
+            return new Promise(async (resolve, reject) => {
+                reject("Bad Connection")
+            })
+        }
         return new Promise((resolve, reject) => {
             var db = mysql.createConnection(config.dbinfo)
             db.connect(err => { if (err) throw err })
@@ -187,6 +235,12 @@ module.exports = {
         })
     },
     nextInQueue: async (queueType, guildid) => {
+        let connection = await module.exports.testConnection().catch(e => e)
+        if(connection != "Connected"){
+            return new Promise(async (resolve, reject) => {
+                reject("Bad Connection")
+            })
+        }
         return new Promise((resolve, reject) => {
             var db = mysql.createConnection(config.dbinfo)
             db.connect(err => { if (err) throw err })
@@ -205,6 +259,12 @@ module.exports = {
         })
     },
     removeFromQueue: async (ids) => {
+        let connection = await module.exports.testConnection().catch(e => e)
+        if(connection != "Connected"){
+            return new Promise(async (resolve, reject) => {
+                reject("Bad Connection")
+            })
+        }
         return new Promise((resolve, reject) => {
             var db = mysql.createConnection(config.dbinfo)
             db.connect(err => { if (err) throw err })
@@ -227,6 +287,12 @@ module.exports = {
 
     },
     queuePosition: async (id, queueType) => {
+        let connection = await module.exports.testConnection().catch(e => e)
+        if(connection != "Connected"){
+            return new Promise(async (resolve, reject) => {
+                reject("Bad Connection")
+            })
+        }
         return new Promise((resolve, reject) => {
             var db = mysql.createConnection(config.dbinfo)
             db.connect(err => { if (err) throw err })
@@ -245,6 +311,12 @@ module.exports = {
         })
     },
     suspendUser: async (suspensionJSON) => {
+        let connection = await module.exports.testConnection().catch(e => e)
+        if(connection != "Connected"){
+            return new Promise(async (resolve, reject) => {
+                reject("Bad Connection")
+            })
+        }
         return new Promise((resolve, reject) => {
             var db = mysql.createConnection(config.dbinfo)
             db.connect(err => { if (err) throw err })
@@ -262,6 +334,9 @@ module.exports = {
                 console.log(e)
             }
         })
+    },
+    unsuspendUser: async (id) => {
+
     },
     mute: async (client, member, reason, unsuspendtime) => {
         return new Promise(async (resolve, reject) => {
@@ -299,6 +374,12 @@ module.exports = {
         })
     },
     currentWeekAdd: async (userId, columnName, amount) => {
+        let connection = await module.exports.testConnection().catch(e => e)
+        if(connection != "Connected"){
+            return new Promise(async (resolve, reject) => {
+                reject("Bad Connection")
+            })
+        }
         return new Promise((resolve, reject) => {
             let currentWeekTypes = {
                 "feedback": "currentweekFeedback",
@@ -329,6 +410,12 @@ module.exports = {
         })
     },
     checkExpelled: async (identifier) => {
+        let connection = await module.exports.testConnection().catch(e => e)
+        if(connection != "Connected"){
+            return new Promise(async (resolve, reject) => {
+                reject("Bad Connection")
+            })
+        }
         return new Promise(async (resolve, reject) => {
             try {
                 var db = mysql.createConnection(config.dbinfo)
