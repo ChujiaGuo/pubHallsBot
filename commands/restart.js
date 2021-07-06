@@ -2,6 +2,8 @@ const fs = require('fs')
 const processManager = require("../helpers/processManager.js")
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
+    if(args[0] && args[0].toLowerCase() == "force") process.exit(1)
+
     let processes = JSON.parse(fs.readFileSync('processes.json'))
     var pendingMessage;
     if(processes.activeProcesses.length > 0 ){
