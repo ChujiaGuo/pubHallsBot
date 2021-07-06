@@ -21,10 +21,10 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 
         var altName = args.shift()
         var checkUsers = await message.guild.members.cache.find(m => m.nickname && m.nickname.toLowerCase().replace(/[^a-z|]/gi, '').split('|').includes(altName.toLowerCase()))
-        if(checkUsers){
+        if (checkUsers) {
             return message.channel.send(`There is already a user with the name: \`${altName}\` <@!${checkUsers.id}>`)
         }
-        
+
         var imageURL = args.shift();
         if (imageURL == undefined) {
             if (message.attachments.size == 1) {
@@ -37,7 +37,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         if (oldName == undefined) {
             oldName = user.user.username
         }
-        if (oldName.toLowerCase().replace(/[^a-z|]/gi,"").split("|").includes(altName.toLowerCase())) {
+        if (oldName.toLowerCase().replace(/[^a-z|]/gi, "").split("|").includes(altName.toLowerCase())) {
             return message.channel.send("This account has already been added to this user.")
         }
         var newName = `${oldName} | ${altName.charAt(0).toUpperCase() + altName.substring(1)}`

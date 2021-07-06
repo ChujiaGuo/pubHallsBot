@@ -19,7 +19,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
 
         var newName = args.shift()
-        if(newName.toLowerCase() == user.user.username.toLowerCase()){
+        if (newName.toLowerCase() == user.user.username.toLowerCase()) {
             if (newName.charAt(0).toLowerCase() == user.user.username.charAt(0)) newName = newName.charAt(0).toUpperCase() + newName.substring(1)
             else {
                 newName = newName.charAt(0).toLowerCase() + newName.substring(1)

@@ -7,7 +7,7 @@ exports.run = async (client, message, args, Discord) => {
 
     args = args[0] || 15
     args = Math.abs(args)
-    
+
     let linesRead = errorLog.split("\n").slice(-args).join('\n')
     let errorEmbed = new Discord.MessageEmbed()
         .setColor("#30ffea")

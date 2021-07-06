@@ -34,15 +34,15 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             returnEmbed.addField("Error:", e.toString())
         }
     }
-    if(user == undefined){
+    if (user == undefined) {
         return message.channel.send(`Invalid User`)
     }
 
-    if(suspensions.normal[user.id] == undefined){
+    if (suspensions.normal[user.id] == undefined) {
         return message.channel.send("I do not have records of this user being suspended. Please try another bot.")
     }
     var reason = args.join(' ')
-    if(reason.length == 0 || reason == undefined){
+    if (reason.length == 0 || reason == undefined) {
         return message.channel.send("Please put a reason for unsuspending.")
     }
 
@@ -53,26 +53,26 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     //Log the unsuspension
     var suspendChannel = await message.guild.channels.cache.find(c => c.id == config.channels.log.suspend)
     await suspendChannel.send(`<@${user.id}> has been unsuspended.`)
-    
+
     //Broadcast the unsuspension
-    try{
+    try {
         await user.send("You have been unsuspended.")
         await message.channel.send(`<@${user.id}> has been unsuspended.`)
-    }catch(e){
+    } catch (e) {
         await message.channel.send("Could not send the user their unsuspension message")
     }
-    
+
     //Edit the suspension message
-    try{
+    try {
         var suspensionMessage = await suspendChannel.messages.fetch(suspensions.normal[user.id].suspendMessageId)
         let suspendEmbed = suspensionMessage.embeds[0]
         suspendEmbed
-        .setColor("#41f230")
-        .setDescription("This user has been unsuspended")
-        .addField("Reason for unsuspension:",reason, false)
-        .setFooter("Unsuspended")
+            .setColor("#41f230")
+            .setDescription("This user has been unsuspended")
+            .addField("Reason for unsuspension:", reason, false)
+            .setFooter("Unsuspended")
         await suspensionMessage.edit(suspendEmbed)
-    }catch(e){
+    } catch (e) {
         console.log(e)
     }
 

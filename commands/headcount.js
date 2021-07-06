@@ -32,16 +32,16 @@ exports.run = async (client, message, args, Discord) => {
     await statusChannel.send(`@here Headcount for ${chosenTemplate.name}`).then(m => m.delete())
     let hcMessage = await statusChannel.send(templateEmbed)
     for (var i of Object.keys(chosenTemplate.specialReacts)) {
-        await hcMessage.react(i).catch(e => e.toString().includes("Error") ? errorHelper.report(message, client, e):null)
+        await hcMessage.react(i).catch(e => e.toString().includes("Error") ? errorHelper.report(message, client, e) : null)
     }
     for (var i of Object.keys(runTemplates.global.special)) {
-        await hcMessage.react(i).catch(e => e.toString().includes("Error") ? errorHelper.report(message, client, e):null)
+        await hcMessage.react(i).catch(e => e.toString().includes("Error") ? errorHelper.report(message, client, e) : null)
     }
     for (var i in chosenTemplate.generalReacts) {
-        await hcMessage.react(chosenTemplate.generalReacts[i]).catch(e => e.toString().includes("Error") ? errorHelper.report(message, client, e):null)
+        await hcMessage.react(chosenTemplate.generalReacts[i]).catch(e => e.toString().includes("Error") ? errorHelper.report(message, client, e) : null)
     }
     for (var i in runTemplates.global.general) {
-        await hcMessage.react(runTemplates.global.general[i]).catch(e => e.toString().includes("Error") ? errorHelper.report(message, client, e):null)
+        await hcMessage.react(runTemplates.global.general[i]).catch(e => e.toString().includes("Error") ? errorHelper.report(message, client, e) : null)
     }
-    
+
 }

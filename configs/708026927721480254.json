@@ -156,6 +156,6 @@
     "automute": {
         "enabled": "true",
         "duration": "86400000",
-        "minrole":""
+        "minrole": ""
     }
 }

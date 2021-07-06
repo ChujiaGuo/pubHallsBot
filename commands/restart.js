@@ -2,11 +2,11 @@ const fs = require('fs')
 const processManager = require("../helpers/processManager.js")
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
-    if(args[0] && args[0].toLowerCase() == "force") process.exit(1)
+    if (args[0] && args[0].toLowerCase() == "force") process.exit(1)
 
     let processes = JSON.parse(fs.readFileSync('processes.json'))
     var pendingMessage;
-    if(processes.activeProcesses.length > 0 ){
+    if (processes.activeProcesses.length > 0) {
         pendingMessage = await message.channel.send("There are active processes. Please wait...")
     }
     processes.pendingRestart = true;
@@ -19,9 +19,9 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 
 async function restart() {
     let processes = JSON.parse(fs.readFileSync('processes.json'))
-    if(processes.activeProcesses.length > 0){
+    if (processes.activeProcesses.length > 0) {
         let timeout = setTimeout(restart, 5000)
-    }else{
+    } else {
         process.exit(1)
     }
 }

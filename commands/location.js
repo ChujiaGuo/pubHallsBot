@@ -22,11 +22,11 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         if (!afk[origin].afk) {
             return message.channel.send("There is no AFK Check up at this time.")
         }
-        
+
 
 
         var newLocation = args.join(' ')
-        if(newLocation.length == 0){
+        if (newLocation.length == 0) {
             return message.channel.send("Please specify a location.")
         }
         afk[origin].location = newLocation

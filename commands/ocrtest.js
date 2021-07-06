@@ -16,5 +16,5 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     var result = await ocrClient.textDetection(imageURL)
     var players = result[0].fullTextAnnotation.text.split(' ').slice(3)
     console.log(result)
-        return message.channel.send(players.join(" "))
+    return message.channel.send(players.join(" "))
 }

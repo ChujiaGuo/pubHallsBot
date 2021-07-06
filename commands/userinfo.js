@@ -54,7 +54,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                         { name: "Joined Server at:", value: member.joinedAt, inline: true },
                         { name: "Voice Channel:", value: (member.voice.channel) ? member.voice.channel : "None", inline: true },
                         { name: "Nitro:", value: member.roles.cache.has(config.roles.general.nitro), inline: true },
-                        { name: "Roles:", value: `${member.roles.cache.map(r => r).sort((a,b) => b.position-a.position).filter(r => r.id != message.guild.id).join(', ') || "None"}` },
+                        { name: "Roles:", value: `${member.roles.cache.map(r => r).sort((a, b) => b.position - a.position).filter(r => r.id != message.guild.id).join(', ') || "None"}` },
                         { name: "Permissions:", value: `\`${member.permissions.toArray().join(', ')}\`` }
                     )
                 await message.channel.send(returnEmbed)

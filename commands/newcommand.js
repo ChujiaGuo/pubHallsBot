@@ -25,20 +25,20 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         .setDescription(`**Help Panel for: ${command.toLowerCase()}**\n\n**Description:** ${description}\n\n**Usage: \`${example}\`**\n${argumentsString}\n**Aliases:** ${aliases}\n\n**Minimum Role Required:** <@&${role}>\n\nCommand Status: Enabled`)
     await message.channel.send("This is your theoretical help embed. Please confirm (y/n).", theoreticalEmbed)
     commands.settings[command] = {
-        "enabled":"true",
+        "enabled": "true",
         "permsint": role,
         "category": category
     }
-    for(var a in aliases){
+    for (var a in aliases) {
         commands.aliases[aliases[a]] = command
     }
     commands.help[command] = `**Help Panel for: ${command.toLowerCase()}**\n\n**Description:** ${description}\n\n**Usage: \`${example}\`**\n${argumentsString}\n**Aliases:**`
-    
+
 
     async function prompt(item, custom = false) {
         if (!custom) {
             var promptMessage = await message.channel.send(`Please enter the ${item}:`)
-        }else{
+        } else {
             var promptMessage = await message.channel.send(`${item}`)
 
         }

@@ -42,7 +42,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         //Create the Embed
         let requestEmbed = new Discord.MessageEmbed()
             .setColor("#30ffea")
-            .setAuthor(`${message.member.nickname}(Username: ${message.author.username}#${message.author.discriminator}) is requesting to go on leave${sudo?" test":""}`)
+            .setAuthor(`${message.member.nickname}(Username: ${message.author.username}#${message.author.discriminator}) is requesting to go on leave${sudo ? " test" : ""}`)
             .setDescription(`User: <@!${message.member.id}>\nDuration: ${await toTimeString(duration)}\nReason: ${reason}\nStaff Roles: ${message.member.roles.cache.map(r => r).filter(r => r.position >= message.guild.roles.cache.get(config.roles.staff.eo).position).sort(function (a, b) { return b.position - a.position }).join(', ')}\nReact with ✅ to approve, ❌ to deny, and ❓ to prompt for more information.`)
             .setFooter(`Request made at `)
             .setTimestamp()

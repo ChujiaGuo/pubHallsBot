@@ -46,7 +46,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             returnEmbed.addField("Error:", e.toString())
         }
     }
-    if(user == undefined){
+    if (user == undefined) {
         return message.channel.send("Invalid User")
     }
     //Check comparative user perms

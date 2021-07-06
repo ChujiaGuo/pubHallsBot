@@ -31,12 +31,12 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 if (attachments != undefined) {
                     reportObject.attachments = attachments.url
                 }
-            }else{
+            } else {
                 result = result.map(m => m.content)[0]
                 if (result.toLowerCase() == "cancel") {
                     cancelled = true
                 }
-                reportObject[i] = result    
+                reportObject[i] = result
             }
         }
     }
@@ -54,7 +54,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     if (reportObject.attachments != "None") {
         try {
             returnEmbed.setImage(reportObject.attachments)
-        }catch (e){
+        } catch (e) {
             console.log(e)
             await message.author.send("Sorry, but your attachment failed to upload.")
         }

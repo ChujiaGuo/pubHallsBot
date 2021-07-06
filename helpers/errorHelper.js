@@ -32,7 +32,7 @@ module.exports = {
      * @param {Error} error Error message
      */
     log: async (message, client, error) => {
-        
+
         let errorLog = fs.readFileSync(config.errorLog)
         let errorFormat = `Command: ${message.content.split(' ')[0].substring(1)} | Error: ${error.toString()} | Time: ${Date.now()}\n`
         errorLog += errorFormat

@@ -38,7 +38,7 @@ exports.run = async (client, message, args, Discord) => {
                         await permission.update({
                             SEND_MESSAGES: false
                         }, "Locking down the channel.")
-                    }else{
+                    } else {
                         await permission.update({
                             SEND_MESSAGES: true
                         }, "Locking down the channel.")

@@ -48,18 +48,18 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         userIdArray = [... new Set(userIdArray)]
         var usernameArray = []
         for (var i in userIdArray) {
-            try{
+            try {
                 var user = await message.guild.members.fetch(userIdArray[i])
                 if (/^[a-z0-9|]+$/i.test(user.nickname)) {
                     usernameArray.push(user.nickname.toLowerCase())
                 } else {
                     usernameArray.push(user.nickname.toLowerCase().substring(1))
                 }
-            }catch(e){
+            } catch (e) {
                 await message.channel.send(`There was an error fetch the member object for <@!${userIdArray[i]}>`)
             }
-            
-            
+
+
         }
 
         //Begin Image Parsing
