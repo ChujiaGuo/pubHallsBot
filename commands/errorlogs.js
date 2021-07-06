@@ -1,7 +1,7 @@
 const fs = require('fs')
 
 exports.run = async (client, message, args, Discord) => {
-    const config = JSON.parse(fs.readFileSync("config.json"))[message.guild.id]
+    const config = JSON.parse(fs.readFileSync(`./configs/${message.guild.id}.json`));
 
     let errorLog = fs.readFileSync(`${config.errorLog}`).toString()
 

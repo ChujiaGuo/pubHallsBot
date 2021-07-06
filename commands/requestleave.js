@@ -2,7 +2,7 @@ const fs = require("fs")
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
     return new Promise(async (resolve, reject) => {
-        const config = JSON.parse(fs.readFileSync("config.json"))[message.guild.id]
+        const config = JSON.parse(fs.readFileSync(`./configs/${message.guild.id}.json`));
         try {
             await message.delete()
         } catch (e) { return message.channel.send(e) }

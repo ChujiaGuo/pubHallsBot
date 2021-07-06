@@ -1,7 +1,7 @@
 const fs = require('fs')
 
 exports.run = async (client, message, args, Discord) => {
-    const config = JSON.parse(fs.readFileSync('config.json'))[message.guild.id]
+    const config = JSON.parse(fs.readFileSync(`./configs/${message.guild.id}.json`));
     var lockdownLogs = JSON.parse(fs.readFileSync('lockdownPerms.json'))
 
     return new Promise(async (resolve, reject) => {

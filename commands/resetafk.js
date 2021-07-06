@@ -1,7 +1,7 @@
 const fs = require('fs')
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
-    var config = JSON.parse(fs.readFileSync("config.json"))[message.guild.id]
+    var config = JSON.parse(fs.readFileSync(`./configs/${message.guild.id}.json`));
     var afk = JSON.parse(fs.readFileSync("afk.json"))
     //Check Perms
     if (message.channel.type != 'text') {

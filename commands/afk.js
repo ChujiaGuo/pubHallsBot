@@ -2,15 +2,15 @@ const fs = require('fs')
 var sqlHelper = require("../helpers/sqlHelper.js")
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
-    var config = JSON.parse(fs.readFileSync("config.json"))[message.guild.id]
+    var guildConfig = JSON.parse(fs.readFileSync(`./configs/${message.guild.id}.json`));
     const commands = JSON.parse(fs.readFileSync("commands.json"))
-    for (var i in config.afksettings) {
-        if (!isNaN(config.afksettings[i])) {
-            config.afksettings[i] = parseInt(config.afksettings[i])
-        } else if (typeof config.afksettings[i] == "object") {
-            for (var x in config.afksettings[i]) {
-                if (!isNaN(config.afksettings[i][x])) {
-                    config.afksettings[i][x] = parseInt(config.afksettings[i][x])
+    for (var i in guildConfig.afksettings) {
+        if (!isNaN(guildConfig.afksettings[i])) {
+            guildConfig.afksettings[i] = parseInt(guildConfig.afksettings[i])
+        } else if (typeof guildConfig.afksettings[i] == "object") {
+            for (var x in guildConfig.afksettings[i]) {
+                if (!isNaN(guildConfig.afksettings[i][x])) {
+                    guildConfig.afksettings[i][x] = parseInt(guildConfig.afksettings[i][x])
                 }
             }
         }
@@ -22,11 +22,11 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     }
     var origin = 0;
     //Check origin channel
-    if (message.channel.id == config.channels.veteran.control.command) {
+    if (message.channel.id == guildConfig.channels.veteran.control.command) {
         origin = 100
-    } else if (message.channel.id == config.channels.normal.control.command) {
+    } else if (message.channel.id == guildConfig.channels.normal.control.command) {
         origin = 10
-    } else if (message.channel.id == config.channels.event.control.command) {
+    } else if (message.channel.id == guildConfig.channels.event.control.command) {
         origin = 1
     } else {
         return message.channel.send("You cannot use this command here.")
@@ -41,36 +41,36 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     }
     //Channel Available?
     if (origin == 100) {
-        if (config.channels.veteran.raiding[channelNumber] == undefined) {
+        if (guildConfig.channels.veteran.raiding[channelNumber] == undefined) {
             return message.channel.send(`\`${channelNumber}\` is an invalid channel number.`)
         }
-        if (config.channels.veteran.raiding[channelNumber].length == 0) {
+        if (guildConfig.channels.veteran.raiding[channelNumber].length == 0) {
             return message.channel.send(`Raiding Channel \`${channelNumber}\` has not been configured. Please have an admin add it using setup.`)
         } else {
-            channelNumber = config.channels.veteran.raiding[channelNumber]
-            statusChannel = config.channels.veteran.control.status
+            channelNumber = guildConfig.channels.veteran.raiding[channelNumber]
+            statusChannel = guildConfig.channels.veteran.control.status
         }
     } else if (origin == 10) {
-        if (config.channels.normal.raiding[channelNumber] == undefined) {
+        if (guildConfig.channels.normal.raiding[channelNumber] == undefined) {
             return message.channel.send(`\`${channelNumber}\` is an invalid channel number.`)
         }
-        if (config.channels.normal.raiding[channelNumber].length == 0) {
+        if (guildConfig.channels.normal.raiding[channelNumber].length == 0) {
             return message.channel.send(`Raiding Channel \`${channelNumber}\` has not been configured. Please have an admin add it using setup.`)
         } else {
-            channelNumber = config.channels.normal.raiding[channelNumber]
-            statusChannel = config.channels.normal.control.status
+            channelNumber = guildConfig.channels.normal.raiding[channelNumber]
+            statusChannel = guildConfig.channels.normal.control.status
         }
     } else if (origin = 1) {
-        if (config.channels.event.raiding[channelNumber] == undefined) {
+        if (guildConfig.channels.event.raiding[channelNumber] == undefined) {
             return message.channel.send(`\`${channelNumber}\` is an invalid channel number.`)
         }
-        if (config.channels.event.raiding[channelNumber].length == 0) {
+        if (guildConfig.channels.event.raiding[channelNumber].length == 0) {
             return message.channel.send(`Raiding Channel \`${channelNumber}\` has not been configured. Please have an admin add it using setup.`)
         }
         else {
             return message.channel.send("If you would like to do an event afk, please use the command `eventafk`.")
-            channelNumber = config.channels.event.raiding[channelNumber]
-            statusChannel = config.channels.event.control.status
+            channelNumber = guildConfig.channels.event.raiding[channelNumber]
+            statusChannel = guildConfig.channels.event.control.status
         }
     } else {
         return message.channel.send("You should not be here.")
@@ -104,7 +104,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 
 
     //Begin Commands/Log embed
-    var logChannel = message.guild.channels.cache.find(c => c.id == config.channels.log.raid)
+    var logChannel = message.guild.channels.cache.find(c => c.id == guildConfig.channels.log.raid)
     var controlEmbed;
     var logMessage;
     var commandMessage;
@@ -113,12 +113,12 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     if (!raidingChannel.name.includes(" <-- Join!")) {
         await raidingChannel.setName(`${raidingChannel.name}  <-- Join!`)
     }
-    await raidingChannel.updateOverwrite(config.roles.general.raider, {
+    await raidingChannel.updateOverwrite(guildConfig.roles.general.raider, {
         'CONNECT': true
     })
     await raidingChannel.setUserLimit(null)
     var runEmbed = new Discord.MessageEmbed()
-        .setFooter(`Time Remaining: ${Math.floor(config.afksettings.afktime / 60000)} Minutes ${(config.afksettings.afktime % 60000) / 1000} Seconds`)
+        .setFooter(`Time Remaining: ${Math.floor(guildConfig.afksettings.afktime / 60000)} Minutes ${(guildConfig.afksettings.afktime % 60000) / 1000} Seconds`)
     var runAnnouncement;
     var runMessage;
     switch (runType) {
@@ -127,7 +127,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             runEmbed
                 .setColor("#ff1212")
                 .setAuthor(`Cult started by ${message.member.nickname} in ${raidingChannel.name}`, message.author.avatarURL())
-                .setDescription(`To join, **connect to the raiding channel** and then react with ${cult}\nIf you have a key, react with ${key}\nIf you are bringing one of the following classes, please with react that class respectively ${warrior}${pally}${knight}\nIf you are bringing one of the following items (and plan on using it), please react with that item respectively ${mseal}${puri}\nIf you plan on rushing and have the <@&${config.roles.general.rusher}> role, you may react with ${rusher}\nIf you have the <@&${config.roles.general.nitro}> role, you may react with ${shinynitro} for early location\n(10 max)\nTo end this AFK Check, the raid leader can react with ❌`)
+                .setDescription(`To join, **connect to the raiding channel** and then react with ${cult}\nIf you have a key, react with ${key}\nIf you are bringing one of the following classes, please with react that class respectively ${warrior}${pally}${knight}\nIf you are bringing one of the following items (and plan on using it), please react with that item respectively ${mseal}${puri}\nIf you plan on rushing and have the <@&${guildConfig.roles.general.rusher}> role, you may react with ${rusher}\nIf you have the <@&${guildConfig.roles.general.nitro}> role, you may react with ${shinynitro} for early location\n(10 max)\nTo end this AFK Check, the raid leader can react with ❌`)
             runMessage = await statusChannel.send(runEmbed)
             controlEmbed = new Discord.MessageEmbed()
                 .addField("Location:", runLocation)
@@ -144,7 +144,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             runEmbed
                 .setColor("#000080")
                 .setAuthor(`Void started by ${message.member.nickname} in ${raidingChannel.name}`, message.author.avatarURL())
-                .setDescription(`To join, **connect to the raiding channel** and then react with ${entity}\nIf you have a key or a vial, react with ${key} or ${vial} respectively\nIf you are bringing one of the following classes, please react with that class respectively ${warrior}${pally}${knight}\nIf you are bringing one of the following items (and plan on using it), please react with that item respectively ${mseal}${puri}\nIf you plan on rushing and have the <@&${config.roles.general.rusher}> role, you may react with ${rusher}\nIf you have the <@&${config.roles.general.nitro}> role, you may react with the ${shinynitro} for early location\n(10 max)\nTo end this AFK Check, the raid leader can react with the ❌`)
+                .setDescription(`To join, **connect to the raiding channel** and then react with ${entity}\nIf you have a key or a vial, react with ${key} or ${vial} respectively\nIf you are bringing one of the following classes, please react with that class respectively ${warrior}${pally}${knight}\nIf you are bringing one of the following items (and plan on using it), please react with that item respectively ${mseal}${puri}\nIf you plan on rushing and have the <@&${guildConfig.roles.general.rusher}> role, you may react with ${rusher}\nIf you have the <@&${guildConfig.roles.general.nitro}> role, you may react with the ${shinynitro} for early location\n(10 max)\nTo end this AFK Check, the raid leader can react with the ❌`)
             runMessage = await statusChannel.send(runEmbed)
             controlEmbed = new Discord.MessageEmbed()
                 .addField("Location:", runLocation)
@@ -161,7 +161,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             runEmbed
                 .setColor("#000080")
                 .setAuthor(`Fullskip Void started by ${message.member.nickname} in ${raidingChannel.name}`, message.author.avatarURL())
-                .setDescription(`To join, **connect to the raiding channel** and then react with ${speedy}\nIf you have a key or a vial, react with ${key} or ${vial} respectively\nIf you are bringing one of the following classes, please react that with class respectively ${warrior}${pally}${knight}\nIf you are bringing one of the following items (and plan on using it), please react with that item respectively ${mseal}${puri}\nIf have a mystic or a brain trickster and plan on bringing it, react with the one you are bringing ${mystic}${brain}\nIf you have the <@&${config.roles.general.nitro}> role, you may react with the ${shinynitro} for early location (10 max)\nTo end this AFK Check, the raid leader can react with the ❌`)
+                .setDescription(`To join, **connect to the raiding channel** and then react with ${speedy}\nIf you have a key or a vial, react with ${key} or ${vial} respectively\nIf you are bringing one of the following classes, please react that with class respectively ${warrior}${pally}${knight}\nIf you are bringing one of the following items (and plan on using it), please react with that item respectively ${mseal}${puri}\nIf have a mystic or a brain trickster and plan on bringing it, react with the one you are bringing ${mystic}${brain}\nIf you have the <@&${guildConfig.roles.general.nitro}> role, you may react with the ${shinynitro} for early location (10 max)\nTo end this AFK Check, the raid leader can react with the ❌`)
             runMessage = await statusChannel.send(runEmbed)
             controlEmbed = new Discord.MessageEmbed()
                 .addField("Location:", runLocation)
@@ -180,7 +180,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             runEmbed
                 .setColor("#ffffff")
                 .setAuthor(`Oryx 3 started by ${message.member.nickname} in ${raidingChannel.name}`, message.author.avatarURL())
-                .setDescription(`To join, **connect to the raiding channel** and then react with ${oryx}\nIf you have a rune, please react with your respective rune. ${helmetRune}${swordRune}${shieldRune}\nIf you are bringing one of the following classes, please react that with class respectively ${warrior}${pally}${knight}\nIf you are bringing one of the following items (and plan on using it), please react with that item respectively ${mseal}${puri}\nIf you have the <@&${config.roles.general.nitro}> role, you may react with the ${shinynitro} for early location (10 max)\nTo end this AFK Check, the raid leader can react with the ❌`)
+                .setDescription(`To join, **connect to the raiding channel** and then react with ${oryx}\nIf you have a rune, please react with your respective rune. ${helmetRune}${swordRune}${shieldRune}\nIf you are bringing one of the following classes, please react that with class respectively ${warrior}${pally}${knight}\nIf you are bringing one of the following items (and plan on using it), please react with that item respectively ${mseal}${puri}\nIf you have the <@&${guildConfig.roles.general.nitro}> role, you may react with the ${shinynitro} for early location (10 max)\nTo end this AFK Check, the raid leader can react with the ❌`)
             runMessage = await statusChannel.send(runEmbed)
             controlEmbed = new Discord.MessageEmbed()
                 .addField("Location:", runLocation)
@@ -199,7 +199,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     afk[origin].commandMessageId = commandMessage.id
     fs.writeFileSync('afk.json', JSON.stringify(afk))
     //Timing Events
-    var timeleft = config.afksettings.afktime
+    var timeleft = guildConfig.afksettings.afktime
     //Edit AFK every 5 seconds
     var afkEdit = setInterval(async () => {
         timeleft -= 5000
@@ -221,7 +221,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         await runAnnouncement.delete()
         await raidingChannel.setName(raidingChannel.name.replace(' <-- Join!', ''))
         await raidingChannel.updateOverwrite(
-            config.roles.general.raider,
+            guildConfig.roles.general.raider,
             { 'CONNECT': false }
         )
         controlEmbed.setFooter(`The afk check has ended automatically.`)
@@ -234,11 +234,11 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         //Begin Moving people out
         var lounge;
         if (origin == 100) {
-            lounge = config.channels.veteran.control.lounge
+            lounge = guildConfig.channels.veteran.control.lounge
         } else if (origin == 10) {
-            lounge = config.channels.normal.control.lounge
+            lounge = guildConfig.channels.normal.control.lounge
         } else if (origin == 1) {
-            lounge = config.channels.event.control.lounge
+            lounge = guildConfig.channels.event.control.lounge
         }
         lounge = await runMessage.guild.channels.cache.find(c => c.id == lounge)
         var userIds = await raidingChannel.members.map(u => u.id)
@@ -270,10 +270,10 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         //Begin Post AFK
         //Post AFK Reactions Collector
         var filter = (r, u) => !u.bot && ((runType == 'cult') ? r.emoji.name == 'malus' : r.emoji.name == 'void') || r.emoji.name == '❌'
-        var postAFK = runMessage.createReactionCollector(filter, { time: config.afksettings.posttime })
+        var postAFK = runMessage.createReactionCollector(filter, { time: guildConfig.afksettings.posttime })
 
         //Post AFK Message
-        var postTime = config.afksettings.posttime
+        var postTime = guildConfig.afksettings.posttime
         runEmbed
             .setDescription(`The post afk check has begun.\nIf you have been moved out, please join lounge and re-react with the ${(runType == 'cult') ? cult : (runType == 'void ') ? entity : (runType == 'fullskipvoid') ? speedy : oryx} icon to get moved back in.`)
             .setFooter(`Time Remaining: ${Math.floor(postTime / 60000)} Minutes ${(postTime % 60000) / 1000} Seconds | The afk check has ended automatically.`)
@@ -318,7 +318,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             } catch (e) {
                 console.log(e)
             }
-        }, config.afksettings.posttime)
+        }, guildConfig.afksettings.posttime)
 
         postAFK.on('collect', async r => {
             let user = await r.users.cache.map(u => u.id)
@@ -370,13 +370,13 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 }
             }
         })
-    }, config.afksettings.afktime)
+    }, guildConfig.afksettings.afktime)
 
     //Begin collecting reactions
     var filterAFK = (r, u) => !u.bot && (r.emoji.id == "702140477432004618" || r.emoji.id == "702140045871808632" || r.emoji.id == "702154477569835048" || r.emoji.id == '702131716726456501' || r.emoji.id == '702140245159837717' || r.emoji.id == '702141265545920562' || r.emoji.id == '702141266057625721' || r.emoji.id == '707410220883902514' || r.emoji.id == '707410220674056223' || r.emoji.id == '707410220607078412' || r.emoji.name == "❌")
-    collectorAFK = runMessage.createReactionCollector(filterAFK, { time: config.afksettings.afktime })
+    collectorAFK = runMessage.createReactionCollector(filterAFK, { time: guildConfig.afksettings.afktime })
     var filterControl = (r, u) => !u.bot && (r.emoji.name == "❌")
-    collectorControl = commandMessage.createReactionCollector(filterControl, { time: config.afksettings.afktime })
+    collectorControl = commandMessage.createReactionCollector(filterControl, { time: guildConfig.afksettings.afktime })
     await commandMessage.react("❌")
     //End status embed
 
@@ -409,7 +409,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         if (name == "nitro" || name == "shinynitro") {
             //Send Nitro Boosters location
             try {
-                if (reactorRoles.includes(config.roles.general.nitro) && nitroCounter < config.afksettings.nitrosettings.amound && !nitroArray.includes(`<@!${reactor.id}>`)) {
+                if (reactorRoles.includes(guildConfig.roles.general.nitro) && nitroCounter < guildConfig.afksettings.nitrosettings.amound && !nitroArray.includes(`<@!${reactor.id}>`)) {
                     nitroCounter += 1
                     nitroArray.push(`<@!${reactor.id}>`)
                     await reactor.send(`The location of the run in \`${raidingChannel.name}\` has been set to:\n\`${runLocation}\``)
@@ -419,9 +419,9 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     await logMessage.edit(controlEmbed)
                     afk[origin].earlyLocationIds.push(reactor.id)
                     fs.writeFileSync('afk.json', JSON.stringify(afk))
-                } else if (reactorRoles.includes(config.roles.general.nitro) && nitroCounter >= 10) {
+                } else if (reactorRoles.includes(guildConfig.roles.general.nitro) && nitroCounter >= 10) {
                     await reactor.send("There have already been 10 people who received nitro.")
-                } else if (reactorRoles.includes(config.roles.general.nitro) && nitroArray.includes(`<@!${reactor.id}>`)) {
+                } else if (reactorRoles.includes(guildConfig.roles.general.nitro) && nitroArray.includes(`<@!${reactor.id}>`)) {
                     await reactor.send("You have already received location.")
                 }
             } catch (e) {
@@ -465,7 +465,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         } else if (name == "planewalker" && runType == "cult") {
             //Confirming rushers if necessary
             try {
-                if (reactorRoles.includes(config.roles.general.rusher)) {
+                if (reactorRoles.includes(guildConfig.roles.general.rusher)) {
                     let confirmationMessage = await reactor.send(`You have reacted with ${rusher}.\nIf you actually plan on rushing, react with ✅.\nIf you did not, or this was a mistake, react with ❌.\nRemember, fake reacting results in suspensions!`)
                     await confirmationMessage.react("✅")
                     await confirmationMessage.react("❌")
@@ -733,7 +733,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 } catch (e) { }
                 await raidingChannel.setName(raidingChannel.name.replace(' <-- Join!', ''))
                 await raidingChannel.updateOverwrite(
-                    config.roles.general.raider,
+                    guildConfig.roles.general.raider,
                     { 'CONNECT': false }
                 )
                 await raidingChannel.setUserLimit(99)
@@ -741,11 +741,11 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 //Begin Moving people out
                 var lounge;
                 if (origin == 100) {
-                    lounge = config.channels.veteran.control.lounge
+                    lounge = guildConfig.channels.veteran.control.lounge
                 } else if (origin == 10) {
-                    lounge = config.channels.normal.control.lounge
+                    lounge = guildConfig.channels.normal.control.lounge
                 } else if (origin == 1) {
-                    lounge = config.channels.event.control.lounge
+                    lounge = guildConfig.channels.event.control.lounge
                 }
                 lounge = await runMessage.guild.channels.cache.find(c => c.id == lounge)
                 var userIds = await raidingChannel.members.map(u => u.id)
@@ -777,10 +777,10 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 //Begin Post AFK
                 //Post AFK Reactions Collector
                 var filter = (r, u) => !u.bot && ((runType == 'cult') ? r.emoji.name == 'malus' : r.emoji.name == 'void') || r.emoji.name == '❌'
-                var postAFK = runMessage.createReactionCollector(filter, { time: config.afksettings.posttime })
+                var postAFK = runMessage.createReactionCollector(filter, { time: guildConfig.afksettings.posttime })
 
                 //Post AFK Message
-                var postTime = config.afksettings.posttime
+                var postTime = guildConfig.afksettings.posttime
                 runEmbed
                     .setDescription(`The post afk check has begun.\nIf you have been moved out, please join lounge and re-react with the ${(runType == 'cult') ? cult : (runType == "void") ? entity : (runType == "fullskipvoid") ? speedy : oryx} icon to get moved back in.`)
                     .setFooter(`Time Remaining: ${Math.floor(postTime / 60000)} Minutes ${(postTime % 60000) / 1000} Seconds | The afk check has been ended by ${reactor.nickname}`)
@@ -825,7 +825,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     } catch (e) {
                         console.log(e)
                     }
-                }, config.afksettings.posttime)
+                }, guildConfig.afksettings.posttime)
 
                 postAFK.on('collect', async r => {
                     let user = await r.users.cache.map(u => u.id)
@@ -929,7 +929,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             await runMessage.edit(runEmbed)
             await raidingChannel.setName(raidingChannel.name.replace(' <-- Join!', ''))
             await raidingChannel.updateOverwrite(
-                config.roles.general.raider,
+                guildConfig.roles.general.raider,
                 { 'CONNECT': false }
             )
             await raidingChannel.setUserLimit(99)

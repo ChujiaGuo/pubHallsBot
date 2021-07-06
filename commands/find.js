@@ -3,7 +3,7 @@ const { checkExpelled } = require('../helpers/sqlHelper')
 const sqlHelper = require('../helpers/sqlHelper')
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
-    var config = JSON.parse(fs.readFileSync('config.json'))[message.guild.id]
+    var config = JSON.parse(fs.readFileSync(`./configs/${message.guild.id}.json`));
     try {
         if (args.length < 1) {
             return message.channel.send(`You are missing arguments. Expected 1, received ${args.length}.`)

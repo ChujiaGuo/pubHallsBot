@@ -1,6 +1,6 @@
 const fs = require('fs')
 const Discord = require('discord.js')
-const config = require('../config.json')
+const config = JSON.parse(fs.readFileSync("./configs/globalConfig.json"));
 
 module.exports = {
     /**

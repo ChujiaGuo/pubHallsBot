@@ -2,8 +2,8 @@ const fs = require('fs')
 const permcheck = require('./permcheck.js')
 
 exports.run = async (client, message, args, Discord) => {
-    let config = JSON.parse(fs.readFileSync('config.json'))
-    let guildConfig = config[message.guild.id]
+    let config = JSON.parse(fs.readFileSync(`./configs/guildConfig.json`));
+    let guildConfig = JSON.parse(fs.readFileSync(`./configs/${message.guild.id}.json`));
 
     if(args.length < 1) return message.channel.send("Expected at least 1 argument. Received 0.")
 

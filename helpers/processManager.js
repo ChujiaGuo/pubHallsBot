@@ -1,7 +1,7 @@
 const fs = require('fs')
 const Discord = require('discord.js')
 const sqlHelper = require('./sqlHelper.js')
-const config = JSON.parse(fs.readFileSync('config.json'))
+const config = JSON.parse(fs.readFileSync(`./configs/globalConfig.json`));
 
 module.exports = {
     sendStatusMessage: async (client, guildId) => {
@@ -9,7 +9,8 @@ module.exports = {
         let guild = await client.guilds.cache.find(g => g.id == guildId)
         console.log(guildId)
         if (guild) {
-            let channel = await guild.channels.cache.find(c => c.id == config[guildId].channels.command.status)
+            let guildConfig = JSON.parse(fs.readFileSync(`./configs/${guild.id}.json`));
+            let channel = await guild.channels.cache.find(c => c.id == guildConfig.channels.command.status)
             if (channel) {
                 let statusEmbed = await module.exports.createStatusEmbed(client)
                 let statusMessage = await channel.send(statusEmbed)

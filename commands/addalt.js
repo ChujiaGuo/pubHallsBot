@@ -1,7 +1,8 @@
 const fs = require('fs')
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
-    var config = JSON.parse(fs.readFileSync('config.json'))[message.guild.id]
+    let config = JSON.parse(fs.readFileSync(`./configs/globalConfig.json`));
+    let guildConfig = JSON.parse(fs.readFileSync(`./configs/${message.guild.id}.json`));
     try {
         if (args.length < 2) {
             return message.channel.send(`You are missing arguments. Expected 2, received ${args.length}.`)
@@ -46,7 +47,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             return message.channel.send(`For the following reason, I do not have permission to change this user's nickname: \`\`\`${e}\`\`\``)
         }
 
-        var logChannel = await message.guild.channels.cache.find(c => c.id == config.channels.log.mod)
+        var logChannel = await message.guild.channels.cache.find(c => c.id == guildConfig.channels.log.mod)
         var logEmbed = new Discord.MessageEmbed()
             .setColor("#41f230")
             .setTitle("Alt Added")

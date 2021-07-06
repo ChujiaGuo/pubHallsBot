@@ -5,7 +5,7 @@ const sqlHelper = require("../helpers/sqlHelper.js")
 
 exports.run = async (client, message, Discord, reaction, user) => {
     if (!message.guild) return
-    let config = JSON.parse(fs.readFileSync('config.json'))[message.guild.id]
+    let config = JSON.parse(fs.readFileSync(`./configs/${message.guild.id}.json`));
     return new Promise(async (resolve, reject) => {
         //Retriving related JSONs
         var afk = JSON.parse(fs.readFileSync('afk.json'))

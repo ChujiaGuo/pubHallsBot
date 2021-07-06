@@ -1,7 +1,7 @@
 const fs = require('fs')
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
-    var config = JSON.parse(fs.readFileSync('config.json'))[message.guild.id]
+    var config = JSON.parse(fs.readFileSync(`./configs/${message.guild.id}.json`));
     try {
         if (args.length < 2) {
             return message.channel.send(`You are missing arguments. Expected 2, received ${args.length}.`)
@@ -61,7 +61,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         }
     }
     catch (e) {
-        let owner = await client.users.fetch(config.dev)
+        let owner = await client.users.fetch(client.dev)
         var errorEmbed = new Discord.MessageEmbed()
             .setColor("#ff1212")
             .setTitle("Error")

@@ -2,7 +2,7 @@ const fs = require('fs')
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
     var commands = JSON.parse(fs.readFileSync("commands.json"))
-    const config = JSON.parse(fs.readFileSync("config.json"))[message.guild.id]
+    const config = JSON.parse(fs.readFileSync(`./configs/${message.guild.id}.json`));
 
     if (args.length < 2) {
         return message.channel.send(`You are missing arguments. Expected 2, received ${args.length}.`)

@@ -3,7 +3,7 @@ const fs = require('fs')
 exports.run = async (client, message, args, Discord, sudo = false) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const config = JSON.parse(fs.readFileSync('config.json'))[message.guild.id]
+            const config = JSON.parse(fs.readFileSync(`./configs/${message.guild.id}.json`));
             let allMembers = message.guild.members.cache.filter(u => u.nickname && (u.roles.cache.has(config.roles.general.raider) || u.roles.cache.has(config.roles.general.eventraider))).map(m => m)
             var nameCounter = {}
             var duplicatenames = []

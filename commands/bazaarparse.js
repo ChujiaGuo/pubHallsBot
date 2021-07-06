@@ -6,7 +6,7 @@ const worker = createWorker()
 
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
-    var config = JSON.parse(fs.readFileSync('config.json'))[message.guild.id]
+    var config = JSON.parse(fs.readFileSync(`./configs/${message.guild.id}.json`));
     try {
         if (args.length < 1) {
             return message.channel.send(`You are missing arguments. Expected 1, received ${args.length}.`)
@@ -136,7 +136,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     }
     catch (e) {
         console.log(e)
-        let owner = await client.users.fetch(config.dev)
+        let owner = await client.users.fetch(client.dev)
         var errorEmbed = new Discord.MessageEmbed()
             .setColor("#ff1212")
             .setTitle("Error")

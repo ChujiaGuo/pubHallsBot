@@ -2,7 +2,7 @@ const fs = require('fs')
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
     try {
-        var config = JSON.parse(fs.readFileSync('config.json'))[message.guild.id]
+        var config = JSON.parse(fs.readFileSync(`./configs/${message.guild.id}.json`));
         var user = args.shift()
         var ign = args.shift()
         if (isNaN(user)) {
