@@ -1,20 +1,30 @@
-const fs = require("fs");
-const dist = require("js-levenshtein")
+// Importing Discord API
 const Discord = require("discord.js");
-const { Socket } = require("dgram");
 const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'] });
+
+// Importing External Libraries
+const fs = require("fs");
+
+// Importing Custom Helpers and Utilities
+var { sqlHelper, confirmationHelper, processManager, errorHelper } = require("./helpers");
+
+// Importing Configs and Local Settings
+/**
+ * Eventually move these into a SQLite DB
+ */
 var config = JSON.parse(fs.readFileSync("config.json"))
 var mainConfig = { dev: config.dev }
 var commands = JSON.parse(fs.readFileSync("commands.json"))
-var sqlHelper = require("./helpers/sqlHelper.js");
-var processManager = require("./helpers/processManager.js")
-var confirmationHelper = require("./helpers/confirmationHelper.js")
-var activeDMs = []
-var errorHelper = require('./helpers/errorHelper.js')
 
+// Global Variables
+var activeDMs = []
+
+// Connecting to Database
 sqlHelper.startConnection()
 
+// Startup actions
 client.once("ready", async () => {
+    // Resets process variables
     let processes = JSON.parse(fs.readFileSync('processes.json'))
     processes.botStatus = "#16c60c"
     processes.pendingRestart = false
@@ -22,22 +32,8 @@ client.once("ready", async () => {
     processes.additionalInfo = ""
     fs.writeFileSync('processes.json', JSON.stringify(processes))
     await processManager.updateStatusMessage(client)
-    /* var time = Date.now()
-    var reset = 86400000 - (time % 86400000)
-    setTimeout(async () => {
-        let owner = await client.users.fetch(config.dev)
-        await owner.send("Daily Restart.")
-        process.exit(1)
-    }, reset) */
-    client.user.setPresence({ activity: { type: "WATCHING", name: "something do a thing" } })
-    let commandFile = require(`./commands/updatesuspensions.js`);
-    let message = undefined,
-        args = undefined
-    try {
-        commandFile.run(client, message, args, Discord);
-    } catch (e) {
-        console.log(e)
-    }
+
+    // Resets afks
     let currentRuns = JSON.parse(fs.readFileSync('afk.json')).currentRuns || {}
     afk = {
         100: {
@@ -67,7 +63,8 @@ client.once("ready", async () => {
         "currentRuns": currentRuns
     }
     fs.writeFileSync('afk.json', JSON.stringify(afk))
-    console.log("Bot Up.")
+
+    // Leave Requests
     // setInterval(async () => {
     //     let leaverequests = JSON.parse(fs.readFileSync('acceptedleaverequests.json'))
     //     for (var i in leaverequests) {
@@ -86,31 +83,21 @@ client.once("ready", async () => {
     //     }
     //     fs.writeFileSync('acceptedleaverequests.json', JSON.stringify(leaverequests))
     // }, 60000)
-})
-// client.on("guildMemberAdd", async member => {
-//     //People Leaving and Rejoin Guild to Bypass Suspensions
-//     let guildId = member.guild.id
-//     let id = member.id
-//     const suspensions = JSON.parse(fs.readFileSync('suspensions.json'))
-//     var temp, vet, perma
-//     if (suspensions.normal.id) {
-//         await member.roles.add(config.roles.general.tempsuspended)
-//         temp == true;
-//     }
-//     if (suspensions.veteran.id && temp != true) {
-//         await member.roles.add(config.roles.general.vetsuspended)
-//     }
-//     if (suspensions.perma.id) {
-//         await member.roles.add(config.roles.general.permasuspended)
-//     }
 
-// })
+    // Fun stuff
+    client.user.setPresence({ activity: { type: "WATCHING", name: "something do a thing" } })
+    console.log("Bot Up.")
+})
+
+// Move reaction processing into separate process
 client.on("messageReactionAdd", async (r, u) => {
     if (u.bot) return;
     if (r.partial) await r.fetch().catch(e => console.log(e))
     let messageReactionAdd = require('./events/messageReactionAdd.js')
     await messageReactionAdd.run(client, r.message, Discord, r, u).catch(e => e.toString().includes('Error') ? errorHelper.report(r.message, client, e) : e)
 })
+
+// Command/DM processing
 client.on("message", async message => {
     commands = JSON.parse(fs.readFileSync("commands.json"))
     processes = JSON.parse(fs.readFileSync('processes.json'))
@@ -144,7 +131,7 @@ client.on("message", async message => {
                 return
             }
         }
-    }else if(message.channel.type == "dm"){
+    } else if (message.channel.type == "dm") {
         return
     }
 
