@@ -3,7 +3,8 @@ module.exports = {
     confirmationHelper: require("./confirmationHelper.js"),
     afkHelper: require("./afkHelper.js"),
     ocrHelper: require("./ocrHelper.js"),
-    realemyeHelper: require("./realmeyeHelper.js"),
+    errorHelper: require("./errorHelper.js"),
+    realmeyeHelper: require("./realmeyeHelper.js"),
     processManager: require("./processManager.js"),
     utils: require("./utilities.js")
 }
