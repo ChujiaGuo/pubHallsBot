@@ -10,11 +10,11 @@ module.exports = {
         //Find Origin
         var origin = 0;
         //Check origin channel
-        if (message.channel.id == config.channels.veteran.control.command) {
+        if (message.channel.id == guildConfig.channels.veteran.control.command) {
             origin = 100
-        } else if (message.channel.id == config.channels.normal.control.command) {
+        } else if (message.channel.id == guildConfig.channels.normal.control.command) {
             origin = 10
-        } else if (message.channel.id == config.channels.event.control.command) {
+        } else if (message.channel.id == guildConfig.channels.event.control.command) {
             origin = 1
         } else {
             return message.channel.send("You cannot use this command here.")
@@ -29,40 +29,40 @@ module.exports = {
             return message.member.voice.channelID;
         } else {
             if (origin == 100) {
-                if (config.channels.veteran.raiding[channelNumber] == undefined) {
+                if (guildConfig.channels.veteran.raiding[channelNumber] == undefined) {
                     reject()
                     return message.channel.send(`\`${channelNumber}\` is an invalid channel number.`)
                 }
-                if (config.channels.veteran.raiding[channelNumber].length == 0) {
+                if (guildConfig.channels.veteran.raiding[channelNumber].length == 0) {
                     reject()
                     return message.channel.send(`Raiding Channel \`${channelNumber}\` has not been configured. Please have an admin add it using setup.`)
                 } else {
-                    return config.channels.veteran.raiding[channelNumber]
+                    return guildConfig.channels.veteran.raiding[channelNumber]
                 }
             } else if (origin == 10) {
-                if (config.channels.normal.raiding[channelNumber] == undefined) {
+                if (guildConfig.channels.normal.raiding[channelNumber] == undefined) {
                     reject()
                     return message.channel.send(`\`${channelNumber}\` is an invalid channel number.`)
                 }
-                if (config.channels.normal.raiding[channelNumber].length == 0) {
+                if (guildConfig.channels.normal.raiding[channelNumber].length == 0) {
                     reject()
                     return message.channel.send(`Raiding Channel \`${channelNumber}\` has not been configured. Please have an admin add it using setup.`)
                 } else {
-                    return config.channels.normal.raiding[channelNumber]
+                    return guildConfig.channels.normal.raiding[channelNumber]
                 }
             } else if (origin = 1) {
-                if (config.channels.event.raiding[channelNumber] == undefined) {
+                if (guildConfig.channels.event.raiding[channelNumber] == undefined) {
                     reject()
                     return message.channel.send(`\`${channelNumber}\` is an invalid channel number.`)
                 }
-                if (config.channels.event.raiding[channelNumber].length == 0) {
+                if (guildConfig.channels.event.raiding[channelNumber].length == 0) {
                     reject()
                     return message.channel.send(`Raiding Channel \`${channelNumber}\` has not been configured. Please have an admin add it using setup.`)
                 }
                 else {
                     reject()
                     return message.channel.send("Events aren't supported yet. Sorry.")
-                    return config.channels.event.raiding[channelNumber]
+                    return guildConfig.channels.event.raiding[channelNumber]
                 }
             } else {
                 reject()
