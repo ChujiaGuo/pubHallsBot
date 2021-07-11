@@ -1,12 +1,12 @@
 const fs = require('fs')
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
-    const config = JSON.parse(fs.readFileSync('config.json'))[message.guild.id]
+    const config = JSON.parse(fs.readFileSync(`./configs/${message.guild.id}.json`));
     if (args.length == 0) {
         return message.channel.send(`Please use a valid role or it's appropriate abbriviation. Valid role identifiers are:\n${Object.keys(config.roles.staff).join(", ") + Object.keys(config.roles.general).join(", ")}`)
     }
     if (args[0].toLowerCase() == "roles") {
-        let rolesArray = message.guild.roles.cache.map(r => r).sort((a,b) => b.position-a.position)
+        let rolesArray = message.guild.roles.cache.map(r => r).sort((a, b) => b.position - a.position)
         let returnEmbed = new Discord.MessageEmbed()
             .setAuthor(`All roles in this gulid:`)
             .setDescription(rolesArray.join(", "))

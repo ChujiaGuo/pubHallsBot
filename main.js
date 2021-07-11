@@ -1,20 +1,32 @@
-const fs = require("fs");
-const dist = require("js-levenshtein")
+// Importing Discord API
 const Discord = require("discord.js");
-const { Socket } = require("dgram");
 const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'] });
-var config = JSON.parse(fs.readFileSync("config.json"))
-var mainConfig = { dev: config.dev }
-var commands = JSON.parse(fs.readFileSync("commands.json"))
-var sqlHelper = require("./helpers/sqlHelper.js");
-var processManager = require("./helpers/processManager.js")
-var confirmationHelper = require("./helpers/confirmationHelper.js")
-var activeDMs = []
-var errorHelper = require('./helpers/errorHelper.js')
 
+// Importing External Libraries
+const fs = require("fs");
+
+// Importing Custom Helpers and Utilities
+var { sqlHelper, confirmationHelper, processManager, errorHelper } = require("./helpers");
+
+// Importing Configs and Local Settings
+/**
+ * Eventually move these into a SQLite DB
+ */
+var config = JSON.parse(fs.readFileSync("./configs/globalConfig.json"))
+var commands = JSON.parse(fs.readFileSync("commands.json"))
+
+// Global Variables
+var activeDMs = []
+
+// Connecting to Database
 sqlHelper.startConnection()
 
+// Startup actions
 client.once("ready", async () => {
+    // Apply Client Variables
+    client.dev = config.dev
+
+    // Resets process variables
     let processes = JSON.parse(fs.readFileSync('processes.json'))
     processes.botStatus = "#16c60c"
     processes.pendingRestart = false
@@ -22,22 +34,8 @@ client.once("ready", async () => {
     processes.additionalInfo = ""
     fs.writeFileSync('processes.json', JSON.stringify(processes))
     await processManager.updateStatusMessage(client)
-    /* var time = Date.now()
-    var reset = 86400000 - (time % 86400000)
-    setTimeout(async () => {
-        let owner = await client.users.fetch(config.dev)
-        await owner.send("Daily Restart.")
-        process.exit(1)
-    }, reset) */
-    client.user.setPresence({ activity: { type: "WATCHING", name: "something do a thing" } })
-    let commandFile = require(`./commands/updatesuspensions.js`);
-    let message = undefined,
-        args = undefined
-    try {
-        commandFile.run(client, message, args, Discord);
-    } catch (e) {
-        console.log(e)
-    }
+
+    // Resets afks
     let currentRuns = JSON.parse(fs.readFileSync('afk.json')).currentRuns || {}
     afk = {
         100: {
@@ -67,7 +65,8 @@ client.once("ready", async () => {
         "currentRuns": currentRuns
     }
     fs.writeFileSync('afk.json', JSON.stringify(afk))
-    console.log("Bot Up.")
+
+    // Leave Requests
     // setInterval(async () => {
     //     let leaverequests = JSON.parse(fs.readFileSync('acceptedleaverequests.json'))
     //     for (var i in leaverequests) {
@@ -86,32 +85,25 @@ client.once("ready", async () => {
     //     }
     //     fs.writeFileSync('acceptedleaverequests.json', JSON.stringify(leaverequests))
     // }, 60000)
-})
-// client.on("guildMemberAdd", async member => {
-//     //People Leaving and Rejoin Guild to Bypass Suspensions
-//     let guildId = member.guild.id
-//     let id = member.id
-//     const suspensions = JSON.parse(fs.readFileSync('suspensions.json'))
-//     var temp, vet, perma
-//     if (suspensions.normal.id) {
-//         await member.roles.add(config.roles.general.tempsuspended)
-//         temp == true;
-//     }
-//     if (suspensions.veteran.id && temp != true) {
-//         await member.roles.add(config.roles.general.vetsuspended)
-//     }
-//     if (suspensions.perma.id) {
-//         await member.roles.add(config.roles.general.permasuspended)
-//     }
 
-// })
+    // Fun stuff
+    client.user.setPresence({ activity: { type: "WATCHING", name: "something do a thing" } })
+    console.log("Bot Up.")
+})
+
+// Move reaction processing into separate process
 client.on("messageReactionAdd", async (r, u) => {
     if (u.bot) return;
     if (r.partial) await r.fetch().catch(e => console.log(e))
     let messageReactionAdd = require('./events/messageReactionAdd.js')
     await messageReactionAdd.run(client, r.message, Discord, r, u).catch(e => e.toString().includes('Error') ? errorHelper.report(r.message, client, e) : e)
 })
+
+// Command/DM processing
 client.on("message", async message => {
+    // Reading guild configs
+    let guildConfig = message.guild ? JSON.parse(fs.readFileSync(`./configs/${message.guild.id}.json`)) : null
+
     commands = JSON.parse(fs.readFileSync("commands.json"))
     processes = JSON.parse(fs.readFileSync('processes.json'))
     if (message.author.bot) return;
@@ -144,14 +136,12 @@ client.on("message", async message => {
                 return
             }
         }
-    }else if(message.channel.type == "dm"){
+    } else if (message.channel.type == "dm") {
         return
     }
 
     //Counting Channel
     if (message.channel.id == "825524687995666462") {
-        let config = JSON.parse(fs.readFileSync("config.json"))[message.guild.id]
-
         let member = message.member
 
         let current = message.content
@@ -161,57 +151,56 @@ client.on("message", async message => {
         if (parseInt(current) != parseInt(previous) + 1) {
             await message.delete()
 
-            await member.roles.add(config.roles.general.muted)
+            await member.roles.add(guildConfig.roles.general.muted)
             await sqlHelper.mute(client, member, "Can't Count", Date.now() + parseInt("86400000"))
 
             let logEmbed = new Discord.MessageEmbed()
                 .setColor("#30ffea")
                 .setAuthor("User Muted")
-                .setDescription(`Duration: ${await toTimeString(config.automute.duration)}\nReason: Can't Count`)
+                .setDescription(`Duration: ${await toTimeString(guildConfig.automute.duration)}\nReason: Can't Count`)
                 .addField(`User's Server Name: ${member.nickname}`, `${member} (Username: ${member.user.username})`)
 
             await member.send(logEmbed)
             logEmbed.description = logEmbed.description + `\nPrevious Message Content:\n${previous}\nOriginal Message Content:\n${current}`
-            let logChannel = message.guild.channels.cache.find(c => c.id == config.channels.log.mod)
+            let logChannel = message.guild.channels.cache.find(c => c.id == guildConfig.channels.log.mod)
             await logChannel.send(logEmbed)
         }
     }
 
     //Filters
     //Bot
-    config = JSON.parse(fs.readFileSync("config.json"))[message.guild.id]
-    if (message.content.includes(`<@!${client.user.id}> prefix`)) return message.channel.send(config.prefix)
+    if (message.content.includes(`<@!${client.user.id}> prefix`)) return message.channel.send(guildConfig.prefix)
 
 
 
     //Check for role pings and auto-mute
-    if (message.mentions.roles.size > 0 && config.automute.enabled.toLowerCase() == "true") {
+    if (message.mentions.roles.size > 0 && guildConfig.automute.enabled.toLowerCase() == "true") {
         let member = message.member
         let permcheck = require('./commands/permcheck.js')
-        let auth = await permcheck.run(client, member, config.automute.minrole)
+        let auth = await permcheck.run(client, member, guildConfig.automute.minrole)
         if (!auth) {
-            await member.roles.add(config.roles.general.muted)
-            await sqlHelper.mute(client, member, "Pinging Roles", Date.now() + parseInt(config.automute.duration))
+            await member.roles.add(guildConfig.roles.general.muted)
+            await sqlHelper.mute(client, member, "Pinging Roles", Date.now() + parseInt(guildConfig.automute.duration))
 
             let logEmbed = new Discord.MessageEmbed()
                 .setColor("#30ffea")
                 .setAuthor("User Muted")
-                .setDescription(`Duration: ${await toTimeString(config.automute.duration)}\nReason: Pinging Roles`)
+                .setDescription(`Duration: ${await toTimeString(guildConfig.automute.duration)}\nReason: Pinging Roles`)
                 .addField(`User's Server Name: ${member.nickname}`, `${member} (Username: ${member.user.username})`)
 
             await member.send(logEmbed)
             logEmbed.description = logEmbed.description + `\nOriginal Message [Here](${message.url})\nOriginal Message Content:\n${message.content}`
-            let logChannel = message.guild.channels.cache.find(c => c.id == config.channels.log.mod)
+            let logChannel = message.guild.channels.cache.find(c => c.id == guildConfig.channels.log.mod)
             await logChannel.send(logEmbed)
 
         }
     }
 
     //Not a command
-    if (message.content.indexOf(config.prefix) != 0) return;
+    if (message.content.indexOf(guildConfig.prefix) != 0) return;
 
     //Define Command
-    let args = message.content.slice(config.prefix.length).trim().split(' ');
+    let args = message.content.slice(guildConfig.prefix.length).trim().split(' ');
     let cmd = args.shift().toLowerCase();
 
     //Deal with unwanted commands
@@ -222,10 +211,10 @@ client.on("message", async message => {
     //Check channel
     //Not a command channel
     let restrictedCommands = ['addalt', 'afk', 'bazaarparse', 'changename', 'clean', 'kick', 'location', 'lock', 'manualverify', 'manualvetverifiy', 'parsecharacters', 'parsemembers', 'resetafk', 'restart', 'setup', 'suspend', 'unlock', 'unsuspend', 'vetsuspend', 'vetunsuspend']
-    let commandArray = Object.values(config.channels.command)
-    commandArray.push(config.channels.veteran.control.command)
-    commandArray.push(config.channels.normal.control.command)
-    commandArray.push(config.channels.event.control.command)
+    let commandArray = Object.values(guildConfig.channels.command)
+    commandArray.push(guildConfig.channels.veteran.control.command)
+    commandArray.push(guildConfig.channels.normal.control.command)
+    commandArray.push(guildConfig.channels.event.control.command)
     if (!commandArray.includes(message.channel.id) && restrictedCommands.includes(cmd)) return message.channel.send("Commands have to be used in a designated command channel.");
     if (message.channel.type != 'text') return message.channel.send("Sorry, but all commands have to be used in a server.")
 
@@ -305,7 +294,7 @@ client.on("message", async message => {
             message.channel.send(errorEmbed)
         } else {
             console.log(e)
-            var owner = await client.users.fetch(mainConfig.dev)
+            var owner = await client.users.fetch(client.dev)
             errorEmbed.setDescription(`There was a problem processing \`$${cmd}\` for the following reason: \n\nAn internal error occured. The developer has been notified of this and will fix it as soon as possible. The bot will DM you once finished.`)
             await message.channel.send(errorEmbed)
             errorEmbed.setDescription(`Error Processing: \`${cmd}\`\nError Message:\`\`\`${e.toString()}\`\`\`\From User: <@${message.author.id}>\nIn guild: \`${message.guild.name}\``)
@@ -315,7 +304,7 @@ client.on("message", async message => {
 })
 
 client.on("guildMemberUpdate", async (oldMember, newMember) => {
-    var fullConfig = JSON.parse(fs.readFileSync("config.json"))
+    var fullConfig = JSON.parse(fs.readFileSync("./configs/globalConfig.json"))
 
     //Get difference between two members
     let flags = { guildid: newMember.guild.id, memberid: newMember.id }
@@ -473,7 +462,7 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
 
 process.stdin.resume()
 process.on("uncaughtException", async (err) => {
-    var owner = await client.users.fetch(mainConfig.dev)
+    var owner = await client.users.fetch(globalConfig.dev)
     await owner.send(`An uncaught error occured: \`\`\`${err.stack.substring(0, 1800)}\`\`\``)
     console.log(err)
 

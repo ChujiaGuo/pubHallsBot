@@ -36,7 +36,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             if (!raidingChannel) {
                 moveEmbed.setDescription("Channel does not exist.")
                 return moveMessage.edit(moveEmbed)
-            }else{
+            } else {
                 moveIn(await guild.members.resolve(message.author.id))
             }
         } else {

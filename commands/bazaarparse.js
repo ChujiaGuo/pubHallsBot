@@ -6,7 +6,7 @@ const worker = createWorker()
 
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
-    var config = JSON.parse(fs.readFileSync('config.json'))[message.guild.id]
+    var config = JSON.parse(fs.readFileSync(`./configs/${message.guild.id}.json`));
     try {
         if (args.length < 1) {
             return message.channel.send(`You are missing arguments. Expected 1, received ${args.length}.`)
@@ -48,18 +48,18 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         userIdArray = [... new Set(userIdArray)]
         var usernameArray = []
         for (var i in userIdArray) {
-            try{
+            try {
                 var user = await message.guild.members.fetch(userIdArray[i])
                 if (/^[a-z0-9|]+$/i.test(user.nickname)) {
                     usernameArray.push(user.nickname.toLowerCase())
                 } else {
                     usernameArray.push(user.nickname.toLowerCase().substring(1))
                 }
-            }catch(e){
+            } catch (e) {
                 await message.channel.send(`There was an error fetch the member object for <@!${userIdArray[i]}>`)
             }
-            
-            
+
+
         }
 
         //Begin Image Parsing
@@ -136,7 +136,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     }
     catch (e) {
         console.log(e)
-        let owner = await client.users.fetch(config.dev)
+        let owner = await client.users.fetch(client.dev)
         var errorEmbed = new Discord.MessageEmbed()
             .setColor("#ff1212")
             .setTitle("Error")

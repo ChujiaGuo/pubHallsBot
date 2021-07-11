@@ -1,7 +1,8 @@
 const fs = require('fs')
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
-    var config = JSON.parse(fs.readFileSync('config.json'))[message.guild.id]
+    let config = JSON.parse(fs.readFileSync(`./configs/globalConfig.json`));
+    let guildConfig = JSON.parse(fs.readFileSync(`./configs/${message.guild.id}.json`));
     try {
         if (args.length < 2) {
             return message.channel.send(`You are missing arguments. Expected 2, received ${args.length}.`)
@@ -20,10 +21,10 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
 
         var altName = args.shift()
         var checkUsers = await message.guild.members.cache.find(m => m.nickname && m.nickname.toLowerCase().replace(/[^a-z|]/gi, '').split('|').includes(altName.toLowerCase()))
-        if(checkUsers){
+        if (checkUsers) {
             return message.channel.send(`There is already a user with the name: \`${altName}\` <@!${checkUsers.id}>`)
         }
-        
+
         var imageURL = args.shift();
         if (imageURL == undefined) {
             if (message.attachments.size == 1) {
@@ -36,7 +37,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
         if (oldName == undefined) {
             oldName = user.user.username
         }
-        if (oldName.toLowerCase().replace(/[^a-z|]/gi,"").split("|").includes(altName.toLowerCase())) {
+        if (oldName.toLowerCase().replace(/[^a-z|]/gi, "").split("|").includes(altName.toLowerCase())) {
             return message.channel.send("This account has already been added to this user.")
         }
         var newName = `${oldName} | ${altName.charAt(0).toUpperCase() + altName.substring(1)}`
@@ -46,7 +47,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             return message.channel.send(`For the following reason, I do not have permission to change this user's nickname: \`\`\`${e}\`\`\``)
         }
 
-        var logChannel = await message.guild.channels.cache.find(c => c.id == config.channels.log.mod)
+        var logChannel = await message.guild.channels.cache.find(c => c.id == guildConfig.channels.log.mod)
         var logEmbed = new Discord.MessageEmbed()
             .setColor("#41f230")
             .setTitle("Alt Added")

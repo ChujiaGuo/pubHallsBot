@@ -3,7 +3,7 @@ const { checkExpelled } = require('../helpers/sqlHelper')
 const sqlHelper = require('../helpers/sqlHelper')
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
-    var config = JSON.parse(fs.readFileSync('config.json'))[message.guild.id]
+    var config = JSON.parse(fs.readFileSync(`./configs/${message.guild.id}.json`));
     try {
         if (args.length < 1) {
             return message.channel.send(`You are missing arguments. Expected 1, received ${args.length}.`)
@@ -66,8 +66,8 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                 //Expulsions
                 let expulsionsString = "";
                 //Nicknames
-                for(var n of member.displayName.toLowerCase().replace(/[^a-z|]/gi, "").split('|').concat(member.id)){
-                    if(await checkExpelled(n)) expulsionsString+=`${n}: Expelled\n`
+                for (var n of member.displayName.toLowerCase().replace(/[^a-z|]/gi, "").split('|').concat(member.id)) {
+                    if (await checkExpelled(n)) expulsionsString += `${n}: Expelled\n`
                 }
 
                 returnEmbed
@@ -81,7 +81,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
                     .setColor("#30ffea")
                 await message.channel.send(returnEmbed)
             } else {
-                if(await sqlHelper.checkExpelled(args[i])){expelled.push(args[i])}
+                if (await sqlHelper.checkExpelled(args[i])) { expelled.push(args[i]) }
                 couldNotFind.push(`[${args[i]}](https://www.realmeye.com/player/${args[i]})`)
             }
         }
@@ -108,10 +108,10 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             }
 
         }
-        if(expelled.length > 0){
+        if (expelled.length > 0) {
             let expelledEmbed = new Discord.MessageEmbed()
-            .setDescription(`The following users are expelled:\n${expelled.join(", ")}`)
-            .setColor("#ff1212")
+                .setDescription(`The following users are expelled:\n${expelled.join(", ")}`)
+                .setColor("#ff1212")
             await message.channel.send(expelledEmbed)
         }
     }

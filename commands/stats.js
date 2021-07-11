@@ -43,17 +43,17 @@ exports.run = async (client, message, args, Discord) => {
     }
     if (invalidUsers.length > 0) {
         let invalidUsersEmbed = new Discord.MessageEmbed()
-        .setColor("#ff1212")
-        .setAuthor("The following users could not be found:")
-        .setDescription(invalidUsers.join(", "))
+            .setColor("#ff1212")
+            .setAuthor("The following users could not be found:")
+            .setDescription(invalidUsers.join(", "))
         message.channel.send(invalidUsersEmbed)
     }
     if (invalidDatabaseUsers.length > 0) {
         let invalidUsersEmbed = new Discord.MessageEmbed()
-        .setColor("#ff1212")
-        .setAuthor("The following users are not in the database:")
-        .setDescription(invalidDatabaseUsers.join(", "))
+            .setColor("#ff1212")
+            .setAuthor("The following users are not in the database:")
+            .setDescription(invalidDatabaseUsers.join(", "))
         message.channel.send(invalidUsersEmbed)
     }
-    
+
 }

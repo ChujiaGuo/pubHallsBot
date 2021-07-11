@@ -64,7 +64,7 @@ module.exports = {
     },
     nextProxy: async () => {
         if (proxyList.length < 10) await module.exports.reloadProxies()
-        console.log(`Proxies remaining: ${proxyList.length-1}`)
+        console.log(`Proxies remaining: ${proxyList.length - 1}`)
         return proxyList.shift()
     },
     requestSite: async (client, url, type = 'parse') => {

@@ -2,7 +2,7 @@ const fs = require('fs')
 
 exports.run = async (client, message, args, Discord, sudo = false) => {
     const afk = JSON.parse(fs.readFileSync('afk.json'))
-    const config = JSON.parse(fs.readFileSync('config.json'))[message.guild.id]
+    const config = JSON.parse(fs.readFileSync(`./configs/${message.guild.id}.json`));
     let infoChannel = await message.guild.channels.cache.find(c => c.id == config.channels.log.raid)
     let infoMessage
     //Vets

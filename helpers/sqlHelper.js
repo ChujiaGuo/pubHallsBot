@@ -2,7 +2,7 @@ const mysql = require("mysql");
 const fs = require("fs");
 const { resolve } = require("path");
 const e = require("cors");
-const config = JSON.parse(fs.readFileSync("config.json"));
+const config = JSON.parse(fs.readFileSync("./configs/globalConfig.json"));
 const errorHelper = require("./errorHelper.js");
 
 var db;
@@ -260,6 +260,7 @@ module.exports = {
         });
     },
     nextInQueue: async (queueType, guildid) => {
+        let guildConfig = JSON.parse(fs.readFileSync(`./configs/${guildid}.json`));
         let connection = await module.exports.testConnection().catch((e) => e);
         if (connection != "Connected") {
             return new Promise(async (resolve, reject) => {
@@ -273,7 +274,7 @@ module.exports = {
             });
             try {
                 db.query(
-                    `SELECT userid FROM afk_queue WHERE queuetype = '${queueType}' AND admittime < ${Date.now()} ORDER BY jointime LIMIT ${config[guildid].afksettings.queueamount
+                    `SELECT userid FROM afk_queue WHERE queuetype = '${queueType}' AND admittime < ${Date.now()} ORDER BY jointime LIMIT ${guildConfig.afksettings.queueamount
                     }`,
                     (err, result) => {
                         if (err) throw err;

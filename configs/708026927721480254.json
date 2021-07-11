@@ -1,0 +1,161 @@
+{
+    "prefix": "~",
+    "afk": false,
+    "roles": {
+        "staff": {
+            "eo": "723460355715498074",
+            "heo": "808733514103128124",
+            "arl": "749632683319099583",
+            "rl": "708026927751102471",
+            "vrl": "737116367542681671",
+            "security": "708026927776268304",
+            "officer": "755173463899111544",
+            "hrl": "708026927776268303",
+            "mod": "708026927809691710",
+            "admin": "708026927809691710"
+        },
+        "general": {
+            "hallssuspended": "709151294526586920",
+            "permasuspended": "708026927721480255",
+            "tempsuspended": "708026927721480256",
+            "vetsuspended": "740550994273894412",
+            "eventraider": "",
+            "raider": "708026927721480258",
+            "vetraider": "740549294750433340",
+            "rusher": "725103259307606057",
+            "nitro": "708472765879156786",
+            "muted": "708026927751102465",
+            "affiliate": "804035384849465374"
+        }
+    },
+    "channels": {
+        "command": {
+            "general": "708026930300977299",
+            "mod": "708026928724181025",
+            "admin": "791824768453967892",
+            "bugreport": "",
+            "status": "",
+            "statusGuild": "",
+            "queuechannel": ""
+        },
+        "veteran": {
+            "control": {
+                "command": "782268124451569684",
+                "status": "744715491574022307",
+                "lounge": "745016438678618224"
+            },
+            "raiding": {
+                "1": "744783593917906964",
+                "2": "744783930279985234",
+                "3": "767955516391161906",
+                "4": "767955544769560606",
+                "5": ""
+            },
+            "clone": "",
+            "channellog": ""
+        },
+        "normal": {
+            "control": {
+                "command": "708026932188676173",
+                "status": "708026932188676171",
+                "lounge": "710111519916163092"
+            },
+            "raiding": {
+                "1": "708026933119811634",
+                "2": "708026933119811636",
+                "3": "708026933119811638",
+                "4": "708026933119811641",
+                "5": "708026933119811643",
+                "6": "790944362065690671",
+                "7": "",
+                "8": "",
+                "9": "",
+                "10": ""
+            },
+            "clone": "",
+            "channellog": ""
+        },
+        "event": {
+            "control": {
+                "command": "710111083196579851",
+                "status": "710124617121005699",
+                "lounge": "708026932607844470"
+            },
+            "raiding": {
+                "1": "710111354769506334",
+                "2": "710111379587334176",
+                "3": "",
+                "4": "",
+                "5": ""
+            },
+            "clone": "",
+            "channellog": ""
+        },
+        "log": {
+            "history": "708026928472522826",
+            "mod": "708026928724181026",
+            "raid": "708026932188676175",
+            "suspend": "708026932607844467",
+            "leaverequest": "",
+            "statusupdatesgeneral": "",
+            "statusupdatesmod": "",
+            "modmail": "729520839715848244"
+        },
+        "verification": {
+            "veri-pending": ""
+        }
+    },
+    "verificationsettings": {
+        "mingraves": 100,
+        "minstars": 30,
+        "minalivefame": 1000,
+        "minaccountage": 1,
+        "mindiscordage": 1
+    },
+    "afksettings": {
+        "nitrosettings": {
+            "enabled": "false",
+            "nitrostyle": "delay",
+            "whattodo": "spot",
+            "amount": "1",
+            "nitrodelay": "180000"
+        },
+        "afktime": "",
+        "posttime": "",
+        "afkdelay": "",
+        "maxinraiding": "",
+        "reactionamount": "",
+        "keyamount": "",
+        "ticketamount": "",
+        "queue": "",
+        "queueamount": "",
+        "queueMessage": ""
+    },
+    "parsesettings": {
+        "displayNames": "false",
+        "displayImage": "false",
+        "displayVet": "false",
+        "bannedItemsServer": "804275769622659102",
+        "nameThreshold": ".7"
+    },
+    "requirements": {
+        "level": "20",
+        "weapon": "12",
+        "ability": "4",
+        "armor": "12",
+        "ring": "4",
+        "hp": "false",
+        "mp": "false",
+        "atk": "true",
+        "def": "true",
+        "spd": "true",
+        "vit": "false",
+        "wis": "false",
+        "dex": "true"
+    },
+    "automute": {
+        "enabled": "true",
+        "duration": "86400000",
+        "minrole": ""
+    }
+}

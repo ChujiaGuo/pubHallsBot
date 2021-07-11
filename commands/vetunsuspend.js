@@ -34,7 +34,7 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
             returnEmbed.addField("Error:", e.toString())
         }
     }
-    if(user == undefined){
+    if (user == undefined) {
         return message.channel.send("Invalid User")
     }
 
@@ -61,16 +61,16 @@ exports.run = async (client, message, args, Discord, sudo = false) => {
     await message.channel.send(`<@${user.id}> has been un-vetsuspended.`)
     await suspendChannel.send(`<@${user.id}> has been un-vetsuspended.`)
     //Edit suspension message
-    try{
+    try {
         var suspensionMessage = await suspendChannel.messages.fetch(suspensions.veteran[user.id].suspendlog)
         let suspendEmbed = suspensionMessage.embeds[0]
         suspendEmbed
-        .setColor("#41f230")
-        .setDescription("This user has been unsuspended")
-        .addField("Reason for unsuspension:",reason, false)
-        .setFooter("Unsuspended")
+            .setColor("#41f230")
+            .setDescription("This user has been unsuspended")
+            .addField("Reason for unsuspension:", reason, false)
+            .setFooter("Unsuspended")
         await suspensionMessage.edit(suspendEmbed)
-    }catch(e){
+    } catch (e) {
         console.log(e)
     }
     //Remove from log

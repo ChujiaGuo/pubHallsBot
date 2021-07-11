@@ -1,10 +1,11 @@
 const Discord = require('discord.js');
-let config = require('../config.json');
+const fs = require('fs')
+let config = JSON.parse(fs.readFileSync(`./configs/globalConfig.json`));
 
 
 module.exports = {
     isRaidChannel: function isRaidChannel(message, args, reject) {
-        config = config[message.guild.id]
+        let guildConfig = JSON.parse(fs.readFileSync(`./configs/${message.guild.id}.json`));
         //Get Channel
         //Find Origin
         var origin = 0;

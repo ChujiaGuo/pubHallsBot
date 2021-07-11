@@ -5,7 +5,7 @@ const sqlHelper = require("../helpers/sqlHelper.js")
 
 exports.run = async (client, message, Discord, reaction, user) => {
     if (!message.guild) return
-    let config = JSON.parse(fs.readFileSync('config.json'))[message.guild.id]
+    let config = JSON.parse(fs.readFileSync(`./configs/${message.guild.id}.json`));
     return new Promise(async (resolve, reject) => {
         //Retriving related JSONs
         var afk = JSON.parse(fs.readFileSync('afk.json'))
@@ -179,7 +179,7 @@ exports.run = async (client, message, Discord, reaction, user) => {
                 await reaction.message.react("🔑")
             }
         } else if (reaction.message.id == queueMessage) {
-            if(config.afksettings.queue == 'false'){return user.send("The queue system is currently disabled. Please try again later.")}
+            if (config.afksettings.queue == 'false') { return user.send("The queue system is currently disabled. Please try again later.") }
             let queuetypes = {
                 "702140045997375558": "void",
                 "721756760448434278": "fullskipvoid",
