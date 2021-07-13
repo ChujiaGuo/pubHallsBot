@@ -513,7 +513,7 @@ module.exports = {
             db.on("error", async (err) => {
                 console.log("error: ", err);
                 if (err.code == "PROTOCOL_CONNECTION_LOST") {
-                    createConnection();
+                    module.exports.startConnection();
                 } else {
                     console.log(err);
                 }
