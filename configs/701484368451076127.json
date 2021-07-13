@@ -1,8 +1,9 @@
 {
-    "prefix": "%",
+    "prefix": "-",
     "afk": false,
     "roles": {
         "staff": {
+            "lol": "",
             "eo": "701484368467853369",
             "heo": "701484368467853371",
             "arl": "701484368480174090",
@@ -147,6 +148,7 @@
     },
     "automute": {
         "enabled": "true",
-        "duration": "86400000"
+        "duration": "86400000",
+        "minrole": "0"
     }
 }

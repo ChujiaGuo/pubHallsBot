@@ -1,8 +1,9 @@
 {
-    "prefix": "~",
+    "prefix": "-",
     "afk": false,
     "roles": {
         "staff": {
+            "lol": "708026927751102468",
             "eo": "723460355715498074",
             "heo": "808733514103128124",
             "arl": "749632683319099583",
@@ -96,9 +97,9 @@
             "mod": "708026928724181026",
             "raid": "708026932188676175",
             "suspend": "708026932607844467",
-            "leaverequest": "",
-            "statusupdatesgeneral": "",
-            "statusupdatesmod": "",
+            "leaverequest": "708026928724181021",
+            "statusupdatesgeneral": "708026928724181021",
+            "statusupdatesmod": "708026928724181021",
             "modmail": "729520839715848244"
         },
         "verification": {
@@ -154,8 +155,8 @@
         "dex": "true"
     },
     "automute": {
-        "enabled": "true",
+        "enabled": "false",
         "duration": "86400000",
-        "minrole": ""
+        "minrole": "708026927751102468"
     }
 }
