@@ -518,7 +518,7 @@ module.exports = {
                     console.log(err);
                 }
             });
-
+            console.log("connected to db")
             resolve(db);
         });
 

@@ -320,6 +320,7 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
     //Get other server and member
     let servers = ["343704644712923138", "708026927721480254"]
     let otherServer = client.guilds.cache.find(g => g.id == servers.filter(i => i != newMember.guild.id)[0])
+    let otherServerConfig = JSON.parse(fs.readFileSync(`./configs/${otherServer.id}.json`))
     if (!otherServer) return console.log(`Other guild not found. Original Guild: ${newMember.guild.name} ${newMember.guild.id}`);
     let otherMember = await otherServer.members.fetch(newMember.user).catch(e => e)
     if (!otherMember) return console.log(`Other Member not found. Original Member: ${newMember.id}`)
