@@ -15,7 +15,7 @@ module.exports = {
         let errorEmbed = new Discord.MessageEmbed()
             .setColor("#ff1212")
             .setAuthor(`Error Processing: ${message.content.split(' ')[0].substring(1)}`)
-            .setDescription(`Original [Message](${message.url})\nError Message: \`\`\`${error.toString()}\`\`\``)
+            .setDescription(`Original [Message](${message.url})${message.guild?`\nGuild: ${message.guild.name} \`${message.guild.id}\`\nChannel: ${message.channel.name} \`${message.channel.id}\``:""}\nUser: ${message.author}\nError Message: \`\`\`${error.toString()}\`\`\``)
             .setTimestamp()
         let stackEmbed = new Discord.MessageEmbed()
             .setColor("#ff1212")
