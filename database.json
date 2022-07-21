@@ -1,0 +1,122 @@
+{
+    "tables": {
+        "servers": {
+            "id": "id TEXT PRIMARY KEY",
+            "prefix": "prefix TEXT"
+        },
+        "roles": {
+            "serverid": "serverid TEXT",
+            "roleid": "roleid TEXT",
+            "rolename": "rolename TEXT",
+            "roletype": "roletype TEXT",
+            "previousrole": "previousrole TEXT",
+            "nextrole": "nextrole TEXT",
+            "extra": "FOREIGN KEY(serverid) REFERENCES servers(id)"
+        },
+        "staffroles": {
+            "serverid": "serverid TEXT",
+            "admin": "admin TEXT",
+            "moderator": "moderator TEXT",
+            "headraidleader": "headraidleader TEXT",
+            "officer": "officer TEXT",
+            "veteranraidleader": "veteranraidleader TEXT",
+            "veteraneventorganizer": "veteraneventorganizer TEXT",
+            "security": "security TEXT",
+            "raidleader": "raidleader TEXT",
+            "eventorganizer": "eventorganizer TEXT",
+            "almostraidleader": "almostraidleader TEXT",
+            "veteranaffiliate": "veteranaffiliate TEXT",
+            "affiliate": "affiliate TEXT",
+            "extra": "FOREIGN KEY(serverid) REFERENCES servers(id)"
+        },
+        "publicroles": {
+            "serverid": "serverid TEXT",
+            "permasuspended": "permasuspended TEXT",
+            "tempsuspended": "tempsuspended TEXT",
+            "vetsuspended": "vetsuspended TEXT",
+            "muted": "muted TEXT",
+            "keyspecial": "keyspecial TEXT",
+            "keyhigh": "keyhigh TEXT",
+            "keymid": "keymid TEXT",
+            "keylow": "keylow TEXT",
+            "veteranraider": "veteranraider TEXT",
+            "raider": "raider TEXT",
+            "eventraider": "eventraider TEXT",
+            "rusher": "rusher TEXT",
+            "nitro": "nitro TEXT",
+            "extra": "FOREIGN KEY(serverid) REFERENCES servers(id)"
+        },
+        "enabledcommands": {
+            "serverid": "serverid TEXT",
+            "command": "command TEXT",
+            "enabled": "enabled TEXT",
+            "extra": "FOREIGN KEY(serverid) REFERENCES servers(id)"
+        },
+        "commandpermissions": {
+            "serverid": "serverid TEXT",
+            "command": "command TEXT",
+            "role": "role TEXT",
+            "effective": "effective TEXT",
+            "extra": "FOREIGN KEY(serverid) REFERENCES servers(id)"
+        },
+        "modchannels": {
+            "serverid": "serverid TEXT",
+            "modmail": "modmail TEXT",
+            "commands": "commands TEXT",
+            "logs": "logs TEXT",
+            "extra": "FOREIGN KEY(serverid) REFERENCES servers(id)"
+        },
+        "raidingchannels": {
+            "serverid": "serverid TEXT",
+            "categoryid": "category TEXT",
+            "raidannouncements": "raidannouncements TEXT",
+            "raidcommands": "raidcommands TEXT",
+            "raidlog": "raidlog TEXT",
+            "channellog": "channellog TEXT",
+            "template": "template TEXT",
+            "type": "type TEXT",
+            "backupone": "backupone TEXT",
+            "backuptwo": "backuptwo TEXT",
+            "backupthree": "backupthree TEXT",
+            "extra": "FOREIGN KEY(serverid) REFERENCES servers(id)"
+        },
+        "otherchannels": {
+            "serverid": "serverid TEXT",
+            "pointslog": "pointslog TEXT",
+            "dmlog": "dmlog TEXT",
+            "extra": "FOREIGN KEY(serverid) REFERENCES servers(id)"
+        },
+        "runtemplates": {
+            "serverid": "serverid TEXT",
+            "owner": "owner TEXT",
+            "name": "name TEXT",
+            "prefix": "prefix TEXT",
+            "specialreacts": "specialreacts TEXT",
+            "normalreacts": "normalreacts TEXT",
+            "description": "description TEXT",
+            "color": "color TEXT",
+            "max": "max INT",
+            "emoji": "emoji TEXT",
+            "price": "price INT",
+            "requirements": "requirements TEXT",
+            "advanced": "advanced TEXT",
+            "announcementchannel": "announcementchannel TEXT",
+            "extra": "FOREIGN KEY(serverid) REFERENCES servers(id)"
+        },
+        "errors": {
+            "time": "time TEXT",
+            "serverid": "serverid TEXT",
+            "messageid": "messageid TEXT",
+            "error": "error TEXT",
+            "extra": "FOREIGN KEY(serverid) REFERENCES servers(id)"
+        },
+        "activeprocesses": {
+            "time": "time TEXT",
+            "serverid": "serverid TEXT",
+            "messageid": "messageid TEXT",
+            "userid": "userid TEXT",
+            "process": "process TEXT",
+            "active": "active TEXT"
+        }
+    }
+}

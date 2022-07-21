@@ -1,0 +1,13 @@
+{
+    "auth": "NzE3MTM1OTM2MDg0NzcwODY2.G8DylG.am6VEpyeZqf7XYxx4TDjfp2HSgP2dUb7d-GSvg",
+    "dev": "298989767369031684",
+    "basePrefix": "--",
+    "dbinfo": {
+        "host": "a.vibot.tech",
+        "port": "3306",
+        "user": "bluebot",
+        "password": "osafQA*5Di1HTG0p8%Up$Iz!pN4vi95YQLb03ur^Ozcv@KK0N6",
+        "database": "testinghalls"
+    },
+    "errorLog": "errorLog.txt"
+}
